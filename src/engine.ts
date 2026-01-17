@@ -1,52 +1,85 @@
 import { Display } from 'rot-js'
-import { createWorld, addEntity, addComponent, type World, type EntityId } from 'bitecs'
-import { PositionComponent } from './ecs/components'
+import { createWorld, addEntity, type World, type EntityId, addComponents } from 'bitecs'
+import { ActionComponent, PositionComponent, RenderableComponent } from './ecs/components'
+import { type RenderSystem, RenderEntitySystem, RenderMapSystem } from './ecs/systems/render-systems'
+import { type UpdateSystem, UpdateActionSystem } from './ecs/systems/update-systems'
+import { Map } from './map'
 
 export class Engine {
   public static readonly WIDTH = 80
   public static readonly HEIGHT = 50
+  public static readonly MAP_WIDTH = 80;
+  public static readonly MAP_HEIGHT = 50;
 
   display: Display
   world: World
   player: EntityId
+  map: Map
+  renderSystems: RenderSystem[]
+  updateSystems: UpdateSystem[]
 
   constructor() {
-    this.display = new Display({ width: Engine.WIDTH, height: Engine.HEIGHT })
+    this.display = new Display({ width: Engine.WIDTH, height: Engine.HEIGHT, forceSquareRatio: true })
     this.world = createWorld()
+    this.map = new Map(
+      Engine.MAP_WIDTH,
+      Engine.MAP_HEIGHT,
+    )
+    this.renderSystems = [new RenderMapSystem(this.map), new RenderEntitySystem()]
+    this.updateSystems = [new UpdateActionSystem(this.map)]
 
     this.player = addEntity(this.world)
-    addComponent(this.world, this.player, PositionComponent)
+    addComponents(this.world, this.player, ActionComponent, PositionComponent, RenderableComponent)
+    ActionComponent.action[this.player] = { processed: true, xOffset: 0, yOffset: 0 }
     PositionComponent.position[this.player] = { x: Engine.WIDTH / 2, y: Engine.HEIGHT / 2 }
+    RenderableComponent.renderable[this.player] = { char: '@', fg: "#fff", bg: "#000" }
 
     window.addEventListener('keydown', (event) => {
-      this.update(event)
+      this.keyDown(event)
     })
   }
 
   render() {
     this.display.clear();
-    const position = PositionComponent.position[this.player]
-    this.display.draw(position.x, position.y, '@', '#fff', '#000')
+
+    this.renderSystems.forEach(rs => {
+      rs.render(this.display, this.world)
+    });
   }
 
-  update(event: KeyboardEvent) {
+  update() {
+    this.updateSystems.forEach(us => {
+      us.update(this.world)
+    })
+
+    this.render()
+  }
+
+  keyDown(event: KeyboardEvent) {
     event.preventDefault()
     switch (event.key) {
       case 'ArrowUp':
-        PositionComponent.position[this.player].y -= 1
+        this.setPlayerAction(0, -1)
         break
       case 'ArrowDown':
-        PositionComponent.position[this.player].y += 1
+        this.setPlayerAction(0, 1)
         break
       case 'ArrowLeft':
-        PositionComponent.position[this.player].x -= 1
+        this.setPlayerAction(-1, 0)
         break
       case 'ArrowRight':
-        PositionComponent.position[this.player].x += 1
+        this.setPlayerAction(1, 0)
         break
     }
+  }
 
-    this.render()
+  setPlayerAction(xOffset: number, yOffset: number) {
+    const action = ActionComponent.action[this.player]
+    action.xOffset = xOffset
+    action.yOffset = yOffset
+    action.processed = false
+
+    this.update()
   }
 
 
