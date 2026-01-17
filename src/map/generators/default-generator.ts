@@ -33,7 +33,7 @@ export class DefaultGenerator implements Generator {
 
             this.addRoom(x, y, width, height)
         }
-        
+
         this.copyRoomsToMap()
     }
 
@@ -67,7 +67,7 @@ export class DefaultGenerator implements Generator {
     copyRoomsToMap() {
         this.rooms.forEach(a => {
             a.includedTiles.forEach(t => {
-                if(t.x > a.x && t.y > a.y && t.x < a.x + a.width && t.y < a.y + a.height){
+                if(t.x > a.x && t.y > a.y && t.x < a.x + a.width - 1 && t.y < a.y + a.height - 1){
                     this.map.tiles[t.x][t.y] = { ...FLOOR_TILE }
                 }
             })
