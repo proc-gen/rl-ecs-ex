@@ -5,6 +5,7 @@ import { type RenderSystem, RenderEntitySystem, RenderMapSystem } from './ecs/sy
 import { type UpdateSystem, UpdateActionSystem } from './ecs/systems/update-systems'
 import { Map } from './map'
 import { TestGenerator, type Generator } from './map/generators'
+import { DefaultGenerator } from './map/generators/default-generator'
 
 export class Engine {
   public static readonly WIDTH = 80
@@ -30,7 +31,7 @@ export class Engine {
     this.renderSystems = [new RenderMapSystem(this.map), new RenderEntitySystem()]
     this.updateSystems = [new UpdateActionSystem(this.map)]
 
-    this.generator = new TestGenerator(this.map)
+    this.generator = new DefaultGenerator(this.map, 20, 5, 12)
     this.generator.generate()
     const startPosition = this.generator.playerStartPosition()
 
