@@ -4,8 +4,7 @@ import { ActionComponent, PositionComponent, RenderableComponent } from './ecs/c
 import { type RenderSystem, RenderEntitySystem, RenderMapSystem } from './ecs/systems/render-systems'
 import { type UpdateSystem, UpdateActionSystem } from './ecs/systems/update-systems'
 import { Map } from './map'
-import { TestGenerator, type Generator } from './map/generators'
-import { DefaultGenerator } from './map/generators/default-generator'
+import { DefaultGenerator, type Generator } from './map/generators'
 
 export class Engine {
   public static readonly WIDTH = 80
