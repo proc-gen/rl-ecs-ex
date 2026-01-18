@@ -1,5 +1,5 @@
 import { Display } from 'rot-js'
-import { createWorld, type World, type EntityId } from 'bitecs'
+import { createWorld, type World, type EntityId, query, hasComponent } from 'bitecs'
 import { ActionComponent, PositionComponent } from './ecs/components'
 import { type RenderSystem, RenderEntitySystem, RenderMapSystem } from './ecs/systems/render-systems'
 import { type UpdateSystem, UpdateActionSystem } from './ecs/systems/update-systems'
@@ -17,6 +17,7 @@ export class Engine {
   display: Display
   world: World
   player: EntityId
+  actors: EntityId[]
   playerFOV: Vector2[]
   map: Map
   generator: Generator
@@ -31,12 +32,22 @@ export class Engine {
       Engine.MAP_HEIGHT,
     )
     this.playerFOV = []
-    
+    this.actors = []
+
     this.generator = new DefaultGenerator(this.world, this.map, 10, 5, 12, 10)
     this.generator.generate()
     const startPosition = this.generator.playerStartPosition()
 
-    this.player = createPlayer(this.world, startPosition) 
+    this.player = createPlayer(this.world, startPosition)
+    
+    for (const eid of query(this.world, [PositionComponent])) {
+      const position = PositionComponent.position[eid]
+      this.map.addEntityAtLocation(eid, {x: position.x, y: position.y})
+
+      if(hasComponent(this.world, eid, ActionComponent)){
+        this.actors.push(eid)
+      }
+    }
 
     this.renderSystems = [new RenderMapSystem(this.map, this.playerFOV), new RenderEntitySystem(this.playerFOV)]
     this.updateSystems = [new UpdateActionSystem(this.map, PositionComponent.position[this.player], this.playerFOV)]
