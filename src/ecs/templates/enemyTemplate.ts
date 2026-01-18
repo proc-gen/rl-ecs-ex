@@ -35,14 +35,14 @@ const enemyStatLookup = (name: string) => {
     if(name === "Orc"){
         return {
             char: 'o',
-            fg: "#3f7f3f",
+            fg: "#7f3f3f",
             bg: "#000000",
         }
     }
     else if(name === "Troll"){
         return {
             char: 't',
-            fg: "#007f00",
+            fg: "#7f0000",
             bg: "#000000",
         }
     }
