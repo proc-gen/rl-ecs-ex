@@ -1,6 +1,6 @@
-import { hasComponent, query, type World } from "bitecs";
+import { hasComponent, query, type EntityId, type World } from "bitecs";
 import { type UpdateSystem } from "./";
-import { ActionComponent, type Action, PositionComponent, PlayerComponent, type Position } from "../../components";
+import { ActionComponent, type Action, PositionComponent, PlayerComponent, type Position, BlockerComponent, InfoComponent } from "../../components";
 import { Map } from "../../../map";
 import type { Vector2 } from "../../../types";
 import { FOV } from "rot-js";
@@ -21,16 +21,36 @@ export class UpdateActionSystem implements UpdateSystem {
             const action = ActionComponent.action[eid]
 
             if (!action.processed) {
-                if (this.map.isWalkable(position.x + action.xOffset, position.y + action.yOffset)) {
-                    position.x += action.xOffset
-                    position.y += action.yOffset
+                const newPosition = {x: position.x + action.xOffset, y: position.y + action.yOffset}
+                if (this.map.isWalkable(newPosition.x, newPosition.y)) {
+                    const entities = this.map.getEntitiesAtLocation(newPosition)
 
-                    if(hasComponent(world, eid, PlayerComponent)){
-                        this.processPlayerFOV(position)
+                    if(entities.length === 0 || entities.find(a => hasComponent(world, a, BlockerComponent)) === undefined)
+                    {
+                        this.handleMove(world, eid, position, newPosition)     
+                    }
+                    else if(entities.length > 0){
+                        const blocker = entities.find(a => hasComponent(world, a, BlockerComponent))
+                        if(blocker !== undefined){
+                            const infoActor = InfoComponent.info[eid]
+                            const infoBlocker = InfoComponent.info[blocker]
+
+                            console.log(`${infoActor.name} kicks ${infoBlocker.name} in the shin. It was ineffective.`)
+                        }
                     }
                 }
                 this.resetAction(action)
             }
+        }
+    }
+
+    handleMove(world: World, eid: EntityId, position: Position, newPosition: Vector2){
+        this.map.moveEntity(eid, position, newPosition)
+        position.x = newPosition.x
+        position.y = newPosition.y
+
+        if(hasComponent(world, eid, PlayerComponent)){
+            this.processPlayerFOV(position)
         }
     }
 
