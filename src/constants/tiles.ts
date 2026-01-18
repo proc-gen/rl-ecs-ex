@@ -1,4 +1,4 @@
-import { type Tile } from "./tile";
+import { type Tile } from "../map";
 
 export const FLOOR_TILE: Tile = {
   walkable: true,

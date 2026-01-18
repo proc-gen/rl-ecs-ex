@@ -4,6 +4,7 @@ import { ActionComponent, PositionComponent, RenderableComponent } from './ecs/c
 import { type RenderSystem, RenderEntitySystem, RenderMapSystem } from './ecs/systems/render-systems'
 import { type UpdateSystem, UpdateActionSystem } from './ecs/systems/update-systems'
 import { Map } from './map'
+import { DefaultGenerator, type Generator } from './map/generators'
 
 export class Engine {
   public static readonly WIDTH = 80
@@ -15,6 +16,7 @@ export class Engine {
   world: World
   player: EntityId
   map: Map
+  generator: Generator
   renderSystems: RenderSystem[]
   updateSystems: UpdateSystem[]
 
@@ -28,10 +30,14 @@ export class Engine {
     this.renderSystems = [new RenderMapSystem(this.map), new RenderEntitySystem()]
     this.updateSystems = [new UpdateActionSystem(this.map)]
 
+    this.generator = new DefaultGenerator(this.map, 10, 5, 12)
+    this.generator.generate()
+    const startPosition = this.generator.playerStartPosition()
+
     this.player = addEntity(this.world)
     addComponents(this.world, this.player, ActionComponent, PositionComponent, RenderableComponent)
     ActionComponent.action[this.player] = { processed: true, xOffset: 0, yOffset: 0 }
-    PositionComponent.position[this.player] = { x: Engine.WIDTH / 2, y: Engine.HEIGHT / 2 }
+    PositionComponent.position[this.player] = { x: startPosition.x, y: startPosition.y }
     RenderableComponent.renderable[this.player] = { char: '@', fg: "#fff", bg: "#000" }
 
     window.addEventListener('keydown', (event) => {
