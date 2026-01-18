@@ -2,8 +2,9 @@ import { RNG } from "rot-js"
 
 import { FLOOR_TILE } from "../../constants/tiles"
 import type { Map } from "../map"
-import { Room } from "../room"
+import { Room } from "../containers/room"
 import { clearMap, type Generator } from "./generator"
+import type { Vector2 } from "../../types"
 
 export class DefaultGenerator implements Generator {
     map: Map
@@ -74,12 +75,8 @@ export class DefaultGenerator implements Generator {
         })
     }
     
-    playerStartPosition(): {x: number, y: number} {
+    playerStartPosition(): Vector2 {
         const firstRoom = this.rooms[0]
-        return {
-            x: Math.round(firstRoom.x + firstRoom.width / 2), 
-            y: Math.round(firstRoom.y + firstRoom.height / 2)
-        }
+        return firstRoom.center()
     }
-
 }

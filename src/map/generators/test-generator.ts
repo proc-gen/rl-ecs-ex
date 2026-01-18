@@ -1,4 +1,5 @@
 import { WALL_TILE, FLOOR_TILE } from "../../constants/tiles"
+import type { Vector2 } from "../../types"
 import type { Map } from "../map"
 import { type Generator } from "./generator"
 
@@ -26,7 +27,7 @@ export class TestGenerator implements Generator {
         }
     }
     
-    playerStartPosition(): {x: number, y: number} {
+    playerStartPosition(): Vector2 {
         return {
             x: Math.round(this.map.width / 2), 
             y: Math.round(this.map.height / 2)

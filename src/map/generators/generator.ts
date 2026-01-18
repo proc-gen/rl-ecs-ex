@@ -1,9 +1,10 @@
 import { WALL_TILE } from "../../constants/tiles"
+import type { Vector2 } from "../../types"
 import { Map } from "../map"
 
 export interface Generator {
     generate(): void
-    playerStartPosition(): {x: number, y: number}
+    playerStartPosition(): Vector2
 }
 
 export const clearMap = (map: Map) => {
