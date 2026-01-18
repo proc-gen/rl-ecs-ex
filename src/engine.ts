@@ -30,7 +30,7 @@ export class Engine {
     this.renderSystems = [new RenderMapSystem(this.map), new RenderEntitySystem()]
     this.updateSystems = [new UpdateActionSystem(this.map)]
 
-    this.generator = new DefaultGenerator(this.map, 50, 5, 12)
+    this.generator = new DefaultGenerator(this.map, 10, 5, 12)
     this.generator.generate()
     const startPosition = this.generator.playerStartPosition()
 

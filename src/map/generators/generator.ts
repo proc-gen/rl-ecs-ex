@@ -1,5 +1,6 @@
 import { WALL_TILE } from "../../constants/tiles"
 import type { Vector2 } from "../../types"
+import { Sector } from "../containers"
 import { Map } from "../map"
 
 export interface Generator {
@@ -17,3 +18,38 @@ export const clearMap = (map: Map) => {
         map.tiles[x] = col
     }
 }
+
+export const tunnel = (start: Vector2, end: Vector2): Sector => {
+    const sector = new Sector(Math.floor((start.x + end.x) / 2), Math.floor((start.y + end.y) / 2))
+
+    let curPos = start
+    const horizontalDirection = Math.sign(end.x - start.x)
+    const verticalDirection = Math.sign(end.y - start.y)
+
+    let digHorizontal = true
+    if(Math.abs(end.y - start.y) > Math.abs(end.x - start.x)){
+        digHorizontal = false
+    }
+
+    while(curPos.x != end.x || curPos.y != end.y){
+        if(digHorizontal && curPos.x === end.x){
+            digHorizontal = false
+        }
+        else if(!digHorizontal && curPos.y === end.y){
+            digHorizontal = true
+        }
+
+        if(digHorizontal)
+        {
+            curPos.x += horizontalDirection
+        }
+        else{
+            curPos.y += verticalDirection
+        }
+
+        sector.includedTiles.push({...curPos})
+    }
+
+    return sector
+}
+

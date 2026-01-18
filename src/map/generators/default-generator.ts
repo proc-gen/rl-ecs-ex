@@ -2,13 +2,14 @@ import { RNG } from "rot-js"
 
 import { FLOOR_TILE } from "../../constants/tiles"
 import type { Map } from "../map"
-import { Room } from "../containers/room"
-import { clearMap, type Generator } from "./generator"
+import { Room, type Sector } from "../containers"
+import { clearMap, tunnel, type Generator } from "./generator"
 import type { Vector2 } from "../../types"
 
 export class DefaultGenerator implements Generator {
     map: Map
     rooms: Room[]
+    tunnels: Sector[]
 
     minRoomSize: number
     maxRoomSize: number
@@ -17,7 +18,8 @@ export class DefaultGenerator implements Generator {
     constructor(map: Map, maxRooms: number, minRoomSize: number, maxRoomSize: number) {
         this.map = map
         this.rooms = []
-
+        this.tunnels = []
+        
         this.maxRooms = maxRooms
         this.minRoomSize = minRoomSize
         this.maxRoomSize = maxRoomSize
@@ -25,6 +27,15 @@ export class DefaultGenerator implements Generator {
 
     generate(): void {
         clearMap(this.map)
+        
+        this.createRooms()
+        this.connectRooms()
+
+        this.copyRoomsToMap()
+        this.copyTunnelsToMap()
+    }
+
+    createRooms(){
         for(let i = 0; i < this.maxRooms; i++){
             const width = this.getRandomNumber(this.minRoomSize, this.maxRoomSize)
             const height = this.getRandomNumber(this.minRoomSize, this.maxRoomSize)
@@ -34,8 +45,12 @@ export class DefaultGenerator implements Generator {
 
             this.addRoom(x, y, width, height)
         }
+    }
 
-        this.copyRoomsToMap()
+    connectRooms(){
+        for(let i = 0; i < this.rooms.length - 1; i++){
+            this.tunnels.push(tunnel(this.rooms[i].center(), this.rooms[i+1].center()))
+        }
     }
 
     getRandomNumber(min: number, max: number){
@@ -71,6 +86,14 @@ export class DefaultGenerator implements Generator {
                 if(t.x > a.x && t.y > a.y && t.x < a.x + a.width - 1 && t.y < a.y + a.height - 1){
                     this.map.tiles[t.x][t.y] = { ...FLOOR_TILE }
                 }
+            })
+        })
+    }
+
+    copyTunnelsToMap(){
+        this.tunnels.forEach(a => {
+            a.includedTiles.forEach(t => {
+                this.map.tiles[t.x][t.y] = { ...FLOOR_TILE }
             })
         })
     }
