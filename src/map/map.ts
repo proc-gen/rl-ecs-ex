@@ -24,4 +24,12 @@ export class Map {
     isWalkable(x: number, y: number) {
         return this.isInBounds(x, y) && this.tiles[x][y].walkable
     }
+
+    lightPassesThrough(x: number, y: number){
+        if(this.isInBounds(x, y)){
+            return this.tiles[x][y].transparent
+        }
+
+        return false
+    }
 }

@@ -5,4 +5,5 @@ export type Tile = {
 
     walkable: boolean
     transparent: boolean
+    seen: boolean
 }

@@ -1,10 +1,11 @@
 import { Display } from 'rot-js'
 import { createWorld, addEntity, type World, type EntityId, addComponents } from 'bitecs'
-import { ActionComponent, PositionComponent, RenderableComponent } from './ecs/components'
+import { ActionComponent, PlayerComponent, PositionComponent, RenderableComponent } from './ecs/components'
 import { type RenderSystem, RenderEntitySystem, RenderMapSystem } from './ecs/systems/render-systems'
 import { type UpdateSystem, UpdateActionSystem } from './ecs/systems/update-systems'
 import { Map } from './map'
 import { DefaultGenerator, type Generator } from './map/generators'
+import type { Vector2 } from './types'
 
 export class Engine {
   public static readonly WIDTH = 80
@@ -15,6 +16,7 @@ export class Engine {
   display: Display
   world: World
   player: EntityId
+  playerFOV: Vector2[]
   map: Map
   generator: Generator
   renderSystems: RenderSystem[]
@@ -27,18 +29,20 @@ export class Engine {
       Engine.MAP_WIDTH,
       Engine.MAP_HEIGHT,
     )
-    this.renderSystems = [new RenderMapSystem(this.map), new RenderEntitySystem()]
-    this.updateSystems = [new UpdateActionSystem(this.map)]
-
+    this.playerFOV = []
+    
     this.generator = new DefaultGenerator(this.map, 10, 5, 12)
     this.generator.generate()
     const startPosition = this.generator.playerStartPosition()
 
     this.player = addEntity(this.world)
-    addComponents(this.world, this.player, ActionComponent, PositionComponent, RenderableComponent)
+    addComponents(this.world, this.player, ActionComponent, PlayerComponent, PositionComponent, RenderableComponent)
     ActionComponent.action[this.player] = { processed: true, xOffset: 0, yOffset: 0 }
     PositionComponent.position[this.player] = { x: startPosition.x, y: startPosition.y }
-    RenderableComponent.renderable[this.player] = { char: '@', fg: "#fff", bg: "#000" }
+    RenderableComponent.renderable[this.player] = { char: '@', fg: "#ffffff", bg: "#000000" }
+
+    this.renderSystems = [new RenderMapSystem(this.map, this.playerFOV), new RenderEntitySystem(this.playerFOV)]
+    this.updateSystems = [new UpdateActionSystem(this.map, PositionComponent.position[this.player], this.playerFOV)]
 
     window.addEventListener('keydown', (event) => {
       this.keyDown(event)
