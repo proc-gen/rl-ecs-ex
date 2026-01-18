@@ -1,11 +1,12 @@
 import { Display } from 'rot-js'
-import { createWorld, addEntity, type World, type EntityId, addComponents } from 'bitecs'
-import { ActionComponent, PlayerComponent, PositionComponent, RenderableComponent } from './ecs/components'
+import { createWorld, type World, type EntityId } from 'bitecs'
+import { ActionComponent, PositionComponent } from './ecs/components'
 import { type RenderSystem, RenderEntitySystem, RenderMapSystem } from './ecs/systems/render-systems'
 import { type UpdateSystem, UpdateActionSystem } from './ecs/systems/update-systems'
 import { Map } from './map'
 import { DefaultGenerator, type Generator } from './map/generators'
 import type { Vector2 } from './types'
+import { createPlayer } from './ecs/templates'
 
 export class Engine {
   public static readonly WIDTH = 80
@@ -31,15 +32,11 @@ export class Engine {
     )
     this.playerFOV = []
     
-    this.generator = new DefaultGenerator(this.map, 10, 5, 12)
+    this.generator = new DefaultGenerator(this.world, this.map, 10, 5, 12, 10)
     this.generator.generate()
     const startPosition = this.generator.playerStartPosition()
 
-    this.player = addEntity(this.world)
-    addComponents(this.world, this.player, ActionComponent, PlayerComponent, PositionComponent, RenderableComponent)
-    ActionComponent.action[this.player] = { processed: true, xOffset: 0, yOffset: 0 }
-    PositionComponent.position[this.player] = { x: startPosition.x, y: startPosition.y }
-    RenderableComponent.renderable[this.player] = { char: '@', fg: "#ffffff", bg: "#000000" }
+    this.player = createPlayer(this.world, startPosition) 
 
     this.renderSystems = [new RenderMapSystem(this.map, this.playerFOV), new RenderEntitySystem(this.playerFOV)]
     this.updateSystems = [new UpdateActionSystem(this.map, PositionComponent.position[this.player], this.playerFOV)]

@@ -1,12 +1,15 @@
-import { RNG } from "rot-js"
+import type { World } from "bitecs"
 
 import { FLOOR_TILE } from "../../constants/tiles"
 import type { Map } from "../map"
 import { Room, type Sector } from "../containers"
 import { clearMap, tunnel, type Generator } from "./generator"
 import type { Vector2 } from "../../types"
+import { getRandomNumber } from "../../utils/random"
+import { createEnemy } from "../../ecs/templates"
 
 export class DefaultGenerator implements Generator {
+    world: World
     map: Map
     rooms: Room[]
     tunnels: Sector[]
@@ -14,8 +17,10 @@ export class DefaultGenerator implements Generator {
     minRoomSize: number
     maxRoomSize: number
     maxRooms: number
+    maxMonsters: number
 
-    constructor(map: Map, maxRooms: number, minRoomSize: number, maxRoomSize: number) {
+    constructor(world: World, map: Map, maxRooms: number, minRoomSize: number, maxRoomSize: number, maxMonsters: number) {
+        this.world = world
         this.map = map
         this.rooms = []
         this.tunnels = []
@@ -23,6 +28,7 @@ export class DefaultGenerator implements Generator {
         this.maxRooms = maxRooms
         this.minRoomSize = minRoomSize
         this.maxRoomSize = maxRoomSize
+        this.maxMonsters = maxMonsters
     }
 
     generate(): void {
@@ -31,17 +37,19 @@ export class DefaultGenerator implements Generator {
         this.createRooms()
         this.connectRooms()
 
+        this.placeEnemies()
+
         this.copyRoomsToMap()
         this.copyTunnelsToMap()
     }
 
     createRooms(){
         for(let i = 0; i < this.maxRooms; i++){
-            const width = this.getRandomNumber(this.minRoomSize, this.maxRoomSize)
-            const height = this.getRandomNumber(this.minRoomSize, this.maxRoomSize)
+            const width = getRandomNumber(this.minRoomSize, this.maxRoomSize)
+            const height = getRandomNumber(this.minRoomSize, this.maxRoomSize)
             
-            const x = this.getRandomNumber(0, this.map.width - width - 1)
-            const y = this.getRandomNumber(0, this.map.height - height - 1)
+            const x = getRandomNumber(0, this.map.width - width - 1)
+            const y = getRandomNumber(0, this.map.height - height - 1)
 
             this.addRoom(x, y, width, height)
         }
@@ -51,10 +59,6 @@ export class DefaultGenerator implements Generator {
         for(let i = 0; i < this.rooms.length - 1; i++){
             this.tunnels.push(tunnel(this.rooms[i].center(), this.rooms[i+1].center()))
         }
-    }
-
-    getRandomNumber(min: number, max: number){
-        return RNG.getUniformInt(min, max)
     }
 
     addRoom(x: number, y: number, width: number, height: number) {
@@ -78,6 +82,38 @@ export class DefaultGenerator implements Generator {
                 return true
             }
         }
+    }
+
+    placeEnemies() {
+        let monstersLeft = this.maxMonsters
+
+        this.rooms.forEach(a => {
+            let numEnemies = Math.min(getRandomNumber(0, 2), monstersLeft)
+            
+            if(numEnemies > 0){
+                const positions: Vector2[] = []
+                while(positions.length < numEnemies){
+                    const position = {
+                        x: getRandomNumber(a.x + 1, a.x + a.width - 2),
+                        y: getRandomNumber(a.y + 1, a.y + a.height - 2),
+                    }
+
+                    if(positions.length === 0 || positions.find(p => p.x === position.x && p.y === position.y) === undefined){
+                        positions.push(position)
+                    }
+                }
+
+                positions.forEach(p => {
+                    let name = "Orc"
+                    
+                    if(getRandomNumber(0, 100) < 80){
+                        name = "Troll"
+                    }
+
+                    createEnemy(this.world, p, name)
+                })
+            }
+        })
     }
 
     copyRoomsToMap() {
