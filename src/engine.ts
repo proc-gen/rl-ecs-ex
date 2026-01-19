@@ -143,6 +143,9 @@ export class Engine {
       case 'ArrowRight':
         this.setPlayerAction(1, 0)
         break
+      case '.':
+        this.setPlayerAction(0, 0)
+        break
     }
   }
 

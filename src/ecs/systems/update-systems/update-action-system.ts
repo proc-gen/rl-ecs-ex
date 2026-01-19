@@ -14,6 +14,7 @@ import {
   type Position,
   BlockerComponent,
   WantMeleeAttackComponent,
+  InfoComponent,
 } from '../../components'
 import { Map } from '../../../map'
 import type { Vector2 } from '../../../types'
@@ -38,7 +39,11 @@ export class UpdateActionSystem implements UpdateSystem {
         x: position.x + action.xOffset,
         y: position.y + action.yOffset,
       }
-      if (this.map.isWalkable(newPosition.x, newPosition.y)) {
+
+      if(position.x === newPosition.x && position.y === newPosition.y){
+        const info = InfoComponent.info[entity]
+        console.log(`${info.name} does nothing.`)
+      } else if (this.map.isWalkable(newPosition.x, newPosition.y)) {
         const entities = this.map.getEntitiesAtLocation(newPosition)
 
         if (
