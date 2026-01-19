@@ -1,6 +1,6 @@
-import { query, type World } from "bitecs";
+import { hasComponent, query, type World } from "bitecs";
 import { type RenderSystem } from "./";
-import { PositionComponent, RenderableComponent } from "../../components";
+import { DeadComponent, PositionComponent, RenderableComponent } from "../../components";
 import { Display } from "rot-js";
 import type { Vector2 } from "../../../types";
 
@@ -16,7 +16,8 @@ export class RenderEntitySystem implements RenderSystem {
             const position = PositionComponent.position[eid]
             const renderable = RenderableComponent.renderable[eid]
 
-            if (this.playerFOV.find(a => a.x === position.x && a.y === position.y) !== undefined) {
+            if (!hasComponent(world, eid, DeadComponent) && 
+                this.playerFOV.find(a => a.x === position.x && a.y === position.y) !== undefined) {
                 display.draw(position.x, position.y, renderable.char, renderable.fg, renderable.bg)
             }
         }

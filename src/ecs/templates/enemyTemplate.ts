@@ -5,7 +5,10 @@ import { ActionComponent,
             InfoComponent, 
             EnemyComponent, 
             PositionComponent, 
-            RenderableComponent 
+            RenderableComponent, 
+            AliveComponent,
+            HealthComponent,
+            StatsComponent
         } from "../components"
 
 export const createEnemy = (world: World, startPosition: Vector2, name: string) => {
@@ -22,12 +25,18 @@ export const createEnemy = (world: World, startPosition: Vector2, name: string) 
         InfoComponent,
         EnemyComponent, 
         PositionComponent, 
-        RenderableComponent)
+        RenderableComponent,
+        AliveComponent,
+        HealthComponent,
+        StatsComponent,
+    )
     ActionComponent.action[enemy] = { processed: true, xOffset: 0, yOffset: 0 }
     InfoComponent.info[enemy] = { name }
     PositionComponent.position[enemy] = { x: startPosition.x, y: startPosition.y }
     RenderableComponent.renderable[enemy] = { char: enemyStats.char, fg: enemyStats.fg, bg: enemyStats.bg }
-
+    HealthComponent.health[enemy] = { current: enemyStats.health, max: enemyStats.health }
+    StatsComponent.stats[enemy] = { strength: enemyStats.strength, defense: enemyStats.defense }
+    
     return enemy
 }
 
@@ -37,6 +46,9 @@ const enemyStatLookup = (name: string) => {
             char: 'o',
             fg: "#7f3f3f",
             bg: "#000000",
+            health: 10,
+            strength: 3,
+            defense: 0,
         }
     }
     else if(name === "Troll"){
@@ -44,6 +56,9 @@ const enemyStatLookup = (name: string) => {
             char: 't',
             fg: "#7f0000",
             bg: "#000000",
+            health: 16,
+            strength: 4,
+            defense: 1,
         }
     }
 
