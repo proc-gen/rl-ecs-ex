@@ -2,12 +2,11 @@ import { Display } from 'rot-js'
 import { createWorld, type World, type EntityId, query, hasComponent } from 'bitecs'
 import { ActionComponent, PositionComponent } from './ecs/components'
 import { type RenderSystem, RenderEntitySystem, RenderMapSystem } from './ecs/systems/render-systems'
-import { type UpdateSystem, UpdateActionSystem } from './ecs/systems/update-systems'
+import { type UpdateSystem, UpdateActionSystem, UpdateWantAttackSystem, UpdateRemoveSystem } from './ecs/systems/update-systems'
 import { Map } from './map'
 import { DefaultGenerator, type Generator } from './map/generators'
 import type { Vector2 } from './types'
 import { createPlayer } from './ecs/templates'
-import { UpdateWantAttackSystem } from './ecs/systems/update-systems/update-want-attack-system'
 
 export class Engine {
   public static readonly WIDTH = 80
@@ -56,7 +55,8 @@ export class Engine {
     ]
     this.updateSystems = [
       new UpdateActionSystem(this.map, PositionComponent.position[this.player], this.playerFOV),
-      new UpdateWantAttackSystem()
+      new UpdateWantAttackSystem(),
+      new UpdateRemoveSystem(),
     ]
 
     window.addEventListener('keydown', (event) => {

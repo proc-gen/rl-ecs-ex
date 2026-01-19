@@ -1,6 +1,6 @@
-import { query, removeEntity, type World } from "bitecs";
+import { addComponent, query, type World } from "bitecs";
 import type { UpdateSystem } from "./update-system";
-import { InfoComponent, WantMeleeAttackComponent } from "../../components";
+import { InfoComponent, RemoveComponent, WantMeleeAttackComponent } from "../../components";
 
 export class UpdateWantAttackSystem implements UpdateSystem {
 
@@ -10,9 +10,10 @@ export class UpdateWantAttackSystem implements UpdateSystem {
             const infoActor = InfoComponent.info[attack.attacker]
             const infoBlocker = InfoComponent.info[attack.defender]
 
-            console.log(`${infoActor.name} kicks ${infoBlocker.name} in the shin. It was ineffective.`)
+            console.log(`${infoActor.name} kicks ${infoBlocker.name} in the shin. It was super effective.`)
         
-            removeEntity(world, eid)
+            addComponent(world, eid, RemoveComponent)
+            addComponent(world, attack.defender, RemoveComponent)
         }
     }
 }

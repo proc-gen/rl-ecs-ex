@@ -6,6 +6,7 @@ import { type Enemy, EnemyComponent } from "./enemy"
 import { type Info, InfoComponent } from "./info"
 import { type Player, PlayerComponent } from "./player"
 import { type Position, PositionComponent } from "./position"
+import { type Remove, RemoveComponent } from "./remove"
 import { type Renderable, RenderableComponent } from "./renderable"
 import { type WantMeleeAttack, WantMeleeAttackComponent } from "./want-melee-attack"
 
@@ -25,7 +26,9 @@ export {
     type Player,
     PlayerComponent,
     type Position,
-    PositionComponent, 
+    PositionComponent,
+    type Remove,
+    RemoveComponent, 
     type Renderable,
     RenderableComponent,
     type WantMeleeAttack,
