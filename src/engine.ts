@@ -1,6 +1,6 @@
 import { Display } from 'rot-js'
 import { createWorld, type World, type EntityId, query, hasComponent } from 'bitecs'
-import { ActionComponent, PositionComponent } from './ecs/components'
+import { ActionComponent, DeadComponent, PositionComponent, RemoveComponent } from './ecs/components'
 import { type RenderSystem, RenderEntitySystem, RenderMapSystem } from './ecs/systems/render-systems'
 import { type UpdateSystem, UpdateActionSystem, UpdateWantAttackSystem, UpdateRemoveSystem } from './ecs/systems/update-systems'
 import { Map } from './map'
@@ -18,11 +18,13 @@ export class Engine {
   world: World
   player: EntityId
   actors: EntityId[]
+  currentActor: EntityId
   playerFOV: Vector2[]
   map: Map
   generator: Generator
   renderSystems: RenderSystem[]
   updateSystems: UpdateSystem[]
+  playerTurn: boolean
 
   constructor() {
     this.display = new Display({ width: Engine.WIDTH, height: Engine.HEIGHT, forceSquareRatio: true })
@@ -32,19 +34,20 @@ export class Engine {
       Engine.MAP_HEIGHT,
     )
     this.playerFOV = []
-    this.actors = []
 
     this.generator = new DefaultGenerator(this.world, this.map, 10, 5, 12, 10)
     this.generator.generate()
     const startPosition = this.generator.playerStartPosition()
 
     this.player = createPlayer(this.world, startPosition)
-    
+    this.actors = []
+    this.actors.push(this.player)
+
     for (const eid of query(this.world, [PositionComponent])) {
       const position = PositionComponent.position[eid]
       this.map.addEntityAtLocation(eid, {x: position.x, y: position.y})
 
-      if(hasComponent(this.world, eid, ActionComponent)){
+      if(hasComponent(this.world, eid, ActionComponent) && eid !== this.player){
         this.actors.push(eid)
       }
     }
@@ -58,6 +61,9 @@ export class Engine {
       new UpdateActionSystem(this.map, PositionComponent.position[this.player], this.playerFOV),
       new UpdateWantAttackSystem(),
     ]
+    
+    this.playerTurn = true
+    this.currentActor = this.player
 
     window.addEventListener('keydown', (event) => {
       this.keyDown(event)
@@ -73,11 +79,19 @@ export class Engine {
   }
 
   update() {
-    this.updateSystems.forEach(us => {
-      us.update(this.world)
-    })
+    do{
+      this.updateSystems.forEach(us => {
+        us.update(this.world, this.currentActor)
+      })
 
-    this.render()
+      this.render()
+      
+      this.actors = this.actors.filter(a => !hasComponent(this.world, a, DeadComponent) || !hasComponent(this.world, a, RemoveComponent))
+      
+      this.actors.push(this.actors.shift()!)
+      this.currentActor = this.actors[0]
+      this.playerTurn = this.currentActor === this.player
+    }while(!this.playerTurn)
   }
 
   keyDown(event: KeyboardEvent) {

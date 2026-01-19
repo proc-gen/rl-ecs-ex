@@ -1,4 +1,4 @@
-import { addComponent, addEntity, hasComponent, query, type EntityId, type World } from "bitecs";
+import { addComponent, addEntity, hasComponent, type EntityId, type World } from "bitecs";
 import { type UpdateSystem } from "./";
 import { ActionComponent, type Action, PositionComponent, PlayerComponent, type Position, BlockerComponent, WantMeleeAttackComponent } from "../../components";
 import { Map } from "../../../map";
@@ -15,36 +15,34 @@ export class UpdateActionSystem implements UpdateSystem {
         this.processPlayerFOV(playerPosition)
     }
 
-    update(world: World) {
-        for (const eid of query(world, [ActionComponent, PositionComponent])) {
-            const position = PositionComponent.position[eid]
-            const action = ActionComponent.action[eid]
+    update(world: World, entity: EntityId) {
+        const position = PositionComponent.position[entity]
+        const action = ActionComponent.action[entity]
 
-            if (!action.processed) {
-                const newPosition = {x: position.x + action.xOffset, y: position.y + action.yOffset}
-                if (this.map.isWalkable(newPosition.x, newPosition.y)) {
-                    const entities = this.map.getEntitiesAtLocation(newPosition)
+        if (!action.processed) {
+            const newPosition = {x: position.x + action.xOffset, y: position.y + action.yOffset}
+            if (this.map.isWalkable(newPosition.x, newPosition.y)) {
+                const entities = this.map.getEntitiesAtLocation(newPosition)
 
-                    if(entities.length === 0 || entities.find(a => hasComponent(world, a, BlockerComponent)) === undefined)
-                    {
-                        this.handleMove(world, eid, position, newPosition)     
-                    }
-                    else if(entities.length > 0){
-                        const blocker = entities.find(a => hasComponent(world, a, BlockerComponent))
-                        if(blocker !== undefined){
-                            const attack = addEntity(world)
-                            addComponent(world, attack, WantMeleeAttackComponent)
+                if(entities.length === 0 || entities.find(a => hasComponent(world, a, BlockerComponent)) === undefined)
+                {
+                    this.handleMove(world, entity, position, newPosition)     
+                }
+                else if(entities.length > 0){
+                    const blocker = entities.find(a => hasComponent(world, a, BlockerComponent))
+                    if(blocker !== undefined){
+                        const attack = addEntity(world)
+                        addComponent(world, attack, WantMeleeAttackComponent)
 
-                            WantMeleeAttackComponent.wantMeleeAttack[attack] = 
-                                {
-                                    attacker: eid, 
-                                    defender: blocker
-                                }
-                        }
+                        WantMeleeAttackComponent.wantMeleeAttack[attack] = 
+                            {
+                                attacker: entity, 
+                                defender: blocker
+                            }
                     }
                 }
-                this.resetAction(action)
             }
+            this.resetAction(action)
         }
     }
 

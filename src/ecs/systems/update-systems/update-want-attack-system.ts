@@ -1,10 +1,10 @@
-import { addComponent, addComponents, query, removeComponent, type World } from "bitecs";
+import { addComponent, addComponents, query, removeComponent, type EntityId, type World } from "bitecs";
 import type { UpdateSystem } from "./update-system";
 import { AliveComponent, DeadComponent, HealthComponent, InfoComponent, RemoveComponent, StatsComponent, WantMeleeAttackComponent } from "../../components";
 
 export class UpdateWantAttackSystem implements UpdateSystem {
 
-    update(world: World) {
+    update(world: World, _entity: EntityId) {
         for (const eid of query(world, [WantMeleeAttackComponent])) {
             const attack = WantMeleeAttackComponent.wantMeleeAttack[eid]
             const infoActor = InfoComponent.info[attack.attacker]
