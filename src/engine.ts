@@ -2,7 +2,7 @@ import { Display } from 'rot-js'
 import { createWorld, type World, type EntityId, query, hasComponent } from 'bitecs'
 import { ActionComponent, DeadComponent, PositionComponent, RemoveComponent } from './ecs/components'
 import { type RenderSystem, RenderEntitySystem, RenderMapSystem } from './ecs/systems/render-systems'
-import { type UpdateSystem, UpdateActionSystem, UpdateWantAttackSystem, UpdateRemoveSystem } from './ecs/systems/update-systems'
+import { type UpdateSystem, UpdateActionSystem, UpdateWantAttackSystem, UpdateRemoveSystem, UpdateAiActionSystem } from './ecs/systems/update-systems'
 import { Map } from './map'
 import { DefaultGenerator, type Generator } from './map/generators'
 import type { Vector2 } from './types'
@@ -30,6 +30,7 @@ export class Engine {
     this.display = new Display({ width: Engine.WIDTH, height: Engine.HEIGHT, forceSquareRatio: true })
     this.world = createWorld()
     this.map = new Map(
+      this.world,
       Engine.MAP_WIDTH,
       Engine.MAP_HEIGHT,
     )
@@ -58,6 +59,7 @@ export class Engine {
     ]
     this.updateSystems = [
       new UpdateRemoveSystem(),
+      new UpdateAiActionSystem(this.map, this.player, this.playerFOV),
       new UpdateActionSystem(this.map, PositionComponent.position[this.player], this.playerFOV),
       new UpdateWantAttackSystem(),
     ]
