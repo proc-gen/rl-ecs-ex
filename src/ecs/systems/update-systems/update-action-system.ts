@@ -1,6 +1,6 @@
-import { hasComponent, query, type EntityId, type World } from "bitecs";
+import { addComponent, addEntity, hasComponent, query, type EntityId, type World } from "bitecs";
 import { type UpdateSystem } from "./";
-import { ActionComponent, type Action, PositionComponent, PlayerComponent, type Position, BlockerComponent, InfoComponent } from "../../components";
+import { ActionComponent, type Action, PositionComponent, PlayerComponent, type Position, BlockerComponent, WantMeleeAttackComponent } from "../../components";
 import { Map } from "../../../map";
 import type { Vector2 } from "../../../types";
 import { FOV } from "rot-js";
@@ -32,10 +32,14 @@ export class UpdateActionSystem implements UpdateSystem {
                     else if(entities.length > 0){
                         const blocker = entities.find(a => hasComponent(world, a, BlockerComponent))
                         if(blocker !== undefined){
-                            const infoActor = InfoComponent.info[eid]
-                            const infoBlocker = InfoComponent.info[blocker]
+                            const attack = addEntity(world)
+                            addComponent(world, attack, WantMeleeAttackComponent)
 
-                            console.log(`${infoActor.name} kicks ${infoBlocker.name} in the shin. It was ineffective.`)
+                            WantMeleeAttackComponent.wantMeleeAttack[attack] = 
+                                {
+                                    attacker: eid, 
+                                    defender: blocker
+                                }
                         }
                     }
                 }

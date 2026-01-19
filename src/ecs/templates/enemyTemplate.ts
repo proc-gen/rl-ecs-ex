@@ -5,7 +5,8 @@ import { ActionComponent,
             InfoComponent, 
             EnemyComponent, 
             PositionComponent, 
-            RenderableComponent 
+            RenderableComponent, 
+            AliveComponent
         } from "../components"
 
 export const createEnemy = (world: World, startPosition: Vector2, name: string) => {
@@ -22,7 +23,9 @@ export const createEnemy = (world: World, startPosition: Vector2, name: string) 
         InfoComponent,
         EnemyComponent, 
         PositionComponent, 
-        RenderableComponent)
+        RenderableComponent,
+        AliveComponent,
+    )
     ActionComponent.action[enemy] = { processed: true, xOffset: 0, yOffset: 0 }
     InfoComponent.info[enemy] = { name }
     PositionComponent.position[enemy] = { x: startPosition.x, y: startPosition.y }

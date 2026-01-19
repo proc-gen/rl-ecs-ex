@@ -7,6 +7,7 @@ import { Map } from './map'
 import { DefaultGenerator, type Generator } from './map/generators'
 import type { Vector2 } from './types'
 import { createPlayer } from './ecs/templates'
+import { UpdateWantAttackSystem } from './ecs/systems/update-systems/update-want-attack-system'
 
 export class Engine {
   public static readonly WIDTH = 80
@@ -49,8 +50,14 @@ export class Engine {
       }
     }
 
-    this.renderSystems = [new RenderMapSystem(this.map, this.playerFOV), new RenderEntitySystem(this.playerFOV)]
-    this.updateSystems = [new UpdateActionSystem(this.map, PositionComponent.position[this.player], this.playerFOV)]
+    this.renderSystems = [
+      new RenderMapSystem(this.map, this.playerFOV), 
+      new RenderEntitySystem(this.playerFOV)
+    ]
+    this.updateSystems = [
+      new UpdateActionSystem(this.map, PositionComponent.position[this.player], this.playerFOV),
+      new UpdateWantAttackSystem()
+    ]
 
     window.addEventListener('keydown', (event) => {
       this.keyDown(event)

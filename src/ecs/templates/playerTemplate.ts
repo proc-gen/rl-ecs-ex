@@ -1,6 +1,7 @@
 import { addComponents, addEntity, type World } from "bitecs"
 import type { Vector2 } from "../../types"
 import { ActionComponent, 
+            AliveComponent, 
             BlockerComponent, 
             InfoComponent, 
             PlayerComponent, 
@@ -17,7 +18,9 @@ export const createPlayer = (world: World, startPosition: Vector2) => {
         InfoComponent,
         PlayerComponent, 
         PositionComponent, 
-        RenderableComponent)
+        RenderableComponent,
+        AliveComponent,
+    )
     ActionComponent.action[player] = { processed: true, xOffset: 0, yOffset: 0 }
     InfoComponent.info[player] = { name: "Player" }
     PositionComponent.position[player] = { x: startPosition.x, y: startPosition.y }
