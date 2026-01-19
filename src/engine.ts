@@ -54,9 +54,9 @@ export class Engine {
       new RenderEntitySystem(this.playerFOV)
     ]
     this.updateSystems = [
+      new UpdateRemoveSystem(),
       new UpdateActionSystem(this.map, PositionComponent.position[this.player], this.playerFOV),
       new UpdateWantAttackSystem(),
-      new UpdateRemoveSystem(),
     ]
 
     window.addEventListener('keydown', (event) => {
