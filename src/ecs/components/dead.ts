@@ -1,6 +1,5 @@
 export const DeadComponent = {
-    dead: [] as Dead[],
+  dead: [] as Dead[],
 }
 
 export type Dead = {}
-

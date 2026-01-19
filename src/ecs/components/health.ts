@@ -1,9 +1,8 @@
 export const HealthComponent = {
-    health: [] as Health[],
+  health: [] as Health[],
 }
 
 export type Health = {
-    current: number
-    max: number
+  current: number
+  max: number
 }
-

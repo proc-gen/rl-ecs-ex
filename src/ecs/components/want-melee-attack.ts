@@ -1,10 +1,10 @@
-import type { EntityId } from "bitecs"
+import type { EntityId } from 'bitecs'
 
 export const WantMeleeAttackComponent = {
-    wantMeleeAttack: [] as WantMeleeAttack[]
+  wantMeleeAttack: [] as WantMeleeAttack[],
 }
 
 export type WantMeleeAttack = {
-    attacker: EntityId
-    defender: EntityId
+  attacker: EntityId
+  defender: EntityId
 }

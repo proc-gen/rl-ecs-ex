@@ -1,6 +1,5 @@
 export const AliveComponent = {
-    alive: [] as Alive[],
+  alive: [] as Alive[],
 }
 
 export type Alive = {}
-

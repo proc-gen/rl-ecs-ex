@@ -1,9 +1,8 @@
 export const StatsComponent = {
-    stats: [] as Stats[],
+  stats: [] as Stats[],
 }
 
 export type Stats = {
-    strength: number
-    defense: number
+  strength: number
+  defense: number
 }
-

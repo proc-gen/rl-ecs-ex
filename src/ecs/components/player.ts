@@ -1,6 +1,5 @@
 export const PlayerComponent = {
-    player: [] as Player[],
+  player: [] as Player[],
 }
 
 export type Player = {}
-

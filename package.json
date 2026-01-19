@@ -15,5 +15,11 @@
   "dependencies": {
     "bitecs": "^0.4.0",
     "rot-js": "^2.2.1"
+  },
+  "prettier": {
+    "trailingComma": "all",
+    "tabWidth": 2,
+    "semi": false,
+    "singleQuote": true
   }
 }
