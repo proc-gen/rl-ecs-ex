@@ -11,6 +11,7 @@ import {
   HealthComponent,
   StatsComponent,
 } from '../components'
+import { Colors } from '../../constants/colors'
 
 export const createEnemy = (
   world: World,
@@ -61,8 +62,8 @@ const enemyStatLookup = (name: string) => {
   if (name === 'Orc') {
     return {
       char: 'o',
-      fg: '#7f3f3f',
-      bg: '#000000',
+      fg: Colors.Orc,
+      bg: Colors.Black,
       health: 10,
       strength: 3,
       defense: 0,
@@ -70,8 +71,8 @@ const enemyStatLookup = (name: string) => {
   } else if (name === 'Troll') {
     return {
       char: 't',
-      fg: '#7f0000',
-      bg: '#000000',
+      fg: Colors.Troll,
+      bg: Colors.Black,
       health: 16,
       strength: 4,
       defense: 1,

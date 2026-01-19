@@ -3,6 +3,7 @@ import { type RenderSystem } from './'
 import { Color, Display } from 'rot-js'
 import { Map } from '../../../map'
 import type { Vector2 } from '../../../types'
+import { HexColors } from '../../../constants/colors'
 
 export class RenderMapSystem implements RenderSystem {
   map: Map
@@ -22,8 +23,8 @@ export class RenderMapSystem implements RenderSystem {
         if (this.playerFOV.find((a) => a.x === x && a.y === y) !== undefined) {
           display.draw(x, y, tile.char, tile.fg, tile.bg)
         } else if (tile.seen) {
-          const fg = Color.multiply(Color.fromString(tile.fg), [85, 85, 85])
-          const bg = Color.multiply(Color.fromString(tile.bg), [85, 85, 85])
+          const fg = Color.multiply(Color.fromString(tile.fg), HexColors.Ambient)
+          const bg = Color.multiply(Color.fromString(tile.bg), HexColors.Ambient)
           display.draw(x, y, tile.char, Color.toHex(fg), Color.toHex(bg))
         }
       }
