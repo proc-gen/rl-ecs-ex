@@ -40,7 +40,7 @@ export class UpdateActionSystem implements UpdateSystem {
         y: position.y + action.yOffset,
       }
 
-      if(position.x === newPosition.x && position.y === newPosition.y){
+      if (position.x === newPosition.x && position.y === newPosition.y) {
         const info = InfoComponent.info[entity]
         console.log(`${info.name} does nothing.`)
       } else if (this.map.isWalkable(newPosition.x, newPosition.y)) {
