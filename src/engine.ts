@@ -15,6 +15,7 @@ import {
 import {
   type RenderSystem,
   RenderEntitySystem,
+  RenderHudSystem,
   RenderMapSystem,
 } from './ecs/systems/render-systems'
 import {
@@ -80,6 +81,7 @@ export class Engine {
     this.renderSystems = [
       new RenderMapSystem(this.map, this.playerFOV),
       new RenderEntitySystem(this.playerFOV),
+      new RenderHudSystem(),
     ]
     this.updateSystems = [
       new UpdateRemoveSystem(),
