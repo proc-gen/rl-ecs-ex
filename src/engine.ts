@@ -29,6 +29,7 @@ import { Map } from './map'
 import { DefaultGenerator, type Generator } from './map/generators'
 import type { Vector2 } from './types'
 import { createPlayer } from './ecs/templates'
+import { MessageLog } from './utils/message-log'
 
 export class Engine {
   public static readonly WIDTH = 80
@@ -44,6 +45,7 @@ export class Engine {
   playerFOV: Vector2[]
   map: Map
   generator: Generator
+  log: MessageLog
   renderSystems: RenderSystem[]
   updateSystems: UpdateSystem[]
   playerTurn: boolean
@@ -57,6 +59,8 @@ export class Engine {
     this.world = createWorld()
     this.map = new Map(this.world, Engine.MAP_WIDTH, Engine.MAP_HEIGHT)
     this.playerFOV = []
+    this.log = new MessageLog()
+    this.log.addMessage("Welcome to your doom, adventurer...")
 
     this.generator = new DefaultGenerator(this.world, this.map, 10, 5, 12, 10)
     this.generator.generate()
@@ -81,7 +85,7 @@ export class Engine {
     this.renderSystems = [
       new RenderMapSystem(this.map, this.playerFOV),
       new RenderEntitySystem(this.playerFOV),
-      new RenderHudSystem(this.player),
+      new RenderHudSystem(this.player, this.log),
     ]
     this.updateSystems = [
       new UpdateRemoveSystem(),
