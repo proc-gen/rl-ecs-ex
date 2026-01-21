@@ -34,7 +34,7 @@ export class Engine {
   public static readonly WIDTH = 80
   public static readonly HEIGHT = 50
   public static readonly MAP_WIDTH = 80
-  public static readonly MAP_HEIGHT = 50
+  public static readonly MAP_HEIGHT = 45
 
   display: Display
   world: World
@@ -81,7 +81,7 @@ export class Engine {
     this.renderSystems = [
       new RenderMapSystem(this.map, this.playerFOV),
       new RenderEntitySystem(this.playerFOV),
-      new RenderHudSystem(),
+      new RenderHudSystem(this.player),
     ]
     this.updateSystems = [
       new UpdateRemoveSystem(),
