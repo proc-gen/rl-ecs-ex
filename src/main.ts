@@ -5,7 +5,10 @@ const runGame = () => {
 
   const container = engine.display.getContainer()!
   document.getElementById('game-window')?.appendChild(container)
-  engine.render()
+  
+  setTimeout(() => {
+    engine.render()
+  }, 100)
 }
 
 window.addEventListener('DOMContentLoaded', () => {
