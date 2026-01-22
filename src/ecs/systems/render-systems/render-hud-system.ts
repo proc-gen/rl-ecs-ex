@@ -19,7 +19,7 @@ export class RenderHudSystem implements RenderSystem {
     this.log = log
   }
 
-  render(display: Display, world: World) {
+  render(display: Display, _world: World) {
     renderBox(
       display,
       { x: 0, y: 45 },
@@ -50,13 +50,19 @@ export class RenderHudSystem implements RenderSystem {
     renderSingleLineTextOver(display, { x: 1, y: 45 }, text, Colors.White, null)
   }
 
-  renderMessageLog(display: Display){
-    if(this.log.messages.length > 0){
+  renderMessageLog(display: Display) {
+    if (this.log.messages.length > 0) {
       let i = 0
-      while(i < 5 && i < this.log.messages.length){
+      while (i < 5 && i < this.log.messages.length) {
         i++
         const message = this.log.messages[this.log.messages.length - i]
-        renderSingleLineTextOver(display, {x: 21, y:44 + i}, message.text, message.fg, message.bg)
+        renderSingleLineTextOver(
+          display,
+          { x: 21, y: 44 + i },
+          message.text,
+          message.fg,
+          message.bg,
+        )
       }
     }
   }

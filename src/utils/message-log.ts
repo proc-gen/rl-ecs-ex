@@ -1,14 +1,18 @@
-import { Colors } from "../constants/colors";
-import type { Message } from "../types";
+import { Colors } from '../constants/colors'
+import type { Message } from '../types'
 
 export class MessageLog {
-    messages: Message[]
+  messages: Message[]
 
-    constructor() {
-        this.messages = []
-    }
+  constructor() {
+    this.messages = []
+  }
 
-    addMessage(text: string, fg: string = Colors.White, bg: string | null = null) {
-        this.messages.push({text, fg, bg})
-    }
+  addMessage(
+    text: string,
+    fg: string = Colors.White,
+    bg: string | null = null,
+  ) {
+    this.messages.push({ text, fg, bg })
+  }
 }

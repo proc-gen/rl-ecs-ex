@@ -60,7 +60,7 @@ export class Engine {
     this.map = new Map(this.world, Engine.MAP_WIDTH, Engine.MAP_HEIGHT)
     this.playerFOV = []
     this.log = new MessageLog()
-    this.log.addMessage("Welcome to your doom, adventurer...")
+    this.log.addMessage('Welcome to your doom, adventurer...')
 
     this.generator = new DefaultGenerator(this.world, this.map, 10, 5, 12, 10)
     this.generator.generate()
@@ -91,11 +91,12 @@ export class Engine {
       new UpdateRemoveSystem(),
       new UpdateAiActionSystem(this.map, this.player, this.playerFOV),
       new UpdateActionSystem(
+        this.log,
         this.map,
         PositionComponent.position[this.player],
         this.playerFOV,
       ),
-      new UpdateWantAttackSystem(),
+      new UpdateWantAttackSystem(this.log),
     ]
 
     this.playerTurn = true

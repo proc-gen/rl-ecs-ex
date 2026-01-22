@@ -19,12 +19,20 @@ import {
 import { Map } from '../../../map'
 import type { Vector2 } from '../../../types'
 import { FOV } from 'rot-js'
+import type { MessageLog } from '../../../utils/message-log'
 
 export class UpdateActionSystem implements UpdateSystem {
   map: Map
   playerFOV: Vector2[]
+  log: MessageLog
 
-  constructor(map: Map, playerPosition: Position, playerFOV: Vector2[]) {
+  constructor(
+    log: MessageLog,
+    map: Map,
+    playerPosition: Position,
+    playerFOV: Vector2[],
+  ) {
+    this.log = log
     this.map = map
     this.playerFOV = playerFOV
     this.processPlayerFOV(playerPosition)
@@ -42,7 +50,7 @@ export class UpdateActionSystem implements UpdateSystem {
 
       if (position.x === newPosition.x && position.y === newPosition.y) {
         const info = InfoComponent.info[entity]
-        console.log(`${info.name} does nothing.`)
+        this.log.addMessage(`${info.name} does nothing.`)
       } else if (this.map.isWalkable(newPosition.x, newPosition.y)) {
         const entities = this.map.getEntitiesAtLocation(newPosition)
 

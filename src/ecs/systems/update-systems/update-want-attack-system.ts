@@ -16,8 +16,15 @@ import {
   StatsComponent,
   WantMeleeAttackComponent,
 } from '../../components'
+import type { MessageLog } from '../../../utils/message-log'
 
 export class UpdateWantAttackSystem implements UpdateSystem {
+  log: MessageLog
+
+  constructor(log: MessageLog) {
+    this.log = log
+  }
+
   update(world: World, _entity: EntityId) {
     for (const eid of query(world, [WantMeleeAttackComponent])) {
       const attack = WantMeleeAttackComponent.wantMeleeAttack[eid]
@@ -31,7 +38,7 @@ export class UpdateWantAttackSystem implements UpdateSystem {
       const attackDescription = `${infoActor.name} attacks ${infoBlocker.name}`
 
       if (damage > 0) {
-        console.log(`${attackDescription} for ${damage} health.`)
+        this.log.addMessage(`${attackDescription} for ${damage} health.`)
         healthBlocker.current = Math.max(0, healthBlocker.current - damage)
 
         if (healthBlocker.current === 0) {
@@ -40,7 +47,9 @@ export class UpdateWantAttackSystem implements UpdateSystem {
           removeComponent(world, attack.defender, AliveComponent)
         }
       } else {
-        console.log(`${attackDescription} but can't seem to leave a mark.`)
+        this.log.addMessage(
+          `${attackDescription} but can't seem to leave a mark.`,
+        )
       }
 
       addComponent(world, eid, RemoveComponent)
