@@ -1,6 +1,5 @@
 export const RemoveComponent = {
-    remove: [] as Remove[],
+  remove: [] as Remove[],
 }
 
 export type Remove = {}
-

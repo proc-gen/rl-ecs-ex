@@ -1,9 +1,9 @@
 export const ActionComponent = {
-    action: [] as Action[]
+  action: [] as Action[],
 }
 
 export type Action = {
-    processed: boolean
-    xOffset: number
-    yOffset: number
+  processed: boolean
+  xOffset: number
+  yOffset: number
 }

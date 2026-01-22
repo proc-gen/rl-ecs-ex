@@ -1,8 +1,7 @@
 export const InfoComponent = {
-    info: [] as Info[],
+  info: [] as Info[],
 }
 
 export type Info = {
-    name: string
+  name: string
 }
-

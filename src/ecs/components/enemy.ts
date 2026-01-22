@@ -1,6 +1,5 @@
 export const EnemyComponent = {
-    enemy: [] as Enemy[],
+  enemy: [] as Enemy[],
 }
 
 export type Enemy = {}
-

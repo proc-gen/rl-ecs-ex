@@ -1,6 +1,5 @@
 export const BlockerComponent = {
-    blocker: [] as Blocker[],
+  blocker: [] as Blocker[],
 }
 
 export type Blocker = {}
-

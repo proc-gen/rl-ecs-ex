@@ -1,9 +1,8 @@
 export const PositionComponent = {
-    position: [] as Position[],
+  position: [] as Position[],
 }
 
 export type Position = {
-    x: number
-    y: number
+  x: number
+  y: number
 }
-

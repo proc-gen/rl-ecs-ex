@@ -1,30 +1,35 @@
-import type { Vector2 } from "../../types"
+import type { Vector2 } from '../../types'
 
 export class Sector {
-    x: number
-    y: number
-    includedTiles: Vector2[]
+  x: number
+  y: number
+  includedTiles: Vector2[]
 
-    constructor(x: number, y: number) {
-        this.x = x
-        this.y = y
-        this.includedTiles = []
+  constructor(x: number, y: number) {
+    this.x = x
+    this.y = y
+    this.includedTiles = []
+  }
+
+  intersects(other: Sector) {
+    return (
+      this.includedTiles.filter((t) =>
+        other.includedTiles.find((oT) => oT.x === t.x && oT.y === t.y),
+      ).length > 0
+    )
+  }
+
+  center(): Vector2 {
+    let x = 0
+    let y = 0
+    this.includedTiles.forEach((t) => {
+      x += t.x
+      y += t.y
+    })
+
+    return {
+      x: Math.floor(x / this.includedTiles.length),
+      y: Math.floor(y / this.includedTiles.length),
     }
-
-    intersects(other: Sector) {
-        return this.includedTiles.filter(t => 
-            other.includedTiles.find(oT => oT.x === t.x && oT.y === t.y)
-        ).length > 0
-    }
-
-    center(): Vector2 {
-        let x = 0
-        let y = 0
-        this.includedTiles.forEach(t => {
-            x += t.x
-            y += t.y
-        })
-
-        return {x: Math.floor(x / this.includedTiles.length), y: Math.floor(y / this.includedTiles.length) }
-    }
+  }
 }

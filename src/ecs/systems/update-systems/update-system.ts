@@ -1,5 +1,5 @@
-import { type EntityId, type World } from "bitecs";
+import { type EntityId, type World } from 'bitecs'
 
 export interface UpdateSystem {
-    update(world: World, entity: EntityId): void
+  update(world: World, entity: EntityId): void
 }

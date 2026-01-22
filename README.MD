@@ -1,0 +1,1 @@
+Use `npx prettier './src/**/*.ts' --write` to lint the files with prettier

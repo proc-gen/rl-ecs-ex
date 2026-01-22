@@ -1,18 +1,41 @@
 import { Display } from 'rot-js'
-import { createWorld, type World, type EntityId, query, hasComponent } from 'bitecs'
-import { ActionComponent, DeadComponent, PositionComponent, RemoveComponent } from './ecs/components'
-import { type RenderSystem, RenderEntitySystem, RenderMapSystem } from './ecs/systems/render-systems'
-import { type UpdateSystem, UpdateActionSystem, UpdateWantAttackSystem, UpdateRemoveSystem, UpdateAiActionSystem } from './ecs/systems/update-systems'
+import {
+  createWorld,
+  type World,
+  type EntityId,
+  query,
+  hasComponent,
+} from 'bitecs'
+import {
+  ActionComponent,
+  DeadComponent,
+  PositionComponent,
+  RemoveComponent,
+} from './ecs/components'
+import {
+  type RenderSystem,
+  RenderEntitySystem,
+  RenderHudSystem,
+  RenderMapSystem,
+} from './ecs/systems/render-systems'
+import {
+  type UpdateSystem,
+  UpdateActionSystem,
+  UpdateWantAttackSystem,
+  UpdateRemoveSystem,
+  UpdateAiActionSystem,
+} from './ecs/systems/update-systems'
 import { Map } from './map'
 import { DefaultGenerator, type Generator } from './map/generators'
 import type { Vector2 } from './types'
 import { createPlayer } from './ecs/templates'
+import { MessageLog } from './utils/message-log'
 
 export class Engine {
   public static readonly WIDTH = 80
   public static readonly HEIGHT = 50
-  public static readonly MAP_WIDTH = 80;
-  public static readonly MAP_HEIGHT = 50;
+  public static readonly MAP_WIDTH = 80
+  public static readonly MAP_HEIGHT = 45
 
   display: Display
   world: World
@@ -22,19 +45,22 @@ export class Engine {
   playerFOV: Vector2[]
   map: Map
   generator: Generator
+  log: MessageLog
   renderSystems: RenderSystem[]
   updateSystems: UpdateSystem[]
   playerTurn: boolean
 
   constructor() {
-    this.display = new Display({ width: Engine.WIDTH, height: Engine.HEIGHT, forceSquareRatio: true })
+    this.display = new Display({
+      width: Engine.WIDTH,
+      height: Engine.HEIGHT,
+      forceSquareRatio: true,
+    })
     this.world = createWorld()
-    this.map = new Map(
-      this.world,
-      Engine.MAP_WIDTH,
-      Engine.MAP_HEIGHT,
-    )
+    this.map = new Map(this.world, Engine.MAP_WIDTH, Engine.MAP_HEIGHT)
     this.playerFOV = []
+    this.log = new MessageLog()
+    this.log.addMessage('Welcome to your doom, adventurer...')
 
     this.generator = new DefaultGenerator(this.world, this.map, 10, 5, 12, 10)
     this.generator.generate()
@@ -46,24 +72,33 @@ export class Engine {
 
     for (const eid of query(this.world, [PositionComponent])) {
       const position = PositionComponent.position[eid]
-      this.map.addEntityAtLocation(eid, {x: position.x, y: position.y})
+      this.map.addEntityAtLocation(eid, { x: position.x, y: position.y })
 
-      if(hasComponent(this.world, eid, ActionComponent) && eid !== this.player){
+      if (
+        hasComponent(this.world, eid, ActionComponent) &&
+        eid !== this.player
+      ) {
         this.actors.push(eid)
       }
     }
 
     this.renderSystems = [
-      new RenderMapSystem(this.map, this.playerFOV), 
-      new RenderEntitySystem(this.playerFOV)
+      new RenderMapSystem(this.map, this.playerFOV),
+      new RenderEntitySystem(this.playerFOV),
+      new RenderHudSystem(this.player, this.log),
     ]
     this.updateSystems = [
       new UpdateRemoveSystem(),
       new UpdateAiActionSystem(this.map, this.player, this.playerFOV),
-      new UpdateActionSystem(this.map, PositionComponent.position[this.player], this.playerFOV),
-      new UpdateWantAttackSystem(),
+      new UpdateActionSystem(
+        this.log,
+        this.map,
+        PositionComponent.position[this.player],
+        this.playerFOV,
+      ),
+      new UpdateWantAttackSystem(this.log),
     ]
-    
+
     this.playerTurn = true
     this.currentActor = this.player
 
@@ -73,27 +108,31 @@ export class Engine {
   }
 
   render() {
-    this.display.clear();
+    this.display.clear()
 
-    this.renderSystems.forEach(rs => {
+    this.renderSystems.forEach((rs) => {
       rs.render(this.display, this.world)
-    });
+    })
   }
 
   update() {
-    do{
-      this.updateSystems.forEach(us => {
+    do {
+      this.updateSystems.forEach((us) => {
         us.update(this.world, this.currentActor)
       })
 
       this.render()
-      
-      this.actors = this.actors.filter(a => !hasComponent(this.world, a, DeadComponent) || !hasComponent(this.world, a, RemoveComponent))
-      
+
+      this.actors = this.actors.filter(
+        (a) =>
+          !hasComponent(this.world, a, DeadComponent) ||
+          !hasComponent(this.world, a, RemoveComponent),
+      )
+
       this.actors.push(this.actors.shift()!)
       this.currentActor = this.actors[0]
       this.playerTurn = this.currentActor === this.player
-    }while(!this.playerTurn)
+    } while (!this.playerTurn)
   }
 
   keyDown(event: KeyboardEvent) {
@@ -111,6 +150,9 @@ export class Engine {
       case 'ArrowRight':
         this.setPlayerAction(1, 0)
         break
+      case '.':
+        this.setPlayerAction(0, 0)
+        break
     }
   }
 
@@ -122,6 +164,4 @@ export class Engine {
 
     this.update()
   }
-
-
 }

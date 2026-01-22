@@ -1,9 +1,9 @@
 export type Tile = {
-    fg: string
-    bg: string
-    char: string
+  fg: string
+  bg: string
+  char: string
 
-    walkable: boolean
-    transparent: boolean
-    seen: boolean
+  walkable: boolean
+  transparent: boolean
+  seen: boolean
 }
