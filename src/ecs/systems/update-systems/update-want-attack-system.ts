@@ -42,7 +42,7 @@ export class UpdateWantAttackSystem implements UpdateSystem {
         healthBlocker.current = Math.max(0, healthBlocker.current - damage)
 
         if (healthBlocker.current === 0) {
-          console.log(`${infoBlocker.name} has died.`)
+          this.log.addMessage(`${infoBlocker.name} has died.`)
           addComponents(world, attack.defender, RemoveComponent, DeadComponent)
           removeComponent(world, attack.defender, AliveComponent)
         }
