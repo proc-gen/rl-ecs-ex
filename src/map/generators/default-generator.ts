@@ -94,7 +94,7 @@ export class DefaultGenerator implements Generator {
 
   placeEnemies() {
     let monstersLeft = this.maxMonsters
-
+    const playerStart = this.playerStartPosition()
     this.rooms.forEach((a) => {
       let numEnemies = Math.min(getRandomNumber(0, 2), monstersLeft)
 
@@ -107,9 +107,11 @@ export class DefaultGenerator implements Generator {
           }
 
           if (
-            positions.length === 0 ||
-            positions.find((p) => p.x === position.x && p.y === position.y) ===
-              undefined
+            (positions.length === 0 ||
+              positions.find(
+                (p) => p.x === position.x && p.y === position.y,
+              ) === undefined) &&
+            (position.x !== playerStart.x || position.y !== playerStart.y)
           ) {
             positions.push(position)
           }
