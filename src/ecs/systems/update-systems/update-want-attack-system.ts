@@ -12,13 +12,11 @@ import {
   DeadComponent,
   HealthComponent,
   InfoComponent,
-  PositionComponent,
   RemoveComponent,
   StatsComponent,
   WantMeleeAttackComponent,
 } from '../../components'
 import type { MessageLog } from '../../../utils/message-log'
-import { createCorpse } from '../../templates'
 
 export class UpdateWantAttackSystem implements UpdateSystem {
   log: MessageLog
@@ -47,7 +45,6 @@ export class UpdateWantAttackSystem implements UpdateSystem {
           this.log.addMessage(`${infoBlocker.name} has died.`)
           addComponents(world, attack.defender, RemoveComponent, DeadComponent)
           removeComponent(world, attack.defender, AliveComponent)
-          createCorpse(world, PositionComponent.position[attack.defender], infoBlocker.name)
         }
       } else {
         this.log.addMessage(

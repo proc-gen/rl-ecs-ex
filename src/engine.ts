@@ -87,7 +87,7 @@ export class Engine {
     }
 
     this.updateSystems = [
-      new UpdateRemoveSystem(),
+      new UpdateRemoveSystem(this.map),
       new UpdateAiActionSystem(this.map, this.player, this.playerFOV),
       new UpdateActionSystem(
         this.log,
