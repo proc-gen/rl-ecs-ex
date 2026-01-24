@@ -8,6 +8,7 @@ export const Colors = {
   VeryDarkGrey: '#222222',
 
   HealthBar: '#aa0000',
+  InspectLocation: '#00ee00',
 
   Player: '#ffee00',
   Orc: '#7f3f3f',
@@ -22,6 +23,7 @@ export const HexColors = {
   VeryDarkGrey: Color.fromString(Colors.VeryDarkGrey),
 
   HealthBar: Color.fromString(Colors.HealthBar),
+  InspectLocation: Color.fromString(Colors.InspectLocation),
 
   Player: Color.fromString(Colors.Player),
   Orc: Color.fromString(Colors.Orc),

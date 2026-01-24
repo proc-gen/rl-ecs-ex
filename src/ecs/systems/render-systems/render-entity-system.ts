@@ -10,15 +10,17 @@ import { Display } from 'rot-js'
 import type { Vector2 } from '../../../types'
 
 export class RenderEntitySystem implements RenderSystem {
+  world: World
   playerFOV: Vector2[]
 
-  constructor(playerFOV: Vector2[]) {
+  constructor(world: World, playerFOV: Vector2[]) {
+    this.world = world
     this.playerFOV = playerFOV
   }
 
-  render(display: Display, world: World) {
+  render(display: Display) {
     RenderOrder.forEach((layerComponent) => {
-      for (const eid of query(world, [
+      for (const eid of query(this.world, [
         PositionComponent,
         RenderableComponent,
         layerComponent,
@@ -27,7 +29,7 @@ export class RenderEntitySystem implements RenderSystem {
         const renderable = RenderableComponent.renderable[eid]
 
         if (
-          !hasComponent(world, eid, DeadComponent) &&
+          !hasComponent(this.world, eid, DeadComponent) &&
           this.playerFOV.find(
             (a) => a.x === position.x && a.y === position.y,
           ) !== undefined

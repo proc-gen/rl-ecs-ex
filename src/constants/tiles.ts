@@ -8,6 +8,7 @@ export const FLOOR_TILE: Tile = {
   fg: Colors.White,
   bg: Colors.Black,
   seen: false,
+  name: 'Floor',
 }
 
 export const WALL_TILE: Tile = {
@@ -17,4 +18,5 @@ export const WALL_TILE: Tile = {
   fg: Colors.White,
   bg: Colors.Black,
   seen: false,
+  name: 'Wall',
 }

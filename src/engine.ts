@@ -47,6 +47,7 @@ export class Engine {
   generator: Generator
   log: MessageLog
   renderSystems: RenderSystem[]
+  renderHudSystem: RenderHudSystem
   updateSystems: UpdateSystem[]
   playerTurn: boolean
 
@@ -82,11 +83,6 @@ export class Engine {
       }
     }
 
-    this.renderSystems = [
-      new RenderMapSystem(this.map, this.playerFOV),
-      new RenderEntitySystem(this.playerFOV),
-      new RenderHudSystem(this.player, this.log),
-    ]
     this.updateSystems = [
       new UpdateRemoveSystem(),
       new UpdateAiActionSystem(this.map, this.player, this.playerFOV),
@@ -99,19 +95,31 @@ export class Engine {
       new UpdateWantAttackSystem(this.log),
     ]
 
+    this.renderHudSystem = new RenderHudSystem(
+      this.world,
+      this.map,
+      this.player,
+      this.log,
+      this.playerFOV,
+    )
+    this.renderSystems = [
+      new RenderMapSystem(this.world, this.map, this.playerFOV),
+      new RenderEntitySystem(this.world, this.playerFOV),
+      this.renderHudSystem,
+    ]
+
     this.playerTurn = true
     this.currentActor = this.player
 
-    window.addEventListener('keydown', (event) => {
-      this.keyDown(event)
-    })
+    window.addEventListener('keydown', e => this.keyDown(e))
+    window.addEventListener('mousemove', e => this.mouseMove(e))
   }
 
   render() {
     this.display.clear()
 
     this.renderSystems.forEach((rs) => {
-      rs.render(this.display, this.world)
+      rs.render(this.display)
     })
   }
 
@@ -137,23 +145,46 @@ export class Engine {
 
   keyDown(event: KeyboardEvent) {
     event.preventDefault()
-    switch (event.key) {
-      case 'ArrowUp':
-        this.setPlayerAction(0, -1)
-        break
-      case 'ArrowDown':
-        this.setPlayerAction(0, 1)
-        break
-      case 'ArrowLeft':
-        this.setPlayerAction(-1, 0)
-        break
-      case 'ArrowRight':
-        this.setPlayerAction(1, 0)
-        break
-      case '.':
-        this.setPlayerAction(0, 0)
-        break
+    if(this.playerTurn){
+    if (this.renderHudSystem.active) {
+      if (this.renderHudSystem.handleKeyboardInput(event)) {
+        this.render()
+      }
+    } else {
+      switch (event.key) {
+        case 'ArrowUp':
+          this.setPlayerAction(0, -1)
+          break
+        case 'ArrowDown':
+          this.setPlayerAction(0, 1)
+          break
+        case 'ArrowLeft':
+          this.setPlayerAction(-1, 0)
+          break
+        case 'ArrowRight':
+          this.setPlayerAction(1, 0)
+          break
+        case '.':
+          this.setPlayerAction(0, 0)
+          break
+        case 'i':
+          this.renderHudSystem.setActive(true)
+          this.render()
+          break
+      }
     }
+  }
+  }
+
+  mouseMove(event: MouseEvent) {
+    if(this.playerTurn){
+    if (this.renderHudSystem.active) {
+      const mousePosition = this.display.eventToPosition(event)
+      const mouseVector = { x: mousePosition[0], y: mousePosition[1] }
+      if (this.renderHudSystem.handleMouseInput(event, mouseVector)) {
+        this.render()
+      }
+    }}
   }
 
   setPlayerAction(xOffset: number, yOffset: number) {

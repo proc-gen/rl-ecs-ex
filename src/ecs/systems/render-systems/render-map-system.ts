@@ -9,13 +9,15 @@ import { MixColors } from '../../../utils/color-funcs'
 export class RenderMapSystem implements RenderSystem {
   map: Map
   playerFOV: Vector2[]
+  world: World
 
-  constructor(map: Map, playerFOV: Vector2[]) {
+  constructor(world: World, map: Map, playerFOV: Vector2[]) {
+    this.world = world
     this.map = map
     this.playerFOV = playerFOV
   }
 
-  render(display: Display, _world: World) {
+  render(display: Display) {
     for (let x = 0; x < this.map.tiles.length; x++) {
       const col = this.map.tiles[x]
       for (let y = 0; y < col.length; y++) {
