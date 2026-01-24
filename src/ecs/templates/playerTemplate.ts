@@ -33,14 +33,11 @@ export const createPlayer = (world: World, startPosition: Vector2) => {
   )
   ActionComponent.action[player] = { processed: true, xOffset: 0, yOffset: 0 }
   InfoComponent.info[player] = { name: 'Player' }
-  PositionComponent.position[player] = {
-    x: startPosition.x,
-    y: startPosition.y,
-  }
+  PositionComponent.position[player] = {...startPosition}
   RenderableComponent.renderable[player] = {
     char: '@',
     fg: Colors.Player,
-    bg: Colors.Black,
+    bg: null,
   }
   HealthComponent.health[player] = { current: 30, max: 30 }
   StatsComponent.stats[player] = { strength: 5, defense: 2 }

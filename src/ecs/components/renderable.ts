@@ -3,7 +3,7 @@ export const RenderableComponent = {
 }
 
 export type Renderable = {
-  fg: string
-  bg: string
+  fg: string | null
+  bg: string | null
   char: string
 }

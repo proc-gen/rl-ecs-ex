@@ -34,7 +34,7 @@ export class RenderEntitySystem implements RenderSystem {
             (a) => a.x === position.x && a.y === position.y,
           ) !== undefined
         ) {
-          display.draw(
+          display.drawOver(
             position.x,
             position.y,
             renderable.char,
