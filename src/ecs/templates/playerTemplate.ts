@@ -9,6 +9,7 @@ import {
   PlayerComponent,
   PositionComponent,
   RenderableComponent,
+  RenderLayerBlockerComponent,
   StatsComponent,
 } from '../components'
 import { Colors } from '../../constants/colors'
@@ -25,6 +26,7 @@ export const createPlayer = (world: World, startPosition: Vector2) => {
     PlayerComponent,
     PositionComponent,
     RenderableComponent,
+    RenderLayerBlockerComponent,
     AliveComponent,
     HealthComponent,
     StatsComponent,

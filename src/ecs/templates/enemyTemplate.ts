@@ -10,6 +10,7 @@ import {
   AliveComponent,
   HealthComponent,
   StatsComponent,
+  RenderLayerBlockerComponent,
 } from '../components'
 import { Colors } from '../../constants/colors'
 
@@ -34,6 +35,7 @@ export const createEnemy = (
     EnemyComponent,
     PositionComponent,
     RenderableComponent,
+    RenderLayerBlockerComponent,
     AliveComponent,
     HealthComponent,
     StatsComponent,
