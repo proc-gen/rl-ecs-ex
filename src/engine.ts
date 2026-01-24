@@ -30,6 +30,7 @@ import { DefaultGenerator, type Generator } from './map/generators'
 import type { Vector2 } from './types'
 import { createPlayer } from './ecs/templates'
 import { MessageLog } from './utils/message-log'
+import { MessageHistoryWindow } from './windows'
 
 export class Engine {
   public static readonly WIDTH = 80
@@ -46,7 +47,9 @@ export class Engine {
   map: Map
   generator: Generator
   log: MessageLog
+  historyViewer: MessageHistoryWindow
   renderSystems: RenderSystem[]
+  renderHudSystem: RenderHudSystem
   updateSystems: UpdateSystem[]
   playerTurn: boolean
 
@@ -61,6 +64,7 @@ export class Engine {
     this.playerFOV = []
     this.log = new MessageLog()
     this.log.addMessage('Welcome to your doom, adventurer...')
+    this.historyViewer = new MessageHistoryWindow(this.log)
 
     this.generator = new DefaultGenerator(this.world, this.map, 10, 5, 12, 10)
     this.generator.generate()
@@ -82,13 +86,8 @@ export class Engine {
       }
     }
 
-    this.renderSystems = [
-      new RenderMapSystem(this.map, this.playerFOV),
-      new RenderEntitySystem(this.playerFOV),
-      new RenderHudSystem(this.player, this.log),
-    ]
     this.updateSystems = [
-      new UpdateRemoveSystem(),
+      new UpdateRemoveSystem(this.map),
       new UpdateAiActionSystem(this.map, this.player, this.playerFOV),
       new UpdateActionSystem(
         this.log,
@@ -99,20 +98,37 @@ export class Engine {
       new UpdateWantAttackSystem(this.log),
     ]
 
+    this.renderHudSystem = new RenderHudSystem(
+      this.world,
+      this.map,
+      this.player,
+      this.log,
+      this.playerFOV,
+    )
+    this.renderSystems = [
+      new RenderMapSystem(this.world, this.map, this.playerFOV),
+      new RenderEntitySystem(this.world, this.playerFOV),
+      this.renderHudSystem,
+    ]
+
     this.playerTurn = true
     this.currentActor = this.player
 
-    window.addEventListener('keydown', (event) => {
-      this.keyDown(event)
-    })
+    window.addEventListener('keydown', (e) => this.keyDown(e))
+    window.addEventListener('mousemove', (e) => this.mouseMove(e))
+    window.addEventListener('wheel', (e) => this.mouseMove(e))
   }
 
   render() {
     this.display.clear()
 
     this.renderSystems.forEach((rs) => {
-      rs.render(this.display, this.world)
+      rs.render(this.display)
     })
+
+    if(this.historyViewer.active){
+      this.historyViewer.render(this.display)
+    }
   }
 
   update() {
@@ -137,23 +153,72 @@ export class Engine {
 
   keyDown(event: KeyboardEvent) {
     event.preventDefault()
-    switch (event.key) {
-      case 'ArrowUp':
-        this.setPlayerAction(0, -1)
-        break
-      case 'ArrowDown':
-        this.setPlayerAction(0, 1)
-        break
-      case 'ArrowLeft':
-        this.setPlayerAction(-1, 0)
-        break
-      case 'ArrowRight':
-        this.setPlayerAction(1, 0)
-        break
-      case '.':
-        this.setPlayerAction(0, 0)
-        break
+    if (this.playerTurn) {
+      if (this.renderHudSystem.active) {
+        if (this.renderHudSystem.handleKeyboardInput(event)) {
+          this.render()
+        }
+      } else if (this.historyViewer.active) {
+        if (this.historyViewer.handleKeyboardInput(event)) {
+          this.render()
+        }
+      } else {
+        switch (event.key) {
+          case 'ArrowUp':
+            this.setPlayerAction(0, -1)
+            break
+          case 'ArrowDown':
+            this.setPlayerAction(0, 1)
+            break
+          case 'ArrowLeft':
+            this.setPlayerAction(-1, 0)
+            break
+          case 'ArrowRight':
+            this.setPlayerAction(1, 0)
+            break
+          case '.':
+            this.setPlayerAction(0, 0)
+            break
+          case 'i':
+            this.renderHudSystem.setActive(true)
+            this.render()
+            break
+          case 'v':
+            this.historyViewer.setActive(true)
+            this.render()
+            break
+        }
+      }
     }
+  }
+
+  mouseMove(event: MouseEvent | WheelEvent) {
+    if (this.playerTurn) {
+      if (this.renderHudSystem.active) {
+        if (
+          this.renderHudSystem.handleMouseInput(
+            event,
+            this.getMousePosFromEvent(event),
+          )
+        ) {
+          this.render()
+        }
+      } else if (this.historyViewer.active) {
+        if (
+          this.historyViewer.handleMouseInput(
+            event as WheelEvent,
+            this.getMousePosFromEvent(event),
+          )
+        ) {
+          this.render()
+        }
+      }
+    }
+  }
+
+  getMousePosFromEvent(event: MouseEvent) {
+    const mousePosition = this.display.eventToPosition(event)
+    return { x: mousePosition[0], y: mousePosition[1] }
   }
 
   setPlayerAction(xOffset: number, yOffset: number) {

@@ -10,6 +10,7 @@ import {
   AliveComponent,
   HealthComponent,
   StatsComponent,
+  RenderLayerBlockerComponent,
 } from '../components'
 import { Colors } from '../../constants/colors'
 
@@ -34,13 +35,14 @@ export const createEnemy = (
     EnemyComponent,
     PositionComponent,
     RenderableComponent,
+    RenderLayerBlockerComponent,
     AliveComponent,
     HealthComponent,
     StatsComponent,
   )
   ActionComponent.action[enemy] = { processed: true, xOffset: 0, yOffset: 0 }
   InfoComponent.info[enemy] = { name }
-  PositionComponent.position[enemy] = { x: startPosition.x, y: startPosition.y }
+  PositionComponent.position[enemy] = { ...startPosition }
   RenderableComponent.renderable[enemy] = {
     char: enemyStats.char,
     fg: enemyStats.fg,
@@ -63,7 +65,7 @@ const enemyStatLookup = (name: string) => {
     return {
       char: 'o',
       fg: Colors.Orc,
-      bg: Colors.Black,
+      bg: null,
       health: 10,
       strength: 3,
       defense: 0,
@@ -72,7 +74,7 @@ const enemyStatLookup = (name: string) => {
     return {
       char: 't',
       fg: Colors.Troll,
-      bg: Colors.Black,
+      bg: null,
       health: 16,
       strength: 4,
       defense: 1,

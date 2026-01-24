@@ -9,6 +9,15 @@ import { type Player, PlayerComponent } from './player'
 import { type Position, PositionComponent } from './position'
 import { type Remove, RemoveComponent } from './remove'
 import { type Renderable, RenderableComponent } from './renderable'
+import {
+  type RenderLayerGround,
+  type RenderLayerItem,
+  type RenderLayerBlocker,
+  RenderLayerGroundComponent,
+  RenderLayerItemComponent,
+  RenderLayerBlockerComponent,
+  RenderOrder,
+} from './render-layer'
 import { type Stats, StatsComponent } from './stats'
 import {
   type WantMeleeAttack,
@@ -38,6 +47,13 @@ export {
   RemoveComponent,
   type Renderable,
   RenderableComponent,
+  type RenderLayerGround,
+  type RenderLayerItem,
+  type RenderLayerBlocker,
+  RenderLayerGroundComponent,
+  RenderLayerItemComponent,
+  RenderLayerBlockerComponent,
+  RenderOrder,
   type Stats,
   StatsComponent,
   type WantMeleeAttack,
