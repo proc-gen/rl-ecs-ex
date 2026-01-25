@@ -36,6 +36,7 @@ export const createPlayer = (world: World, startPosition: Vector2) => {
     xOffset: 0,
     yOffset: 0,
     useItem: undefined,
+    actionSuccessful: true,
   }
   InfoComponent.info[player] = { name: 'Player' }
   PositionComponent.position[player] = { ...startPosition }

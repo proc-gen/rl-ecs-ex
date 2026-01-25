@@ -45,6 +45,7 @@ export const createEnemy = (
     xOffset: 0,
     yOffset: 0,
     useItem: undefined,
+    actionSuccessful: true,
   }
   InfoComponent.info[enemy] = { name }
   PositionComponent.position[enemy] = { ...startPosition }

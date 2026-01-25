@@ -51,6 +51,7 @@ export class UpdateActionSystem implements UpdateSystem {
       if (position.x === newPosition.x && position.y === newPosition.y) {
         const info = InfoComponent.info[entity]
         this.log.addMessage(`${info.name} does nothing.`)
+        this.resetAction(action, true)
       } else if (this.map.isWalkable(newPosition.x, newPosition.y)) {
         const entities = this.map.getEntitiesAtLocation(newPosition)
 
@@ -60,6 +61,7 @@ export class UpdateActionSystem implements UpdateSystem {
             undefined
         ) {
           this.handleMove(world, entity, position, newPosition)
+          this.resetAction(action, true)
         } else if (entities.length > 0) {
           const blocker = entities.find((a) =>
             hasComponent(world, a, BlockerComponent),
@@ -72,10 +74,13 @@ export class UpdateActionSystem implements UpdateSystem {
               attacker: entity,
               defender: blocker,
             }
+            this.resetAction(action, true)
           }
         }
+      } else {
+        this.log.addMessage('That direction is blocked')
+        this.resetAction(action, false)
       }
-      this.resetAction(action)
     }
   }
 
@@ -94,10 +99,12 @@ export class UpdateActionSystem implements UpdateSystem {
     }
   }
 
-  resetAction(action: Action) {
+  resetAction(action: Action, success: boolean) {
     action.processed = true
     action.xOffset = 0
     action.yOffset = 0
+    action.useItem = undefined
+    action.actionSuccessful = success
   }
 
   processPlayerFOV(position: Position) {

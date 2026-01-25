@@ -145,8 +145,12 @@ export class Engine {
           !hasComponent(this.world, a, RemoveComponent),
       )
 
-      this.actors.push(this.actors.shift()!)
-      this.currentActor = this.actors[0]
+      const action = ActionComponent.action[this.currentActor]
+
+      if (action.actionSuccessful) {
+        this.actors.push(this.actors.shift()!)
+        this.currentActor = this.actors[0]
+      }
       this.playerTurn = this.currentActor === this.player
     } while (!this.playerTurn)
   }
@@ -233,16 +237,11 @@ export class Engine {
     newPosition.x += xOffset
     newPosition.y += yOffset
 
-    if (this.map.isWalkable(newPosition.x, newPosition.y)) {
-      const action = ActionComponent.action[this.player]
-      action.xOffset = xOffset
-      action.yOffset = yOffset
-      action.processed = false
+    const action = ActionComponent.action[this.player]
+    action.xOffset = xOffset
+    action.yOffset = yOffset
+    action.processed = false
 
-      this.update()
-    } else {
-      this.log.addMessage('That direction is blocked')
-      this.render()
-    }
+    this.update()
   }
 }
