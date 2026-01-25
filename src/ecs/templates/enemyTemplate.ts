@@ -40,7 +40,12 @@ export const createEnemy = (
     HealthComponent,
     StatsComponent,
   )
-  ActionComponent.action[enemy] = { processed: true, xOffset: 0, yOffset: 0 }
+  ActionComponent.action[enemy] = {
+    processed: true,
+    xOffset: 0,
+    yOffset: 0,
+    useItem: undefined,
+  }
   InfoComponent.info[enemy] = { name }
   PositionComponent.position[enemy] = { ...startPosition }
   RenderableComponent.renderable[enemy] = {

@@ -229,11 +229,20 @@ export class Engine {
   }
 
   setPlayerAction(xOffset: number, yOffset: number) {
-    const action = ActionComponent.action[this.player]
-    action.xOffset = xOffset
-    action.yOffset = yOffset
-    action.processed = false
+    const newPosition = { ...PositionComponent.position[this.player] }
+    newPosition.x += xOffset
+    newPosition.y += yOffset
 
-    this.update()
+    if (this.map.isWalkable(newPosition.x, newPosition.y)) {
+      const action = ActionComponent.action[this.player]
+      action.xOffset = xOffset
+      action.yOffset = yOffset
+      action.processed = false
+
+      this.update()
+    } else {
+      this.log.addMessage('That direction is blocked')
+      this.render()
+    }
   }
 }
