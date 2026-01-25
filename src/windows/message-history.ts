@@ -40,10 +40,12 @@ export class MessageHistoryWindow implements InputController, RenderWindow {
     if (this.active) {
       switch (event.key) {
         case 'ArrowUp':
+        case 'w':
           this.logPosition = Math.max(0, this.logPosition - 1)
           needRender = true
           break
         case 'ArrowDown':
+        case 's':
           this.logPosition = Math.min(
             this.log.messages.length - 1,
             this.logPosition + 1,
@@ -51,6 +53,7 @@ export class MessageHistoryWindow implements InputController, RenderWindow {
           needRender = true
           break
         case 'Escape':
+        case 'Delete':
           this.active = false
           needRender = true
           break

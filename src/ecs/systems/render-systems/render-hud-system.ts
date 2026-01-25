@@ -59,22 +59,27 @@ export class RenderHudSystem implements RenderSystem, InputController {
     if (this.active) {
       switch (event.key) {
         case 'ArrowUp':
+        case 'w':
           this.setInspectLocation(0, -1)
           needRender = true
           break
         case 'ArrowDown':
+        case 's':
           this.setInspectLocation(0, 1)
           needRender = true
           break
         case 'ArrowLeft':
+        case 'a':
           this.setInspectLocation(-1, 0)
           needRender = true
           break
         case 'ArrowRight':
+        case 'd':
           this.setInspectLocation(1, 0)
           needRender = true
           break
         case 'Escape':
+        case 'Delete':
           this.active = false
           needRender = true
           break

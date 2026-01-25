@@ -126,7 +126,7 @@ export class Engine {
       rs.render(this.display)
     })
 
-    if(this.historyViewer.active){
+    if (this.historyViewer.active) {
       this.historyViewer.render(this.display)
     }
   }
@@ -165,25 +165,32 @@ export class Engine {
       } else {
         switch (event.key) {
           case 'ArrowUp':
+          case 'w':
             this.setPlayerAction(0, -1)
             break
           case 'ArrowDown':
+          case 's':
             this.setPlayerAction(0, 1)
             break
           case 'ArrowLeft':
+          case 'a':
             this.setPlayerAction(-1, 0)
             break
           case 'ArrowRight':
+          case 'd':
             this.setPlayerAction(1, 0)
             break
-          case '.':
+          case ' ':
+          case 'Enter':
             this.setPlayerAction(0, 0)
             break
-          case 'i':
+          case '.':
+          case 'q':
             this.renderHudSystem.setActive(true)
             this.render()
             break
-          case 'v':
+          case 'l':
+          case '`':
             this.historyViewer.setActive(true)
             this.render()
             break
