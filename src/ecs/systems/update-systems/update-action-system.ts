@@ -15,6 +15,7 @@ import {
   BlockerComponent,
   WantMeleeAttackComponent,
   InfoComponent,
+  WantUseItemComponent,
 } from '../../components'
 import { Map } from '../../../map'
 import type { Vector2 } from '../../../types'
@@ -48,7 +49,15 @@ export class UpdateActionSystem implements UpdateSystem {
         y: position.y + action.yOffset,
       }
 
-      if (position.x === newPosition.x && position.y === newPosition.y) {
+      if (action.useItem !== undefined){
+        const item = addEntity(world)
+        addComponent(world, item, WantUseItemComponent)
+        WantUseItemComponent.wantUseItem[item] = {
+          owner: entity,
+          item: action.useItem,
+        }
+        this.resetAction(action, true)
+      } else if (position.x === newPosition.x && position.y === newPosition.y) {
         const info = InfoComponent.info[entity]
         this.log.addMessage(`${info.name} does nothing.`)
         this.resetAction(action, true)

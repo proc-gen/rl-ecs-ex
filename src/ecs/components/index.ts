@@ -27,6 +27,10 @@ import {
   type WantMeleeAttack,
   WantMeleeAttackComponent,
 } from './want-melee-attack'
+import {
+  type WantUseItem,
+  WantUseItemComponent,
+} from './want-use-item'
 
 export {
   type Action,
@@ -70,4 +74,6 @@ export {
   StatsComponent,
   type WantMeleeAttack,
   WantMeleeAttackComponent,
+  type WantUseItem,
+  WantUseItemComponent,
 }

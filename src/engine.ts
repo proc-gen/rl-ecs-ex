@@ -24,6 +24,7 @@ import {
   UpdateWantAttackSystem,
   UpdateRemoveSystem,
   UpdateAiActionSystem,
+  UpdateWantUseItemSystem,
 } from './ecs/systems/update-systems'
 import { Map } from './map'
 import { DefaultGenerator, type Generator } from './map/generators'
@@ -96,6 +97,7 @@ export class Engine {
         this.playerFOV,
       ),
       new UpdateWantAttackSystem(this.log),
+      new UpdateWantUseItemSystem(this.log),
     ]
 
     this.renderHudSystem = new RenderHudSystem(
