@@ -9,5 +9,6 @@ export type Action = {
   xOffset: number
   yOffset: number
   useItem: EntityId | undefined
+  pickUpItem: boolean
   actionSuccessful: boolean
 }

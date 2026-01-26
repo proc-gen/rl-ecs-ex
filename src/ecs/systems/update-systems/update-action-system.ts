@@ -2,6 +2,7 @@ import {
   addComponent,
   addEntity,
   hasComponent,
+  removeComponent,
   type EntityId,
   type World,
 } from 'bitecs'
@@ -16,6 +17,8 @@ import {
   WantMeleeAttackComponent,
   InfoComponent,
   WantUseItemComponent,
+  ItemComponent,
+  OwnerComponent,
 } from '../../components'
 import { Map } from '../../../map'
 import type { Vector2 } from '../../../types'
@@ -49,7 +52,7 @@ export class UpdateActionSystem implements UpdateSystem {
         y: position.y + action.yOffset,
       }
 
-      if (action.useItem !== undefined){
+      if (action.useItem !== undefined) {
         const item = addEntity(world)
         addComponent(world, item, WantUseItemComponent)
         WantUseItemComponent.wantUseItem[item] = {
@@ -59,8 +62,29 @@ export class UpdateActionSystem implements UpdateSystem {
         this.resetAction(action, true)
       } else if (position.x === newPosition.x && position.y === newPosition.y) {
         const info = InfoComponent.info[entity]
-        this.log.addMessage(`${info.name} does nothing.`)
-        this.resetAction(action, true)
+        if (action.pickUpItem) {
+          const entities = this.map.getEntitiesAtLocation(position)
+          if (
+            entities.length === 0 ||
+            entities.find((a) => hasComponent(world, a, ItemComponent)) ===
+              undefined
+          ) {
+            this.log.addMessage('There is no item to pick up')
+            this.resetAction(action, false)
+          } else {
+            const item = entities.find((a) =>
+              hasComponent(world, a, ItemComponent),
+            )!
+            removeComponent(world, item, PositionComponent)
+            addComponent(world, item, OwnerComponent)
+            const itemInfo = InfoComponent.info[item]
+            this.log.addMessage(`${info.name} picks up ${itemInfo.name}`)
+            this.resetAction(action, true)
+          }
+        } else {
+          this.log.addMessage(`${info.name} does nothing.`)
+          this.resetAction(action, true)
+        }
       } else if (this.map.isWalkable(newPosition.x, newPosition.y)) {
         const entities = this.map.getEntitiesAtLocation(newPosition)
 
@@ -113,6 +137,7 @@ export class UpdateActionSystem implements UpdateSystem {
     action.xOffset = 0
     action.yOffset = 0
     action.useItem = undefined
+    action.pickUpItem = false
     action.actionSuccessful = success
   }
 

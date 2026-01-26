@@ -14,7 +14,7 @@ import {
 import { Colors } from '../../../constants/colors'
 import type { MessageLog } from '../../../utils/message-log'
 import type { InputController } from '../../../interfaces/input-controller'
-import type { Vector2 } from '../../../types'
+import type { HandleInputInfo, Vector2 } from '../../../types'
 import type { Map } from '../../../map'
 
 export class RenderHudSystem implements RenderSystem, InputController {
@@ -54,39 +54,39 @@ export class RenderHudSystem implements RenderSystem, InputController {
     }
   }
 
-  handleKeyboardInput(event: KeyboardEvent): boolean {
-    let needRender = false
+  handleKeyboardInput(event: KeyboardEvent): HandleInputInfo {
+    const inputInfo = { needRender: false, needUpdate: false }
     if (this.active) {
       switch (event.key) {
         case 'ArrowUp':
         case 'w':
           this.setInspectLocation(0, -1)
-          needRender = true
+          inputInfo.needRender = true
           break
         case 'ArrowDown':
         case 's':
           this.setInspectLocation(0, 1)
-          needRender = true
+          inputInfo.needRender = true
           break
         case 'ArrowLeft':
         case 'a':
           this.setInspectLocation(-1, 0)
-          needRender = true
+          inputInfo.needRender = true
           break
         case 'ArrowRight':
         case 'd':
           this.setInspectLocation(1, 0)
-          needRender = true
+          inputInfo.needRender = true
           break
         case 'Escape':
         case 'Delete':
           this.active = false
-          needRender = true
+          inputInfo.needRender = true
           break
       }
     }
 
-    return needRender
+    return inputInfo
   }
 
   setInspectLocation(xOffset: number, yOffset: number) {
@@ -101,8 +101,8 @@ export class RenderHudSystem implements RenderSystem, InputController {
     }
   }
 
-  handleMouseInput(_event: MouseEvent, position: Vector2): boolean {
-    let needRender = false
+  handleMouseInput(_event: MouseEvent, position: Vector2): HandleInputInfo {
+    const inputInfo = { needRender: false, needUpdate: false }
     if (this.active) {
       if (
         this.map.isInBounds(position.x, position.y) &&
@@ -111,11 +111,11 @@ export class RenderHudSystem implements RenderSystem, InputController {
       ) {
         this.inspectLocation.x = position.x
         this.inspectLocation.y = position.y
-        needRender = true
+        inputInfo.needRender = true
       }
     }
 
-    return needRender
+    return inputInfo
   }
 
   render(display: Display) {
