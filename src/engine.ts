@@ -67,7 +67,7 @@ export class Engine {
     this.log.addMessage('Welcome to your doom, adventurer...')
     this.historyViewer = new MessageHistoryWindow(this.log)
 
-    this.generator = new DefaultGenerator(this.world, this.map, 10, 5, 12, 10)
+    this.generator = new DefaultGenerator(this.world, this.map, 10, 5, 12, 10, 4)
     this.generator.generate()
     const startPosition = this.generator.playerStartPosition()
 

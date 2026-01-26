@@ -85,7 +85,7 @@ const createConsumableComponents = (
 const itemStatLookup = (name: string) => {
   if (name === 'Health Potion') {
     return {
-      char: '?',
+      char: '¡',
       itemType: ItemType.Consumable,
       fg: Colors.HealthBar,
       bg: null,
@@ -99,7 +99,7 @@ const consumableStatLookup = (name: string) => {
   if (name === 'Health Potion') {
     return {
       consumableType: ConsumableType.Heal,
-      amount: 5,
+      amount: 4,
     }
   }
 
