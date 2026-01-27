@@ -269,13 +269,11 @@ export class Engine {
     xOffset: number,
     yOffset: number,
     pickUpItem: boolean = false,
-    useItem: EntityId | undefined = undefined,
   ) {
     const action = ActionComponent.action[this.player]
     action.xOffset = xOffset
     action.yOffset = yOffset
     action.pickUpItem = pickUpItem
-    action.useItem = useItem
     action.processed = false
 
     this.update()
