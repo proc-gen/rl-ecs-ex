@@ -24,13 +24,14 @@ import {
   UpdateWantAttackSystem,
   UpdateRemoveSystem,
   UpdateAiActionSystem,
+  UpdateWantUseItemSystem,
 } from './ecs/systems/update-systems'
 import { Map } from './map'
 import { DefaultGenerator, type Generator } from './map/generators'
-import type { Vector2 } from './types'
+import type { HandleInputInfo, Vector2 } from './types'
 import { createPlayer } from './ecs/templates'
 import { MessageLog } from './utils/message-log'
-import { MessageHistoryWindow } from './windows'
+import { InventoryWindow, MessageHistoryWindow } from './windows'
 
 export class Engine {
   public static readonly WIDTH = 80
@@ -48,6 +49,7 @@ export class Engine {
   generator: Generator
   log: MessageLog
   historyViewer: MessageHistoryWindow
+  inventoryWindow: InventoryWindow
   renderSystems: RenderSystem[]
   renderHudSystem: RenderHudSystem
   updateSystems: UpdateSystem[]
@@ -64,9 +66,16 @@ export class Engine {
     this.playerFOV = []
     this.log = new MessageLog()
     this.log.addMessage('Welcome to your doom, adventurer...')
-    this.historyViewer = new MessageHistoryWindow(this.log)
 
-    this.generator = new DefaultGenerator(this.world, this.map, 10, 5, 12, 10)
+    this.generator = new DefaultGenerator(
+      this.world,
+      this.map,
+      10,
+      5,
+      12,
+      10,
+      4,
+    )
     this.generator.generate()
     const startPosition = this.generator.playerStartPosition()
 
@@ -96,6 +105,7 @@ export class Engine {
         this.playerFOV,
       ),
       new UpdateWantAttackSystem(this.log),
+      new UpdateWantUseItemSystem(this.log),
     ]
 
     this.renderHudSystem = new RenderHudSystem(
@@ -110,6 +120,9 @@ export class Engine {
       new RenderEntitySystem(this.world, this.playerFOV),
       this.renderHudSystem,
     ]
+
+    this.historyViewer = new MessageHistoryWindow(this.log)
+    this.inventoryWindow = new InventoryWindow(this.world, this.player)
 
     this.playerTurn = true
     this.currentActor = this.player
@@ -126,7 +139,9 @@ export class Engine {
       rs.render(this.display)
     })
 
-    if(this.historyViewer.active){
+    if (this.inventoryWindow.active) {
+      this.inventoryWindow.render(this.display)
+    } else if (this.historyViewer.active) {
       this.historyViewer.render(this.display)
     }
   }
@@ -145,8 +160,12 @@ export class Engine {
           !hasComponent(this.world, a, RemoveComponent),
       )
 
-      this.actors.push(this.actors.shift()!)
-      this.currentActor = this.actors[0]
+      const action = ActionComponent.action[this.currentActor]
+
+      if (action.actionSuccessful) {
+        this.actors.push(this.actors.shift()!)
+        this.currentActor = this.actors[0]
+      }
       this.playerTurn = this.currentActor === this.player
     } while (!this.playerTurn)
   }
@@ -154,37 +173,54 @@ export class Engine {
   keyDown(event: KeyboardEvent) {
     event.preventDefault()
     if (this.playerTurn) {
-      if (this.renderHudSystem.active) {
-        if (this.renderHudSystem.handleKeyboardInput(event)) {
-          this.render()
-        }
+      if (this.inventoryWindow.active) {
+        const inputInfo = this.inventoryWindow.handleKeyboardInput(event)
+        this.handleInputInfo(inputInfo)
+      } else if (this.renderHudSystem.active) {
+        const inputInfo = this.renderHudSystem.handleKeyboardInput(event)
+        this.handleInputInfo(inputInfo)
       } else if (this.historyViewer.active) {
-        if (this.historyViewer.handleKeyboardInput(event)) {
-          this.render()
-        }
+        const inputInfo = this.historyViewer.handleKeyboardInput(event)
+        this.handleInputInfo(inputInfo)
       } else {
         switch (event.key) {
           case 'ArrowUp':
+          case 'w':
             this.setPlayerAction(0, -1)
             break
           case 'ArrowDown':
+          case 's':
             this.setPlayerAction(0, 1)
             break
           case 'ArrowLeft':
+          case 'a':
             this.setPlayerAction(-1, 0)
             break
           case 'ArrowRight':
+          case 'd':
             this.setPlayerAction(1, 0)
             break
-          case '.':
+          case ' ':
+          case 'Enter':
             this.setPlayerAction(0, 0)
             break
-          case 'i':
+          case 'e':
+          case 'g':
+            this.setPlayerAction(0, 0, true)
+            break
+          case '.':
+          case 'q':
             this.renderHudSystem.setActive(true)
             this.render()
             break
-          case 'v':
+          case 'l':
+          case '`':
             this.historyViewer.setActive(true)
+            this.render()
+            break
+          case 'Tab':
+          case 'i':
+            this.inventoryWindow.setActive(true)
             this.render()
             break
         }
@@ -194,25 +230,33 @@ export class Engine {
 
   mouseMove(event: MouseEvent | WheelEvent) {
     if (this.playerTurn) {
-      if (this.renderHudSystem.active) {
-        if (
-          this.renderHudSystem.handleMouseInput(
-            event,
-            this.getMousePosFromEvent(event),
-          )
-        ) {
-          this.render()
-        }
+      if (this.inventoryWindow.active) {
+        const inputInfo = this.inventoryWindow.handleMouseInput(
+          event,
+          this.getMousePosFromEvent(event),
+        )
+        this.handleInputInfo(inputInfo)
+      } else if (this.renderHudSystem.active) {
+        const inputInfo = this.renderHudSystem.handleMouseInput(
+          event,
+          this.getMousePosFromEvent(event),
+        )
+        this.handleInputInfo(inputInfo)
       } else if (this.historyViewer.active) {
-        if (
-          this.historyViewer.handleMouseInput(
-            event as WheelEvent,
-            this.getMousePosFromEvent(event),
-          )
-        ) {
-          this.render()
-        }
+        const inputInfo = this.historyViewer.handleMouseInput(
+          event as WheelEvent,
+          this.getMousePosFromEvent(event),
+        )
+        this.handleInputInfo(inputInfo)
       }
+    }
+  }
+
+  handleInputInfo(inputInfo: HandleInputInfo) {
+    if (inputInfo.needUpdate) {
+      this.update()
+    } else if (inputInfo.needRender) {
+      this.render()
     }
   }
 
@@ -221,10 +265,15 @@ export class Engine {
     return { x: mousePosition[0], y: mousePosition[1] }
   }
 
-  setPlayerAction(xOffset: number, yOffset: number) {
+  setPlayerAction(
+    xOffset: number,
+    yOffset: number,
+    pickUpItem: boolean = false,
+  ) {
     const action = ActionComponent.action[this.player]
     action.xOffset = xOffset
     action.yOffset = yOffset
+    action.pickUpItem = pickUpItem
     action.processed = false
 
     this.update()

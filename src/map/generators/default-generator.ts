@@ -6,7 +6,7 @@ import { Room, type Sector } from '../containers'
 import { clearMap, tunnel, type Generator } from './generator'
 import type { Vector2 } from '../../types'
 import { getRandomNumber } from '../../utils/random'
-import { createEnemy } from '../../ecs/templates'
+import { createEnemy, createItem } from '../../ecs/templates'
 
 export class DefaultGenerator implements Generator {
   world: World
@@ -18,6 +18,7 @@ export class DefaultGenerator implements Generator {
   maxRoomSize: number
   maxRooms: number
   maxMonsters: number
+  maxItems: number
 
   constructor(
     world: World,
@@ -26,6 +27,7 @@ export class DefaultGenerator implements Generator {
     minRoomSize: number,
     maxRoomSize: number,
     maxMonsters: number,
+    maxItems: number,
   ) {
     this.world = world
     this.map = map
@@ -36,6 +38,7 @@ export class DefaultGenerator implements Generator {
     this.minRoomSize = minRoomSize
     this.maxRoomSize = maxRoomSize
     this.maxMonsters = maxMonsters
+    this.maxItems = maxItems
   }
 
   generate(): void {
@@ -44,7 +47,7 @@ export class DefaultGenerator implements Generator {
     this.createRooms()
     this.connectRooms()
 
-    this.placeEnemies()
+    this.placeEntities()
 
     this.copyRoomsToMap()
     this.copyTunnelsToMap()
@@ -92,42 +95,78 @@ export class DefaultGenerator implements Generator {
     }
   }
 
-  placeEnemies() {
+  placeEntities() {
     let monstersLeft = this.maxMonsters
+    let itemsLeft = this.maxItems
     const playerStart = this.playerStartPosition()
     this.rooms.forEach((a) => {
-      let numEnemies = Math.min(getRandomNumber(0, 2), monstersLeft)
+      monstersLeft -= this.placeEnemiesForRoom(a, monstersLeft, playerStart)
+      itemsLeft -= this.placeItemsForRoom(a, itemsLeft, playerStart)
+    })
+  }
 
-      if (numEnemies > 0) {
-        const positions: Vector2[] = []
-        while (positions.length < numEnemies) {
-          const position = {
-            x: getRandomNumber(a.x + 1, a.x + a.width - 2),
-            y: getRandomNumber(a.y + 1, a.y + a.height - 2),
-          }
+  placeEnemiesForRoom(a: Room, monstersLeft: number, playerStart: Vector2) {
+    let numEnemies = Math.min(getRandomNumber(0, 2), monstersLeft)
 
-          if (
-            (positions.length === 0 ||
-              positions.find(
-                (p) => p.x === position.x && p.y === position.y,
-              ) === undefined) &&
-            (position.x !== playerStart.x || position.y !== playerStart.y)
-          ) {
-            positions.push(position)
-          }
+    if (numEnemies > 0) {
+      const positions: Vector2[] = []
+      while (positions.length < numEnemies) {
+        const position = {
+          x: getRandomNumber(a.x + 1, a.x + a.width - 2),
+          y: getRandomNumber(a.y + 1, a.y + a.height - 2),
         }
 
-        positions.forEach((p) => {
-          let name = 'Orc'
-
-          if (getRandomNumber(0, 100) < 80) {
-            name = 'Troll'
-          }
-
-          createEnemy(this.world, p, name)
-        })
+        if (
+          (positions.length === 0 ||
+            positions.find((p) => p.x === position.x && p.y === position.y) ===
+              undefined) &&
+          (position.x !== playerStart.x || position.y !== playerStart.y)
+        ) {
+          positions.push(position)
+        }
       }
-    })
+
+      positions.forEach((p) => {
+        let name = 'Orc'
+
+        if (getRandomNumber(0, 100) < 80) {
+          name = 'Troll'
+        }
+
+        createEnemy(this.world, p, name)
+      })
+    }
+
+    return numEnemies
+  }
+
+  placeItemsForRoom(a: Room, itemsLeft: number, playerStart: Vector2) {
+    let numItems = Math.min(getRandomNumber(0, 2), itemsLeft)
+
+    if (numItems > 0) {
+      const positions: Vector2[] = []
+      while (positions.length < numItems) {
+        const position = {
+          x: getRandomNumber(a.x + 1, a.x + a.width - 2),
+          y: getRandomNumber(a.y + 1, a.y + a.height - 2),
+        }
+
+        if (
+          (positions.length === 0 ||
+            positions.find((p) => p.x === position.x && p.y === position.y) ===
+              undefined) &&
+          (position.x !== playerStart.x || position.y !== playerStart.y)
+        ) {
+          positions.push(position)
+        }
+      }
+
+      positions.forEach((p) => {
+        createItem(this.world, 'Health Potion', p, undefined)
+      })
+    }
+
+    return numItems
   }
 
   copyRoomsToMap() {

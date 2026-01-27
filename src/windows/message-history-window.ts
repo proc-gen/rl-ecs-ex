@@ -1,8 +1,8 @@
 import type { Display } from 'rot-js'
 import type { InputController } from '../interfaces/input-controller'
-import type { Vector2 } from '../types'
+import type { HandleInputInfo, Vector2 } from '../types'
 import type { MessageLog } from '../utils/message-log'
-import type { RenderWindow } from './render-window'
+import type { RenderWindow } from '.'
 import {
   renderSingleLineTextOver,
   renderWindowWithTitle,
@@ -35,47 +35,50 @@ export class MessageHistoryWindow implements InputController, RenderWindow {
     this.logPosition = 0
   }
 
-  handleKeyboardInput(event: KeyboardEvent): boolean {
-    let needRender = false
+  handleKeyboardInput(event: KeyboardEvent): HandleInputInfo {
+    const inputInfo = { needRender: false, needUpdate: false }
     if (this.active) {
       switch (event.key) {
         case 'ArrowUp':
+        case 'w':
           this.logPosition = Math.max(0, this.logPosition - 1)
-          needRender = true
+          inputInfo.needRender = true
           break
         case 'ArrowDown':
+        case 's':
           this.logPosition = Math.min(
             this.log.messages.length - 1,
             this.logPosition + 1,
           )
-          needRender = true
+          inputInfo.needRender = true
           break
         case 'Escape':
+        case 'Delete':
           this.active = false
-          needRender = true
+          inputInfo.needRender = true
           break
       }
     }
 
-    return needRender
+    return inputInfo
   }
 
-  handleMouseInput(event: WheelEvent, _position: Vector2): boolean {
-    let needRender = false
+  handleMouseInput(event: WheelEvent, _position: Vector2): HandleInputInfo {
+    const inputInfo = { needRender: false, needUpdate: false }
     if (this.active && event.deltaY !== undefined) {
       if (event.deltaY < 0) {
         this.logPosition = Math.min(
           this.log.messages.length - 1,
           this.logPosition + 1,
         )
-        needRender = true
+        inputInfo.needRender = true
       } else if (event.deltaY > 0) {
         this.logPosition = Math.max(0, this.logPosition - 1)
-        needRender = true
+        inputInfo.needRender = true
       }
     }
 
-    return needRender
+    return inputInfo
   }
 
   render(display: Display) {

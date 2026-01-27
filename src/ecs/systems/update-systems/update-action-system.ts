@@ -2,6 +2,7 @@ import {
   addComponent,
   addEntity,
   hasComponent,
+  removeComponent,
   type EntityId,
   type World,
 } from 'bitecs'
@@ -15,11 +16,15 @@ import {
   BlockerComponent,
   WantMeleeAttackComponent,
   InfoComponent,
+  WantUseItemComponent,
+  ItemComponent,
+  OwnerComponent,
 } from '../../components'
 import { Map } from '../../../map'
 import type { Vector2 } from '../../../types'
 import { FOV } from 'rot-js'
 import type { MessageLog } from '../../../utils/message-log'
+import { ItemActionType } from '../../../constants/item-action-type'
 
 export class UpdateActionSystem implements UpdateSystem {
   map: Map
@@ -48,9 +53,80 @@ export class UpdateActionSystem implements UpdateSystem {
         y: position.y + action.yOffset,
       }
 
-      if (position.x === newPosition.x && position.y === newPosition.y) {
+      if (action.useItem !== undefined) {
+        if (action.itemActionType === ItemActionType.Use) {
+          const item = addEntity(world)
+          addComponent(world, item, WantUseItemComponent)
+          WantUseItemComponent.wantUseItem[item] = {
+            owner: entity,
+            item: action.useItem,
+          }
+          this.resetAction(action, true)
+        } else if (action.itemActionType === ItemActionType.Drop) {
+          const fov = hasComponent(world, entity, PlayerComponent)
+            ? this.playerFOV
+            : this.processFOV(position)
+          const sortedFov = fov.toSorted((a, b) => {
+            const distA =
+              (position.x - a.x) * (position.x - a.x) +
+              (position.y - a.y) * (position.y - a.y)
+            const distB =
+              (position.x - b.x) * (position.x - b.x) +
+              (position.y - b.y) * (position.y - b.y)
+            return Math.sqrt(distA) - Math.sqrt(distB)
+          })
+
+          let dropped = false
+          let i = 0
+          do {
+            if (this.map.isWalkable(sortedFov[i].x, sortedFov[i].y)) {
+              const entities = this.map.getEntitiesAtLocation(sortedFov[i])
+              if (
+                entities.length === 0 ||
+                !entities.find((a) => hasComponent(world, a, ItemComponent))
+              ) {
+                dropped = true
+
+                removeComponent(world, action.useItem, OwnerComponent)
+                addComponent(world, action.useItem, PositionComponent)
+                PositionComponent.position[action.useItem] = { ...sortedFov[i] }
+                this.map.addEntityAtLocation(action.useItem, sortedFov[i])
+              }
+            }
+            i++
+          } while (!dropped && i < sortedFov.length)
+
+          this.resetAction(action, true)
+        } else {
+          this.log.addMessage('Invalid action for an item')
+          this.resetAction(action, false)
+        }
+      } else if (position.x === newPosition.x && position.y === newPosition.y) {
         const info = InfoComponent.info[entity]
-        this.log.addMessage(`${info.name} does nothing.`)
+        if (action.pickUpItem) {
+          const entities = this.map.getEntitiesAtLocation(position)
+          if (
+            entities.length === 0 ||
+            entities.find((a) => hasComponent(world, a, ItemComponent)) ===
+              undefined
+          ) {
+            this.log.addMessage('There is no item to pick up')
+            this.resetAction(action, false)
+          } else {
+            const item = entities.find((a) =>
+              hasComponent(world, a, ItemComponent),
+            )!
+            removeComponent(world, item, PositionComponent)
+            addComponent(world, item, OwnerComponent)
+            OwnerComponent.owner[item] = {owner: entity}
+            const itemInfo = InfoComponent.info[item]
+            this.log.addMessage(`${info.name} picks up ${itemInfo.name}`)
+            this.resetAction(action, true)
+          }
+        } else {
+          this.log.addMessage(`${info.name} does nothing.`)
+          this.resetAction(action, true)
+        }
       } else if (this.map.isWalkable(newPosition.x, newPosition.y)) {
         const entities = this.map.getEntitiesAtLocation(newPosition)
 
@@ -60,6 +136,7 @@ export class UpdateActionSystem implements UpdateSystem {
             undefined
         ) {
           this.handleMove(world, entity, position, newPosition)
+          this.resetAction(action, true)
         } else if (entities.length > 0) {
           const blocker = entities.find((a) =>
             hasComponent(world, a, BlockerComponent),
@@ -72,10 +149,13 @@ export class UpdateActionSystem implements UpdateSystem {
               attacker: entity,
               defender: blocker,
             }
+            this.resetAction(action, true)
           }
         }
+      } else {
+        this.log.addMessage('That direction is blocked')
+        this.resetAction(action, false)
       }
-      this.resetAction(action)
     }
   }
 
@@ -94,15 +174,26 @@ export class UpdateActionSystem implements UpdateSystem {
     }
   }
 
-  resetAction(action: Action) {
+  resetAction(action: Action, success: boolean) {
     action.processed = true
     action.xOffset = 0
     action.yOffset = 0
+    action.useItem = undefined
+    action.pickUpItem = false
+    action.itemActionType = undefined
+    action.actionSuccessful = success
   }
 
   processPlayerFOV(position: Position) {
     this.playerFOV.length = 0
+    const fovPositions = this.processFOV(position)
+    fovPositions.forEach((p) => {
+      this.playerFOV.push({ ...p })
+    })
+  }
 
+  processFOV(position: Position) {
+    const fovPositions: Vector2[] = []
     const fov = new FOV.PreciseShadowcasting(
       this.map.lightPassesThrough.bind(this.map),
     )
@@ -110,8 +201,10 @@ export class UpdateActionSystem implements UpdateSystem {
       if (visibility === 1) {
         this.map.tiles[x][y].seen = true
 
-        this.playerFOV.push({ x, y })
+        fovPositions.push({ x, y })
       }
     })
+
+    return fovPositions
   }
 }
