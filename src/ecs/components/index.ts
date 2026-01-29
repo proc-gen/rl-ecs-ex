@@ -22,11 +22,12 @@ import {
   RenderLayerBlockerComponent,
   RenderOrder,
 } from './render-layer'
+import { type Spell, SpellComponent } from './spell'
 import { type Stats, StatsComponent } from './stats'
 import {
-  type WantMeleeAttack,
-  WantMeleeAttackComponent,
-} from './want-melee-attack'
+  type WantAttack,
+  WantAttackComponent,
+} from './want-attack'
 import {
   type WantUseItem,
   WantUseItemComponent,
@@ -70,10 +71,12 @@ export {
   RenderLayerItemComponent,
   RenderLayerBlockerComponent,
   RenderOrder,
+  type Spell,
+  SpellComponent,
   type Stats,
   StatsComponent,
-  type WantMeleeAttack,
-  WantMeleeAttackComponent,
+  type WantAttack,
+  WantAttackComponent,
   type WantUseItem,
   WantUseItemComponent,
 }
