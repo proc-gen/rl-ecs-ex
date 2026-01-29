@@ -14,7 +14,7 @@ import {
   PlayerComponent,
   type Position,
   BlockerComponent,
-  WantMeleeAttackComponent,
+  WantAttackComponent,
   InfoComponent,
   WantUseItemComponent,
   ItemComponent,
@@ -25,6 +25,8 @@ import type { Vector2 } from '../../../types'
 import { FOV } from 'rot-js'
 import type { MessageLog } from '../../../utils/message-log'
 import { ItemActionType } from '../../../constants/item-action-type'
+import { distance } from '../../../utils/vector-2-funcs'
+import { AttackType } from '../../../constants/attack-type'
 
 export class UpdateActionSystem implements UpdateSystem {
   map: Map
@@ -67,13 +69,7 @@ export class UpdateActionSystem implements UpdateSystem {
             ? this.playerFOV
             : this.processFOV(position)
           const sortedFov = fov.toSorted((a, b) => {
-            const distA =
-              (position.x - a.x) * (position.x - a.x) +
-              (position.y - a.y) * (position.y - a.y)
-            const distB =
-              (position.x - b.x) * (position.x - b.x) +
-              (position.y - b.y) * (position.y - b.y)
-            return Math.sqrt(distA) - Math.sqrt(distB)
+            return distance(a, position) - distance(b, position)
           })
 
           let dropped = false
@@ -143,9 +139,10 @@ export class UpdateActionSystem implements UpdateSystem {
           )
           if (blocker !== undefined) {
             const attack = addEntity(world)
-            addComponent(world, attack, WantMeleeAttackComponent)
+            addComponent(world, attack, WantAttackComponent)
 
-            WantMeleeAttackComponent.wantMeleeAttack[attack] = {
+            WantAttackComponent.WantAttack[attack] = {
+              attackType: AttackType.Melee,
               attacker: entity,
               defender: blocker,
             }
@@ -188,6 +185,7 @@ export class UpdateActionSystem implements UpdateSystem {
     this.playerFOV.length = 0
     const fovPositions = this.processFOV(position)
     fovPositions.forEach((p) => {
+      this.map.tiles[p.x][p.y].seen = true
       this.playerFOV.push({ ...p })
     })
   }
@@ -199,8 +197,6 @@ export class UpdateActionSystem implements UpdateSystem {
     )
     fov.compute(position.x, position.y, 8, (x, y, _r, visibility) => {
       if (visibility === 1) {
-        this.map.tiles[x][y].seen = true
-
         fovPositions.push({ x, y })
       }
     })

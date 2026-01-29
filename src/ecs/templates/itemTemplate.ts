@@ -18,6 +18,7 @@ import {
   PositionComponent,
   RenderableComponent,
   RenderLayerItemComponent,
+  SpellComponent,
 } from '../components'
 
 export const createItem = (
@@ -78,7 +79,14 @@ const createConsumableComponents = (
 
   if (consumableStats.consumableType === ConsumableType.Heal) {
     addComponent(world, item, HealComponent)
-    HealComponent.heal[item] = { amount: consumableStats.amount }
+    HealComponent.heal[item] = { amount: consumableStats.damage * -1 }
+  } else if (consumableStats.consumableType === ConsumableType.Spell) {
+    addComponent(world, item, SpellComponent)
+    SpellComponent.spell[item] = {
+      range: consumableStats.range,
+      damage: consumableStats.damage,
+      spellName: consumableStats.spellName,
+    }
   }
 }
 
@@ -90,6 +98,13 @@ const itemStatLookup = (name: string) => {
       fg: Colors.HealthBar,
       bg: null,
     }
+  } else if (name === 'Lightning Scroll') {
+    return {
+      char: '~',
+      itemType: ItemType.Consumable,
+      fg: Colors.InspectLocation,
+      bg: null,
+    }
   }
 
   return undefined
@@ -99,7 +114,18 @@ const consumableStatLookup = (name: string) => {
   if (name === 'Health Potion') {
     return {
       consumableType: ConsumableType.Heal,
-      amount: 4,
+      damage: -4,
+      amount: 1,
+      range: 0,
+      spellName: '',
+    }
+  } else if (name === 'Lightning Scroll') {
+    return {
+      consumableType: ConsumableType.Spell,
+      amount: 1,
+      damage: 20,
+      range: 5,
+      spellName: 'Lightning',
     }
   }
 
