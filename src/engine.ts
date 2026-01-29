@@ -104,8 +104,8 @@ export class Engine {
         PositionComponent.position[this.player],
         this.playerFOV,
       ),
+      new UpdateWantUseItemSystem(this.log, this.map),
       new UpdateWantAttackSystem(this.log),
-      new UpdateWantUseItemSystem(this.log),
     ]
 
     this.renderHudSystem = new RenderHudSystem(
