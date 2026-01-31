@@ -37,7 +37,7 @@ export class UpdateAiActionSystem implements UpdateSystem {
 
         if(hasComponent(world, entity, ConfusionComponent)){
           aiAction.xOffset = getRandomNumber(-1, 1)
-          aiAction.yOffset = getRandomNumber(-1, 1)
+          aiAction.yOffset = aiAction.xOffset === 0 ? getRandomNumber(-1, 1) : 0
         }
         else{
           const playerPosition = PositionComponent.position[this.player]
