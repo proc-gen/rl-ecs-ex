@@ -9,6 +9,7 @@ import {
   renderWindowWithTitle,
 } from '../utils/render-funcs'
 import {
+  ActionComponent,
   HealthComponent,
   InfoComponent,
   PositionComponent,
@@ -20,6 +21,7 @@ import { equal } from '../utils/vector-2-funcs'
 import { processFOV } from '../utils/fov-funcs'
 import { TargetingType } from '../constants/targeting-type'
 import type { MessageLog } from '../utils/message-log'
+import { ItemActionType } from '../constants/item-action-type'
 
 export class TargetingWindow implements InputController, RenderWindow {
   active: boolean
@@ -39,12 +41,18 @@ export class TargetingWindow implements InputController, RenderWindow {
   targetFOV: Vector2[]
   targetingType: string
 
-  constructor(world: World, log: MessageLog, map: Map, player: EntityId, playerFOV: Vector2[]) {
+  constructor(
+    world: World,
+    log: MessageLog,
+    map: Map,
+    player: EntityId,
+    playerFOV: Vector2[],
+  ) {
     this.active = false
-    this.windowPosition = { x: 30, y: 0 }
-    this.windowDimension = { x: 20, y: 4 }
-    this.renderPositionLine1 = { x: 33, y: 2 }
-    this.renderPositionLine2 = { x: 33, y: 3 }
+    this.windowPosition = { x: 20, y: 0 }
+    this.windowDimension = { x: 40, y: 4 }
+    this.renderPositionLine1 = { x: 23, y: 1 }
+    this.renderPositionLine2 = { x: 23, y: 2 }
 
     this.world = world
     this.log = log
@@ -130,11 +138,20 @@ export class TargetingWindow implements InputController, RenderWindow {
   }
 
   useItem(inputInfo: HandleInputInfo) {
-    if(this.isTargetAllowable()){
-        TargetingComponent.targeting[this.targetingEntity].position = this.targetPosition
-        inputInfo.needUpdate = true
+    if (this.isTargetAllowable()) {
+      TargetingComponent.targeting[this.targetingEntity].position =
+        this.targetPosition
+      const action = ActionComponent.action[this.player]
+      action.xOffset = 0
+      action.yOffset = 0
+      action.pickUpItem = false
+      action.useItem = this.targetingEntity
+      action.itemActionType = ItemActionType.Use
+      action.processed = false
+      inputInfo.needUpdate = true
     } else {
-        this.log.addMessage('Invalid target selected')
+      this.log.addMessage('Invalid target selected')
+      inputInfo.needRender = true
     }
   }
 
@@ -231,11 +248,11 @@ export class TargetingWindow implements InputController, RenderWindow {
 
   renderTarget(display: Display) {
     let color = Colors.ErrorLocation
-    if(this.isTargetInRange()){
-        color = Colors.WarningLocation
-        if(this.isTargetAllowable()){
-            color = Colors.InspectLocation
-        }
+    if (this.isTargetInRange()) {
+      color = Colors.WarningLocation
+      if (this.isTargetAllowable()) {
+        color = Colors.InspectLocation
+      }
     }
 
     display.drawOver(

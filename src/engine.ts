@@ -147,7 +147,9 @@ export class Engine {
       rs.render(this.display)
     })
 
-    if (this.inventoryWindow.active) {
+    if(this.targetingWindow.active){
+      this.targetingWindow.render(this.display)
+    } else if (this.inventoryWindow.active) {
       this.inventoryWindow.render(this.display)
     } else if (this.historyViewer.active) {
       this.historyViewer.render(this.display)
