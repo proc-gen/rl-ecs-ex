@@ -102,7 +102,7 @@ const itemStatLookup = (name: string) => {
     return {
       char: '~',
       itemType: ItemType.Consumable,
-      fg: Colors.InspectLocation,
+      fg: Colors.LightningScroll,
       bg: null,
     }
   }

@@ -8,5 +8,5 @@ export type WantAttack = {
   attackType: string
   attacker: EntityId
   defender: EntityId
-  spell?: string
+  spell?: EntityId
 }

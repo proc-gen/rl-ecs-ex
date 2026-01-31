@@ -32,6 +32,7 @@ import type { HandleInputInfo, Vector2 } from './types'
 import { createPlayer } from './ecs/templates'
 import { MessageLog } from './utils/message-log'
 import { InventoryWindow, MessageHistoryWindow } from './windows'
+import { processPlayerFOV } from './utils/fov-funcs'
 
 export class Engine {
   public static readonly WIDTH = 80
@@ -80,6 +81,12 @@ export class Engine {
     const startPosition = this.generator.playerStartPosition()
 
     this.player = createPlayer(this.world, startPosition)
+    processPlayerFOV(
+      this.map,
+      PositionComponent.position[this.player],
+      this.playerFOV,
+    )
+
     this.actors = []
     this.actors.push(this.player)
 
@@ -98,12 +105,7 @@ export class Engine {
     this.updateSystems = [
       new UpdateRemoveSystem(this.map),
       new UpdateAiActionSystem(this.map, this.player, this.playerFOV),
-      new UpdateActionSystem(
-        this.log,
-        this.map,
-        PositionComponent.position[this.player],
-        this.playerFOV,
-      ),
+      new UpdateActionSystem(this.log, this.map, this.playerFOV),
       new UpdateWantUseItemSystem(this.log, this.map),
       new UpdateWantAttackSystem(this.log),
     ]

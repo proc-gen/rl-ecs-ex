@@ -162,7 +162,13 @@ export class DefaultGenerator implements Generator {
       }
 
       positions.forEach((p) => {
-        createItem(this.world, 'Health Potion', p, undefined)
+        const chance = getRandomNumber(0, 100)
+
+        if (chance < 70) {
+          createItem(this.world, 'Health Potion', p, undefined)
+        } else {
+          createItem(this.world, 'Lightning Scroll', p, undefined)
+        }
       })
     }
 

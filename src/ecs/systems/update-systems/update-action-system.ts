@@ -22,27 +22,21 @@ import {
 } from '../../components'
 import { Map } from '../../../map'
 import type { Vector2 } from '../../../types'
-import { FOV } from 'rot-js'
 import type { MessageLog } from '../../../utils/message-log'
 import { ItemActionType } from '../../../constants/item-action-type'
 import { distance } from '../../../utils/vector-2-funcs'
 import { AttackType } from '../../../constants/attack-type'
+import { processFOV, processPlayerFOV } from '../../../utils/fov-funcs'
 
 export class UpdateActionSystem implements UpdateSystem {
   map: Map
   playerFOV: Vector2[]
   log: MessageLog
 
-  constructor(
-    log: MessageLog,
-    map: Map,
-    playerPosition: Position,
-    playerFOV: Vector2[],
-  ) {
+  constructor(log: MessageLog, map: Map, playerFOV: Vector2[]) {
     this.log = log
     this.map = map
     this.playerFOV = playerFOV
-    this.processPlayerFOV(playerPosition)
   }
 
   update(world: World, entity: EntityId) {
@@ -67,7 +61,7 @@ export class UpdateActionSystem implements UpdateSystem {
         } else if (action.itemActionType === ItemActionType.Drop) {
           const fov = hasComponent(world, entity, PlayerComponent)
             ? this.playerFOV
-            : this.processFOV(position)
+            : processFOV(this.map, position, 8)
           const sortedFov = fov.toSorted((a, b) => {
             return distance(a, position) - distance(b, position)
           })
@@ -114,7 +108,7 @@ export class UpdateActionSystem implements UpdateSystem {
             )!
             removeComponent(world, item, PositionComponent)
             addComponent(world, item, OwnerComponent)
-            OwnerComponent.owner[item] = {owner: entity}
+            OwnerComponent.owner[item] = { owner: entity }
             const itemInfo = InfoComponent.info[item]
             this.log.addMessage(`${info.name} picks up ${itemInfo.name}`)
             this.resetAction(action, true)
@@ -167,7 +161,7 @@ export class UpdateActionSystem implements UpdateSystem {
     position.y = newPosition.y
 
     if (hasComponent(world, eid, PlayerComponent)) {
-      this.processPlayerFOV(position)
+      processPlayerFOV(this.map, position, this.playerFOV)
     }
   }
 
@@ -179,28 +173,5 @@ export class UpdateActionSystem implements UpdateSystem {
     action.pickUpItem = false
     action.itemActionType = undefined
     action.actionSuccessful = success
-  }
-
-  processPlayerFOV(position: Position) {
-    this.playerFOV.length = 0
-    const fovPositions = this.processFOV(position)
-    fovPositions.forEach((p) => {
-      this.map.tiles[p.x][p.y].seen = true
-      this.playerFOV.push({ ...p })
-    })
-  }
-
-  processFOV(position: Position) {
-    const fovPositions: Vector2[] = []
-    const fov = new FOV.PreciseShadowcasting(
-      this.map.lightPassesThrough.bind(this.map),
-    )
-    fov.compute(position.x, position.y, 8, (x, y, _r, visibility) => {
-      if (visibility === 1) {
-        fovPositions.push({ x, y })
-      }
-    })
-
-    return fovPositions
   }
 }

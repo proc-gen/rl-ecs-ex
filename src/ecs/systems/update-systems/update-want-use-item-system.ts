@@ -21,14 +21,12 @@ import {
   SpellComponent,
   WantAttackComponent,
   WantUseItemComponent,
-  type Position,
   type WantUseItem,
 } from '../../components'
-import { FOV } from 'rot-js'
-import type { Vector2 } from '../../../types'
 import type { Map } from '../../../map'
 import { distance } from '../../../utils/vector-2-funcs'
 import { AttackType } from '../../../constants/attack-type'
+import { processFOV } from '../../../utils/fov-funcs'
 
 export class UpdateWantUseItemSystem implements UpdateSystem {
   log: MessageLog
@@ -102,7 +100,7 @@ export class UpdateWantUseItemSystem implements UpdateSystem {
     const spell = SpellComponent.spell[useItem.item]
     if (spell.spellName === 'Lightning') {
       const position = PositionComponent.position[useItem.owner]
-      const fov = this.processFOV(position, spell.range)
+      const fov = processFOV(this.map, position, spell.range)
       const sortedFov = fov.toSorted((a, b) => {
         return distance(a, position) - distance(b, position)
       })
@@ -117,7 +115,7 @@ export class UpdateWantUseItemSystem implements UpdateSystem {
             hasComponent(world, a, HealthComponent),
         )
 
-        if(targetEntity === useItem.owner){
+        if (targetEntity === useItem.owner) {
           targetEntity = undefined
         }
 
@@ -131,7 +129,7 @@ export class UpdateWantUseItemSystem implements UpdateSystem {
           attackType: AttackType.Spell,
           attacker: useItem.owner,
           defender: targetEntity,
-          spell: spell.spellName,
+          spell: useItem.item,
         }
 
         this.actionSuccess(world, useItem.item, '')
@@ -154,19 +152,5 @@ export class UpdateWantUseItemSystem implements UpdateSystem {
     this.log.addMessage(error)
     const action = ActionComponent.action[owner]
     action.actionSuccessful = false
-  }
-
-  processFOV(position: Position, range: number) {
-    const fovPositions: Vector2[] = []
-    const fov = new FOV.PreciseShadowcasting(
-      this.map.lightPassesThrough.bind(this.map),
-    )
-    fov.compute(position.x, position.y, range, (x, y, _r, visibility) => {
-      if (visibility === 1) {
-        fovPositions.push({ x, y })
-      }
-    })
-
-    return fovPositions
   }
 }

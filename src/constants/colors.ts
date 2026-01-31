@@ -13,8 +13,10 @@ export const Colors = {
   InspectLocation: '#00ee00',
 
   Player: '#ffee00',
-  Orc: '#7f3f3f',
-  Troll: '#7f0000',
+  Orc: '#3f7f3f',
+  Troll: '#007f00',
+
+  LightningScroll: '#aaaa00',
 }
 
 export const HexColors = {
@@ -32,4 +34,6 @@ export const HexColors = {
   Player: Color.fromString(Colors.Player),
   Orc: Color.fromString(Colors.Orc),
   Troll: Color.fromString(Colors.Troll),
+
+  LightningScroll: Color.fromString(Colors.LightningScroll)
 }

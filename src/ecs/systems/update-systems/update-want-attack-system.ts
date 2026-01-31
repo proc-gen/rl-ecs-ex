@@ -13,12 +13,14 @@ import {
   HealthComponent,
   InfoComponent,
   RemoveComponent,
+  SpellComponent,
   StatsComponent,
   WantAttackComponent,
   type Info,
   type Stats,
+  type WantAttack,
 } from '../../components'
-import type { MessageLog } from '../../../utils/message-log'
+import { MessageLog } from '../../../utils/message-log'
 import { AttackType } from '../../../constants/attack-type'
 
 export class UpdateWantAttackSystem implements UpdateSystem {
@@ -37,7 +39,7 @@ export class UpdateWantAttackSystem implements UpdateSystem {
       const statsBlocker = StatsComponent.stats[attack.defender]
       const healthBlocker = HealthComponent.health[attack.defender]
 
-      let processedAttack = { damage: 0, attackDescription: '' }
+      let processedAttack = { damage: 0, message: '' }
       if (attack.attackType === AttackType.Melee) {
         processedAttack = this.processMeleeAttack(
           statsAttacker,
@@ -45,12 +47,19 @@ export class UpdateWantAttackSystem implements UpdateSystem {
           infoActor,
           infoBlocker,
         )
+      } else if(attack.attackType === AttackType.Spell) {
+        processedAttack = this.processSpellAttack(
+          attack,
+          statsAttacker,
+          statsBlocker,
+          infoActor,
+          infoBlocker,
+        )
       }
 
+      this.log.addMessage(processedAttack.message)
       if (processedAttack.damage > 0) {
-        this.log.addMessage(
-          `${processedAttack.attackDescription} for ${processedAttack.damage} health.`,
-        )
+
         healthBlocker.current = Math.max(
           0,
           healthBlocker.current - processedAttack.damage,
@@ -61,10 +70,6 @@ export class UpdateWantAttackSystem implements UpdateSystem {
           addComponents(world, attack.defender, RemoveComponent, DeadComponent)
           removeComponent(world, attack.defender, AliveComponent)
         }
-      } else {
-        this.log.addMessage(
-          `${processedAttack.attackDescription} but can't seem to leave a mark.`,
-        )
       }
 
       addComponent(world, eid, RemoveComponent)
@@ -79,7 +84,33 @@ export class UpdateWantAttackSystem implements UpdateSystem {
   ) {
     const damage = statsAttacker.strength - statsBlocker.defense
     const attackDescription = `${infoActor.name} attacks ${infoBlocker.name}`
+    let message = ''
+    if(damage > 0){
+      message = `${attackDescription} for ${damage} health.`
+    } else{
+      message = `${attackDescription} but can't seem to leave a mark.`
+    }
 
-    return { damage, attackDescription }
+
+    return { damage, message }
   }
+
+  processSpellAttack(
+    attack: WantAttack,
+    statsAttacker: Stats,
+    statsBlocker: Stats,
+    infoActor: Info,
+    infoBlocker: Info,){
+      const spell = SpellComponent.spell[attack.spell!]
+      const damage = spell.damage
+      let message = ''
+
+      switch(spell.spellName){
+        case 'Lightning':
+          message = `A lightning bolt strikes the ${infoBlocker.name} with loud thunder, for ${damage} damage!`
+          break
+      }
+
+      return { damage, message }
+    }
 }
