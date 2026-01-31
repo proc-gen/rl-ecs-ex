@@ -19,6 +19,7 @@ import {
   WantUseItemComponent,
   ItemComponent,
   OwnerComponent,
+  ConfusionComponent,
 } from '../../components'
 import { Map } from '../../../map'
 import type { Vector2 } from '../../../types'
@@ -144,8 +145,14 @@ export class UpdateActionSystem implements UpdateSystem {
           }
         }
       } else {
-        this.log.addMessage('That direction is blocked')
-        this.resetAction(action, false)
+        if(hasComponent(world, entity, ConfusionComponent)){
+          const info = InfoComponent.info[entity]
+          this.log.addMessage(`The ${info.name} tries running into a wall`)
+          this.resetAction(action, true)
+        }else{
+          this.log.addMessage('That direction is blocked')
+          this.resetAction(action, false)
+        }
       }
     }
   }

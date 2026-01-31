@@ -1,6 +1,7 @@
 import { type Action, ActionComponent } from './action'
 import { type Alive, AliveComponent } from './alive'
 import { type Blocker, BlockerComponent } from './blocker'
+import { type Confusion, ConfusionComponent } from './confusion'
 import { type Consumable, ConsumableComponent } from './consumable'
 import { type Dead, DeadComponent } from './dead'
 import { type Enemy, EnemyComponent } from './enemy'
@@ -24,6 +25,7 @@ import {
 } from './render-layer'
 import { type Spell, SpellComponent } from './spell'
 import { type Stats, StatsComponent } from './stats'
+import { type Targeting, TargetingComponent } from './targeting'
 import {
   type WantAttack,
   WantAttackComponent,
@@ -40,6 +42,8 @@ export {
   AliveComponent,
   type Blocker,
   BlockerComponent,
+  type Confusion,
+  ConfusionComponent,
   type Consumable,
   ConsumableComponent,
   type Dead,
@@ -75,6 +79,8 @@ export {
   SpellComponent,
   type Stats,
   StatsComponent,
+  type Targeting,
+  TargetingComponent,
   type WantAttack,
   WantAttackComponent,
   type WantUseItem,

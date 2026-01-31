@@ -25,13 +25,14 @@ import {
   UpdateRemoveSystem,
   UpdateAiActionSystem,
   UpdateWantUseItemSystem,
+  UpdateTurnsLeftSystem,
 } from './ecs/systems/update-systems'
 import { Map } from './map'
 import { DefaultGenerator, type Generator } from './map/generators'
 import type { HandleInputInfo, Vector2 } from './types'
 import { createPlayer } from './ecs/templates'
 import { MessageLog } from './utils/message-log'
-import { InventoryWindow, MessageHistoryWindow } from './windows'
+import { InventoryWindow, MessageHistoryWindow, TargetingWindow } from './windows'
 import { processPlayerFOV } from './utils/fov-funcs'
 
 export class Engine {
@@ -51,6 +52,7 @@ export class Engine {
   log: MessageLog
   historyViewer: MessageHistoryWindow
   inventoryWindow: InventoryWindow
+  targetingWindow: TargetingWindow
   renderSystems: RenderSystem[]
   renderHudSystem: RenderHudSystem
   updateSystems: UpdateSystem[]
@@ -108,6 +110,7 @@ export class Engine {
       new UpdateActionSystem(this.log, this.map, this.playerFOV),
       new UpdateWantUseItemSystem(this.log, this.map),
       new UpdateWantAttackSystem(this.log),
+      new UpdateTurnsLeftSystem(this.log),
     ]
 
     this.renderHudSystem = new RenderHudSystem(
@@ -125,6 +128,7 @@ export class Engine {
 
     this.historyViewer = new MessageHistoryWindow(this.log)
     this.inventoryWindow = new InventoryWindow(this.world, this.player)
+    this.targetingWindow = new TargetingWindow(this.world, this.map, this.player, this.playerFOV)
 
     this.playerTurn = true
     this.currentActor = this.player
@@ -175,7 +179,10 @@ export class Engine {
   keyDown(event: KeyboardEvent) {
     event.preventDefault()
     if (this.playerTurn) {
-      if (this.inventoryWindow.active) {
+      if(this.targetingWindow.active){
+        const inputInfo = this.targetingWindow.handleKeyboardInput(event)
+          this.handleInputInfo(inputInfo)
+      } else if (this.inventoryWindow.active) {
         const inputInfo = this.inventoryWindow.handleKeyboardInput(event)
         this.handleInputInfo(inputInfo)
       } else if (this.renderHudSystem.active) {
@@ -232,7 +239,14 @@ export class Engine {
 
   mouseMove(event: MouseEvent | WheelEvent) {
     if (this.playerTurn) {
-      if (this.inventoryWindow.active) {
+      
+      if (this.targetingWindow.active) {
+        const inputInfo = this.targetingWindow.handleMouseInput(
+          event,
+          this.getMousePosFromEvent(event),
+        )
+        this.handleInputInfo(inputInfo)
+      } else if (this.inventoryWindow.active) {
         const inputInfo = this.inventoryWindow.handleMouseInput(
           event,
           this.getMousePosFromEvent(event),
@@ -256,8 +270,16 @@ export class Engine {
 
   handleInputInfo(inputInfo: HandleInputInfo) {
     if (inputInfo.needUpdate) {
+      this.inventoryWindow.setActive(false)
+      this.targetingWindow.setActive(false)
+      this.historyViewer.setActive(false)
+      this.renderHudSystem.setActive(false)
       this.update()
     } else if (inputInfo.needRender) {
+      this.render()
+    } else if (inputInfo.needTargeting !== undefined){
+      this.targetingWindow.setActive(true)
+      this.targetingWindow.setTargetingEntity(inputInfo.needTargeting)
       this.render()
     }
   }

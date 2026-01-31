@@ -2,11 +2,13 @@ import { hasComponent, type EntityId, type World } from 'bitecs'
 import type { UpdateSystem } from './update-system'
 import {
   ActionComponent,
+  ConfusionComponent,
   PlayerComponent,
   PositionComponent,
 } from '../../components'
 import { Map } from '../../../map'
 import type { Vector2 } from '../../../types'
+import { getRandomNumber } from '../../../utils/random'
 
 export class UpdateAiActionSystem implements UpdateSystem {
   map: Map
@@ -30,14 +32,21 @@ export class UpdateAiActionSystem implements UpdateSystem {
           (a) => a.x === aiPosition.x && a.y === aiPosition.y,
         ) !== undefined
       ) {
-        const playerPosition = PositionComponent.position[this.player]
-        const path = this.map.getPath(aiPosition, playerPosition)
+        const aiAction = ActionComponent.action[entity]
+        aiAction.processed = false
 
-        if (path.length > 0) {
-          const aiAction = ActionComponent.action[entity]
-          aiAction.processed = false
-          aiAction.xOffset = path[0].x - aiPosition.x
-          aiAction.yOffset = path[0].y - aiPosition.y
+        if(hasComponent(world, entity, ConfusionComponent)){
+          aiAction.xOffset = getRandomNumber(-1, 1)
+          aiAction.yOffset = getRandomNumber(-1, 1)
+        }
+        else{
+          const playerPosition = PositionComponent.position[this.player]
+          const path = this.map.getPath(aiPosition, playerPosition)
+
+          if (path.length > 0) {
+            aiAction.xOffset = path[0].x - aiPosition.x
+            aiAction.yOffset = path[0].y - aiPosition.y
+          }
         }
       }
     }

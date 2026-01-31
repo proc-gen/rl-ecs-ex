@@ -7,3 +7,7 @@ export const add = (v1: Vector2, v2: Vector2) => {
 export const distance = (v1: Vector2, v2: Vector2) => {
     return Math.sqrt((v2.x - v1.x) ** 2 + (v2.y - v1.y) ** 2)
 }
+
+export const equal = (v1: Vector2, v2: Vector2) => {
+    return v1.x === v2.x && v1.y === v2.y
+}
