@@ -10,6 +10,7 @@ import { Colors } from '../../constants/colors'
 import { ItemType } from '../../constants/item-type'
 import { ConsumableType } from '../../constants/consumable-type'
 import {
+  ConfusionComponent,
   ConsumableComponent,
   HealComponent,
   InfoComponent,
@@ -19,7 +20,9 @@ import {
   RenderableComponent,
   RenderLayerItemComponent,
   SpellComponent,
+  TargetingComponent,
 } from '../components'
+import { TargetingType } from '../../constants/targeting-type'
 
 export const createItem = (
   world: World,
@@ -63,6 +66,8 @@ export const createItem = (
   if (itemStats.itemType === ItemType.Consumable) {
     createConsumableComponents(world, item, name)
   }
+
+  createEffectComponents(world, item, name)
 }
 
 const createConsumableComponents = (
@@ -90,6 +95,17 @@ const createConsumableComponents = (
   }
 }
 
+const createEffectComponents = (world: World, item: EntityId, name: string) => {
+  if (name === 'Confusion Scroll') {
+    addComponents(world, item, ConfusionComponent, TargetingComponent)
+    ConfusionComponent.confusion[item] = { turnsLeft: 10 }
+    TargetingComponent.targeting[item] = {
+      targetingType: TargetingType.SingleTargetEntity,
+      position: { x: 0, y: 0 },
+    }
+  }
+}
+
 const itemStatLookup = (name: string) => {
   if (name === 'Health Potion') {
     return {
@@ -103,6 +119,13 @@ const itemStatLookup = (name: string) => {
       char: '~',
       itemType: ItemType.Consumable,
       fg: Colors.LightningScroll,
+      bg: null,
+    }
+  } else if (name === 'Confusion Scroll') {
+    return {
+      char: '~',
+      itemType: ItemType.Consumable,
+      fg: Colors.ConfusionScroll,
       bg: null,
     }
   }
@@ -126,6 +149,14 @@ const consumableStatLookup = (name: string) => {
       damage: 20,
       range: 5,
       spellName: 'Lightning',
+    }
+  } else if (name === 'Confusion Scroll') {
+    return {
+      consumableType: ConsumableType.Spell,
+      amount: 1,
+      damage: 0,
+      range: 8,
+      spellName: 'Confusion',
     }
   }
 

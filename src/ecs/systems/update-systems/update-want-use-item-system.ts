@@ -10,7 +10,6 @@ import type { MessageLog } from '../../../utils/message-log'
 import type { UpdateSystem } from './update-system'
 import {
   ActionComponent,
-  BlockerComponent,
   ConsumableComponent,
   HealComponent,
   HealthComponent,
@@ -19,14 +18,19 @@ import {
   PositionComponent,
   RemoveComponent,
   SpellComponent,
+  TargetingComponent,
   WantAttackComponent,
+  WantCauseSpellEffectComponent,
   WantUseItemComponent,
+  type Spell,
+  type Targeting,
   type WantUseItem,
 } from '../../components'
 import type { Map } from '../../../map'
 import { distance } from '../../../utils/vector-2-funcs'
 import { AttackType } from '../../../constants/attack-type'
 import { processFOV } from '../../../utils/fov-funcs'
+import { TargetingType } from '../../../constants/targeting-type'
 
 export class UpdateWantUseItemSystem implements UpdateSystem {
   log: MessageLog
@@ -98,47 +102,112 @@ export class UpdateWantUseItemSystem implements UpdateSystem {
 
   processSpell(world: World, useItem: WantUseItem) {
     const spell = SpellComponent.spell[useItem.item]
-    if (spell.spellName === 'Lightning') {
-      const position = PositionComponent.position[useItem.owner]
-      const fov = processFOV(this.map, position, spell.range)
-      const sortedFov = fov.toSorted((a, b) => {
-        return distance(a, position) - distance(b, position)
-      })
-
-      let targetEntity: EntityId | undefined = undefined
-      let i = 0
-      do {
-        const entities = this.map.getEntitiesAtLocation(sortedFov[i])
-        targetEntity = entities.find(
-          (a) =>
-            hasComponent(world, a, BlockerComponent) &&
-            hasComponent(world, a, HealthComponent),
-        )
-
-        if (targetEntity === useItem.owner) {
-          targetEntity = undefined
-        }
-
-        i++
-      } while (targetEntity === undefined && i < sortedFov.length)
-
-      if (targetEntity !== undefined) {
-        const attack = addEntity(world)
-        addComponent(world, attack, WantAttackComponent)
-        WantAttackComponent.WantAttack[attack] = {
-          attackType: AttackType.Spell,
-          attacker: useItem.owner,
-          defender: targetEntity,
-          spell: useItem.item,
-        }
-
-        this.actionSuccess(world, useItem.item, '')
-      } else {
-        this.actionError(useItem.owner, 'No one in targeting range')
+    if (!hasComponent(world, useItem.item, TargetingComponent)) {
+      this.processRandomTargetSpell(world, useItem, spell)
+    } else if (hasComponent(world, useItem.item, TargetingComponent)) {
+      const targeting = TargetingComponent.targeting[useItem.item]
+      if (targeting.targetingType === TargetingType.SingleTargetEntity) {
+        this.processSingleTargetEntitySpell(world, useItem, spell, targeting)
       }
     } else {
       this.actionError(useItem.owner, 'Invalid consumable item selected')
     }
+  }
+
+  processRandomTargetSpell(world: World, useItem: WantUseItem, spell: Spell) {
+    const position = PositionComponent.position[useItem.owner]
+    const fov = processFOV(this.map, position, spell.range)
+    const sortedFov = fov.toSorted((a, b) => {
+      return distance(a, position) - distance(b, position)
+    })
+
+    let targetEntity: EntityId | undefined = undefined
+    let i = 0
+    do {
+      const entities = this.map.getEntitiesAtLocation(sortedFov[i])
+      targetEntity = entities.find((a) =>
+        hasComponent(world, a, HealthComponent),
+      )
+
+      if (targetEntity === useItem.owner) {
+        targetEntity = undefined
+      }
+
+      i++
+    } while (targetEntity === undefined && i < sortedFov.length)
+
+    if (targetEntity !== undefined) {
+      if (spell.damage > 0) {
+        this.processWantAttack(world, useItem, targetEntity)
+      }
+      if (this.hasSpellEffect(spell.spellName)) {
+        this.processWantSpellEffect(world, useItem, targetEntity)
+      }
+      this.actionSuccess(world, useItem.item, '')
+    } else {
+      this.actionError(useItem.owner, 'No one in targeting range')
+    }
+  }
+
+  processSingleTargetEntitySpell(
+    world: World,
+    useItem: WantUseItem,
+    spell: Spell,
+    targeting: Targeting,
+  ) {
+    const entities = this.map.getEntitiesAtLocation(targeting.position)
+    const targetEntity = entities.find((a) =>
+      hasComponent(world, a, HealthComponent),
+    )
+
+    if (targetEntity !== undefined) {
+      if (spell.damage > 0) {
+        this.processWantAttack(world, useItem, targetEntity)
+      }
+      if (this.hasSpellEffect(spell.spellName)) {
+        this.processWantSpellEffect(world, useItem, targetEntity)
+      }
+      this.actionSuccess(world, useItem.item, '')
+    } else {
+      this.actionError(useItem.owner, 'Invalid target selected')
+    }
+  }
+
+  processWantAttack(
+    world: World,
+    useItem: WantUseItem,
+    targetEntity: EntityId,
+  ) {
+    const attack = addEntity(world)
+    addComponent(world, attack, WantAttackComponent)
+    WantAttackComponent.WantAttack[attack] = {
+      attackType: AttackType.Spell,
+      attacker: useItem.owner,
+      defender: targetEntity,
+      spell: useItem.item,
+    }
+  }
+
+  processWantSpellEffect(
+    world: World,
+    useItem: WantUseItem,
+    targetEntity: EntityId,
+  ) {
+    const effect = addEntity(world)
+    addComponent(world, effect, WantCauseSpellEffectComponent)
+    WantCauseSpellEffectComponent.effect[effect] = {
+      attacker: useItem.owner,
+      defender: targetEntity,
+      spell: useItem.item,
+    }
+  }
+
+  hasSpellEffect(spellName: string) {
+    let hasEffect = false
+    if (spellName === 'Confusion') {
+      hasEffect = true
+    }
+    return hasEffect
   }
 
   actionSuccess(world: World, item: EntityId, message: string) {

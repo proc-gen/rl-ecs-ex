@@ -13,10 +13,13 @@ import {
   InfoComponent,
   PositionComponent,
   SpellComponent,
+  TargetingComponent,
 } from '../ecs/components'
 import { Colors } from '../constants/colors'
 import { equal } from '../utils/vector-2-funcs'
 import { processFOV } from '../utils/fov-funcs'
+import { TargetingType } from '../constants/targeting-type'
+import type { MessageLog } from '../utils/message-log'
 
 export class TargetingWindow implements InputController, RenderWindow {
   active: boolean
@@ -26,6 +29,7 @@ export class TargetingWindow implements InputController, RenderWindow {
   renderPositionLine2: Vector2
 
   world: World
+  log: MessageLog
   map: Map
   player: EntityId
   playerFOV: Vector2[]
@@ -33,8 +37,9 @@ export class TargetingWindow implements InputController, RenderWindow {
   targetPosition: Vector2
   targetRange: number
   targetFOV: Vector2[]
+  targetingType: string
 
-  constructor(world: World, map: Map, player: EntityId, playerFOV: Vector2[]) {
+  constructor(world: World, log: MessageLog, map: Map, player: EntityId, playerFOV: Vector2[]) {
     this.active = false
     this.windowPosition = { x: 30, y: 0 }
     this.windowDimension = { x: 20, y: 4 }
@@ -42,6 +47,7 @@ export class TargetingWindow implements InputController, RenderWindow {
     this.renderPositionLine2 = { x: 33, y: 3 }
 
     this.world = world
+    this.log = log
     this.map = map
     this.player = player
     this.playerFOV = playerFOV
@@ -49,6 +55,7 @@ export class TargetingWindow implements InputController, RenderWindow {
     this.targetPosition = { x: 0, y: 0 }
     this.targetRange = -1
     this.targetFOV = []
+    this.targetingType = ''
   }
 
   getActive(): boolean {
@@ -62,6 +69,8 @@ export class TargetingWindow implements InputController, RenderWindow {
   setTargetingEntity(targetingEntity: EntityId) {
     this.targetingEntity = targetingEntity
     this.targetPosition = { ...PositionComponent.position[this.player] }
+    this.targetingType =
+      TargetingComponent.targeting[this.targetingEntity].targetingType
     if (hasComponent(this.world, this.targetingEntity, SpellComponent)) {
       this.targetRange = SpellComponent.spell[this.targetingEntity].range
       this.targetFOV = processFOV(
@@ -95,6 +104,10 @@ export class TargetingWindow implements InputController, RenderWindow {
         this.setTargetPosition(1, 0)
         inputInfo.needRender = true
         break
+      case 'Enter':
+      case 'e':
+        this.useItem(inputInfo)
+        break
       case 'Escape':
       case 'End':
         this.active = false
@@ -116,6 +129,15 @@ export class TargetingWindow implements InputController, RenderWindow {
     }
   }
 
+  useItem(inputInfo: HandleInputInfo) {
+    if(this.isTargetAllowable()){
+        TargetingComponent.targeting[this.targetingEntity].position = this.targetPosition
+        inputInfo.needUpdate = true
+    } else {
+        this.log.addMessage('Invalid target selected')
+    }
+  }
+
   handleMouseInput(_event: MouseEvent, position: Vector2): HandleInputInfo {
     const inputInfo = { needRender: false, needUpdate: false }
     if (
@@ -128,6 +150,36 @@ export class TargetingWindow implements InputController, RenderWindow {
     }
 
     return inputInfo
+  }
+
+  isTargetInRange() {
+    return (
+      this.targetFOV.find((a) => equal(a, this.targetPosition)) !== undefined
+    )
+  }
+
+  isTargetAllowable() {
+    let allowable = false
+
+    if (this.isTargetInRange()) {
+      if (this.targetingType === TargetingType.SingleTargetPosition) {
+        allowable = true
+      } else if (this.targetingType === TargetingType.SingleTargetEntity) {
+        const entitiesAtLocation = this.map.getEntitiesAtLocation(
+          this.targetPosition,
+        )
+
+        if (
+          entitiesAtLocation.find((a) =>
+            hasComponent(this.world, a, HealthComponent),
+          ) !== undefined
+        ) {
+          allowable = true
+        }
+      }
+    }
+
+    return allowable
   }
 
   render(display: Display) {
@@ -152,40 +204,46 @@ export class TargetingWindow implements InputController, RenderWindow {
       null,
     )
 
-    let name = 'Nothing'
-    if (
-      this.targetFOV.find((a) => equal(a, this.targetPosition)) !== undefined
-    ) {
+    let description = 'Nothing'
+    if (this.isTargetInRange()) {
       const entitiesAtLocation = this.map.getEntitiesAtLocation(
         this.targetPosition,
       )
 
       const healthBlocker = entitiesAtLocation.find((a) =>
-        hasComponent(this.windowDimension, a, HealthComponent),
+        hasComponent(this.world, a, HealthComponent),
       )
       if (healthBlocker !== undefined) {
-        name = InfoComponent.info[healthBlocker].name
+        description = InfoComponent.info[healthBlocker].name
       }
     } else {
-      name = 'Out of Range'
+      description = 'Out of Range'
     }
 
     renderSingleLineTextOver(
       display,
       this.renderPositionLine2,
-      `(${this.targetPosition.x}, ${this.targetPosition.y}) - ${name}`,
+      `(${this.targetPosition.x}, ${this.targetPosition.y}) - ${description}`,
       Colors.White,
       null,
     )
   }
 
   renderTarget(display: Display) {
+    let color = Colors.ErrorLocation
+    if(this.isTargetInRange()){
+        color = Colors.WarningLocation
+        if(this.isTargetAllowable()){
+            color = Colors.InspectLocation
+        }
+    }
+
     display.drawOver(
       this.targetPosition.x,
       this.targetPosition.y,
       '',
       null,
-      Colors.InspectLocation,
+      color,
     )
   }
 }

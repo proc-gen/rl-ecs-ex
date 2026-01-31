@@ -26,6 +26,7 @@ import {
   UpdateAiActionSystem,
   UpdateWantUseItemSystem,
   UpdateTurnsLeftSystem,
+  UpdateWantCauseSpellEffectSystem,
 } from './ecs/systems/update-systems'
 import { Map } from './map'
 import { DefaultGenerator, type Generator } from './map/generators'
@@ -110,6 +111,7 @@ export class Engine {
       new UpdateActionSystem(this.log, this.map, this.playerFOV),
       new UpdateWantUseItemSystem(this.log, this.map),
       new UpdateWantAttackSystem(this.log),
+      new UpdateWantCauseSpellEffectSystem(this.log),
       new UpdateTurnsLeftSystem(this.log),
     ]
 
@@ -128,7 +130,7 @@ export class Engine {
 
     this.historyViewer = new MessageHistoryWindow(this.log)
     this.inventoryWindow = new InventoryWindow(this.world, this.player)
-    this.targetingWindow = new TargetingWindow(this.world, this.map, this.player, this.playerFOV)
+    this.targetingWindow = new TargetingWindow(this.world, this.log, this.map, this.player, this.playerFOV)
 
     this.playerTurn = true
     this.currentActor = this.player

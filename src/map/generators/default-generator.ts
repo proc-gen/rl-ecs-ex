@@ -166,6 +166,8 @@ export class DefaultGenerator implements Generator {
 
         if (chance < 70) {
           createItem(this.world, 'Health Potion', p, undefined)
+        } else if (chance < 90) {
+          createItem(this.world, 'Confusion Scroll', p, undefined)
         } else {
           createItem(this.world, 'Lightning Scroll', p, undefined)
         }

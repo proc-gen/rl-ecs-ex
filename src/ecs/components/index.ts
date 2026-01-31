@@ -34,6 +34,10 @@ import {
   type WantUseItem,
   WantUseItemComponent,
 } from './want-use-item'
+import {
+  type WantCauseSpellEffect,
+  WantCauseSpellEffectComponent,
+} from './want-cause-spell-effect'
 
 export {
   type Action,
@@ -85,4 +89,6 @@ export {
   WantAttackComponent,
   type WantUseItem,
   WantUseItemComponent,
+  type WantCauseSpellEffect,
+  WantCauseSpellEffectComponent,
 }
