@@ -15,16 +15,25 @@ export class Map {
     entities: EntityId[]
   }[]
 
-  constructor(world: World, width: number, height: number) {
+  constructor(
+    world: World,
+    width: number,
+    height: number,
+    tiles: Tile[][] | undefined = undefined,
+  ) {
     this.width = width
     this.height = height
     this.world = world
     this.entityLocations = []
     this.pathStart = { x: 0, y: 0 }
-    this.tiles = new Array(this.width)
-    for (let x = 0; x < this.width; x++) {
-      const col = new Array(this.height)
-      this.tiles[x] = col
+    if (tiles === undefined) {
+      this.tiles = new Array(this.width)
+      for (let x = 0; x < this.width; x++) {
+        const col = new Array(this.height)
+        this.tiles[x] = col
+      }
+    } else {
+      this.tiles = tiles
     }
   }
 

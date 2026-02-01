@@ -26,18 +26,18 @@ import {
 import { type Spell, SpellComponent } from './spell'
 import { type Stats, StatsComponent } from './stats'
 import { type Targeting, TargetingComponent } from './targeting'
-import {
-  type WantAttack,
-  WantAttackComponent,
-} from './want-attack'
-import {
-  type WantUseItem,
-  WantUseItemComponent,
-} from './want-use-item'
+import { type WantAttack, WantAttackComponent } from './want-attack'
+import { type WantUseItem, WantUseItemComponent } from './want-use-item'
 import {
   type WantCauseSpellEffect,
   WantCauseSpellEffectComponent,
 } from './want-cause-spell-effect'
+
+import {
+  WorldComponents,
+  getDataFromComponent,
+  setDataForComponent,
+} from './mapper'
 
 export {
   type Action,
@@ -91,4 +91,7 @@ export {
   WantUseItemComponent,
   type WantCauseSpellEffect,
   WantCauseSpellEffectComponent,
+  WorldComponents,
+  getDataFromComponent,
+  setDataForComponent,
 }

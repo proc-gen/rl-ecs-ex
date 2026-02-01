@@ -26,6 +26,10 @@ export class MainMenuScreen extends Screen {
     this.renderPosition = { x: 27, y: 18 }
 
     this.options = ['New Game']
+
+    if (localStorage.getItem('rogue-save') !== null) {
+      this.options.push('Continue Game')
+    }
   }
 
   keyDown(event: KeyboardEvent) {
@@ -54,9 +58,13 @@ export class MainMenuScreen extends Screen {
 
     switch (option) {
       case 'New Game':
-        const gameScreen = new GameScreen(this.display, this.manager)
-        this.manager.setNextScreen(gameScreen)
+        this.manager.setNextScreen(new GameScreen(this.display, this.manager))
         break
+      case 'Continue Game':
+        const saveGame = localStorage.getItem('rogue-save')
+        this.manager.setNextScreen(
+          new GameScreen(this.display, this.manager, saveGame!),
+        )
     }
   }
 

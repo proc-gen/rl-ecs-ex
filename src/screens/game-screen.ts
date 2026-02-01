@@ -9,6 +9,7 @@ import {
 import {
   ActionComponent,
   DeadComponent,
+  PlayerComponent,
   PositionComponent,
   RemoveComponent,
 } from '../ecs/components'
@@ -29,7 +30,7 @@ import {
   UpdateWantCauseSpellEffectSystem,
 } from '../ecs/systems/update-systems'
 import { Map } from '../map'
-import { DefaultGenerator, type Generator } from '../map/generators'
+import { DefaultGenerator } from '../map/generators'
 import type { HandleInputInfo, Vector2 } from '../types'
 import { createPlayer } from '../ecs/templates'
 import { MessageLog } from '../utils/message-log'
@@ -42,6 +43,7 @@ import { processPlayerFOV } from '../utils/fov-funcs'
 import { Screen } from './screen'
 import type { ScreenManager } from '../screen-manager'
 import { MainMenuScreen } from './main-menu-screen'
+import { deserializeWorld, serializeWorld } from '../serialization'
 
 export class GameScreen extends Screen {
   public static readonly MAP_WIDTH = 80
@@ -53,7 +55,6 @@ export class GameScreen extends Screen {
   currentActor: EntityId
   playerFOV: Vector2[]
   map: Map
-  generator: Generator
   log: MessageLog
   historyViewer: MessageHistoryWindow
   inventoryWindow: InventoryWindow
@@ -63,35 +64,56 @@ export class GameScreen extends Screen {
   updateSystems: UpdateSystem[]
   playerTurn: boolean
 
-  constructor(display: Display, manager: ScreenManager) {
+  constructor(
+    display: Display,
+    manager: ScreenManager,
+    saveGame: string | undefined = undefined,
+  ) {
     super(display, manager)
-
-    this.world = createWorld()
-    this.map = new Map(this.world, GameScreen.MAP_WIDTH, GameScreen.MAP_HEIGHT)
     this.playerFOV = []
     this.log = new MessageLog()
-    this.log.addMessage('Welcome to your doom, adventurer...')
+    this.actors = []
 
-    this.generator = new DefaultGenerator(
-      this.world,
-      this.map,
-      10,
-      5,
-      12,
-      10,
-      4,
-    )
-    this.generator.generate()
-    const startPosition = this.generator.playerStartPosition()
+    if (saveGame !== undefined) {
+      localStorage.removeItem('rogue-save')
+      const { world, map } = deserializeWorld(saveGame)
+      this.world = world
+      this.map = map
 
-    this.player = createPlayer(this.world, startPosition)
+      this.player = (query(this.world, [PlayerComponent]) as EntityId[])[0]
+
+      this.log.addMessage('Welcome back, adventurer...')
+    } else {
+      this.world = createWorld()
+      this.map = new Map(
+        this.world,
+        GameScreen.MAP_WIDTH,
+        GameScreen.MAP_HEIGHT,
+      )
+
+      this.log.addMessage('Welcome to your doom, adventurer...')
+
+      const generator = new DefaultGenerator(
+        this.world,
+        this.map,
+        10,
+        5,
+        12,
+        10,
+        4,
+      )
+      generator.generate()
+      const startPosition = generator.playerStartPosition()
+
+      this.player = createPlayer(this.world, startPosition)
+    }
+
     processPlayerFOV(
       this.map,
       PositionComponent.position[this.player],
       this.playerFOV,
     )
 
-    this.actors = []
     this.actors.push(this.player)
 
     for (const eid of query(this.world, [PositionComponent])) {
@@ -185,7 +207,7 @@ export class GameScreen extends Screen {
 
   keyDown(event: KeyboardEvent) {
     if (this.playerTurn) {
-      if(hasComponent(this.world, this.player, DeadComponent)){
+      if (hasComponent(this.world, this.player, DeadComponent)) {
         this.backToMainMenu(false)
       }
 
@@ -250,9 +272,15 @@ export class GameScreen extends Screen {
     }
   }
 
-  backToMainMenu(saveGame: boolean){
-    if(saveGame){
-      
+  backToMainMenu(saveGame: boolean) {
+    if (saveGame) {
+      const serializedWorld = serializeWorld(this.world, this.map)
+
+      try {
+        localStorage.setItem('rogue-save', JSON.stringify(serializedWorld))
+      } catch (ex) {
+        console.log(ex)
+      }
     }
     const mainMenu = new MainMenuScreen(this.display, this.manager)
     this.manager.setNextScreen(mainMenu)
