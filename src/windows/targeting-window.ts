@@ -92,6 +92,7 @@ export class TargetingWindow implements InputController, RenderWindow {
         PositionComponent.position[this.player],
         this.targetRange,
       )
+      this.updateSplashFOV()
     }
   }
 
@@ -184,6 +185,10 @@ export class TargetingWindow implements InputController, RenderWindow {
         this.targetPosition,
         this.targetRadius,
       )
+
+      this.splashFOV = this.splashFOV.filter((a) =>
+        this.map.isWalkable(a.x, a.y) && this.map.tiles[a.x][a.y].seen,
+      )
     }
   }
 
@@ -205,8 +210,9 @@ export class TargetingWindow implements InputController, RenderWindow {
         )
 
         if (
-          entitiesAtLocation.find((a) =>
-            hasComponent(this.world, a, HealthComponent),
+          entitiesAtLocation.find(
+            (a) =>
+              a !== this.player && hasComponent(this.world, a, HealthComponent),
           ) !== undefined
         ) {
           allowable = true

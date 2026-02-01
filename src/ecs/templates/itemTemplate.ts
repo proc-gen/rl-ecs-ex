@@ -104,6 +104,7 @@ const createEffectComponents = (world: World, item: EntityId, name: string) => {
       position: { x: 0, y: 0 },
     }
   } else if(name === 'Fireball Scroll') {
+    addComponent(world, item, TargetingComponent)
     TargetingComponent.targeting[item] = {
       targetingType: TargetingType.SingleTargetPosition,
       position: { x: 0, y: 0 },
