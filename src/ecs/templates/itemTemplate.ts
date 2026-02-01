@@ -103,6 +103,13 @@ const createEffectComponents = (world: World, item: EntityId, name: string) => {
       targetingType: TargetingType.SingleTargetEntity,
       position: { x: 0, y: 0 },
     }
+  } else if(name === 'Fireball Scroll') {
+    TargetingComponent.targeting[item] = {
+      targetingType: TargetingType.SingleTargetPosition,
+      position: { x: 0, y: 0 },
+    }
+
+    SpellComponent.spell[item].radius = 3
   }
 }
 
@@ -126,6 +133,13 @@ const itemStatLookup = (name: string) => {
       char: '~',
       itemType: ItemType.Consumable,
       fg: Colors.ConfusionScroll,
+      bg: null,
+    }
+  } else if (name === 'Fireball Scroll') {
+    return {
+      char: '~',
+      itemType: ItemType.Consumable,
+      fg: Colors.FireballScroll,
       bg: null,
     }
   }
@@ -157,6 +171,14 @@ const consumableStatLookup = (name: string) => {
       damage: 0,
       range: 8,
       spellName: 'Confusion',
+    }
+  } else if (name === 'Fireball Scroll') {
+    return {
+      consumableType: ConsumableType.Spell,
+      amount: 1,
+      damage: 12,
+      range: 8,
+      spellName: 'Fireball',
     }
   }
 

@@ -31,6 +31,7 @@ import { distance } from '../../../utils/vector-2-funcs'
 import { AttackType } from '../../../constants/attack-type'
 import { processFOV } from '../../../utils/fov-funcs'
 import { TargetingType } from '../../../constants/targeting-type'
+import type { Vector2 } from '../../../types'
 
 export class UpdateWantUseItemSystem implements UpdateSystem {
   log: MessageLog
@@ -108,6 +109,8 @@ export class UpdateWantUseItemSystem implements UpdateSystem {
       const targeting = TargetingComponent.targeting[useItem.item]
       if (targeting.targetingType === TargetingType.SingleTargetEntity) {
         this.processSingleTargetEntitySpell(world, useItem, spell, targeting)
+      } else if(targeting.targetingType === TargetingType.SingleTargetPosition){
+        this.processSingleTargetPositionSpell(world, useItem, spell, targeting)
       }
     } else {
       this.actionError(useItem.owner, 'Invalid consumable item selected')
@@ -155,18 +158,69 @@ export class UpdateWantUseItemSystem implements UpdateSystem {
     spell: Spell,
     targeting: Targeting,
   ) {
-    const entities = this.map.getEntitiesAtLocation(targeting.position)
-    const targetEntity = entities.find((a) =>
-      hasComponent(world, a, HealthComponent),
-    )
+    let targets: Vector2[] = [targeting.position]
+    const targetEntities: EntityId[] = []
 
-    if (targetEntity !== undefined) {
-      if (spell.damage > 0) {
-        this.processWantAttack(world, useItem, targetEntity)
+    if (spell.radius !== undefined) {
+      targets = processFOV(this.map, targeting.position, spell.radius)
+    }
+
+    targets.forEach((t) => {
+      const entities = this.map.getEntitiesAtLocation(t)
+      const targetEntity = entities.find((a) =>
+        hasComponent(world, a, HealthComponent),
+      )
+      if (targetEntity !== undefined) {
+        targetEntities.push(targetEntity)
       }
-      if (this.hasSpellEffect(spell.spellName)) {
-        this.processWantSpellEffect(world, useItem, targetEntity)
+    })
+
+    if (targetEntities.length > 0) {
+      targetEntities.forEach((e) => {
+        if (spell.damage > 0) {
+          this.processWantAttack(world, useItem, e)
+        }
+        if (this.hasSpellEffect(spell.spellName)) {
+          this.processWantSpellEffect(world, useItem, e)
+        }
+      })
+      this.actionSuccess(world, useItem.item, '')
+    } else {
+      this.actionError(useItem.owner, 'Invalid target selected')
+    }
+  }
+
+  processSingleTargetPositionSpell(
+    world: World,
+    useItem: WantUseItem,
+    spell: Spell,
+    targeting: Targeting,
+  ) {
+    let targets: Vector2[] = [targeting.position]
+    const targetEntities: EntityId[] = []
+
+    if (spell.radius !== undefined) {
+      targets = processFOV(this.map, targeting.position, spell.radius)
+    }
+    targets.forEach((t) => {
+      const entities = this.map.getEntitiesAtLocation(t)
+      const targetEntity = entities.find((a) =>
+        hasComponent(world, a, HealthComponent),
+      )
+      if (targetEntity !== undefined) {
+        targetEntities.push(targetEntity)
       }
+    })
+
+    if (targetEntities.length > 0) {
+      targetEntities.forEach((e) => {
+        if (spell.damage > 0) {
+          this.processWantAttack(world, useItem, e)
+        }
+        if (this.hasSpellEffect(spell.spellName)) {
+          this.processWantSpellEffect(world, useItem, e)
+        }
+      })
       this.actionSuccess(world, useItem.item, '')
     } else {
       this.actionError(useItem.owner, 'Invalid target selected')

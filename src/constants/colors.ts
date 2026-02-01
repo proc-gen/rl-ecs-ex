@@ -20,6 +20,7 @@ export const Colors = {
 
   LightningScroll: '#aaaa00',
   ConfusionScroll: '#cf3fff',
+  FireballScroll: '#ff0000',
 }
 
 export const HexColors = {
@@ -42,4 +43,5 @@ export const HexColors = {
 
   LightningScroll: Color.fromString(Colors.LightningScroll),
   ConfusionScroll: Color.fromString(Colors.ConfusionScroll),
+  FireballScroll: Color.fromString(Colors.FireballScroll),
 }

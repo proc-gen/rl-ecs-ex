@@ -22,6 +22,7 @@ import { processFOV } from '../utils/fov-funcs'
 import { TargetingType } from '../constants/targeting-type'
 import type { MessageLog } from '../utils/message-log'
 import { ItemActionType } from '../constants/item-action-type'
+import { MixColors } from '../utils/color-funcs'
 
 export class TargetingWindow implements InputController, RenderWindow {
   active: boolean
@@ -38,8 +39,10 @@ export class TargetingWindow implements InputController, RenderWindow {
   targetingEntity: EntityId
   targetPosition: Vector2
   targetRange: number
+  targetRadius: number
   targetFOV: Vector2[]
   targetingType: string
+  splashFOV: Vector2[]
 
   constructor(
     world: World,
@@ -62,8 +65,10 @@ export class TargetingWindow implements InputController, RenderWindow {
     this.targetingEntity = -1
     this.targetPosition = { x: 0, y: 0 }
     this.targetRange = -1
+    this.targetRadius = 0
     this.targetFOV = []
     this.targetingType = ''
+    this.splashFOV = []
   }
 
   getActive(): boolean {
@@ -81,6 +86,7 @@ export class TargetingWindow implements InputController, RenderWindow {
       TargetingComponent.targeting[this.targetingEntity].targetingType
     if (hasComponent(this.world, this.targetingEntity, SpellComponent)) {
       this.targetRange = SpellComponent.spell[this.targetingEntity].range
+      this.targetRadius = SpellComponent.spell[this.targetingEntity].radius ?? 0
       this.targetFOV = processFOV(
         this.map,
         PositionComponent.position[this.player],
@@ -134,6 +140,7 @@ export class TargetingWindow implements InputController, RenderWindow {
     ) {
       this.targetPosition.x += xOffset
       this.targetPosition.y += yOffset
+      this.updateSplashFOV()
     }
   }
 
@@ -163,10 +170,21 @@ export class TargetingWindow implements InputController, RenderWindow {
         this.targetPosition.y !== position.y)
     ) {
       this.targetPosition = { ...position }
+      this.updateSplashFOV()
       inputInfo.needRender = true
     }
 
     return inputInfo
+  }
+
+  updateSplashFOV() {
+    if (this.targetRadius > 0) {
+      this.splashFOV = processFOV(
+        this.map,
+        this.targetPosition,
+        this.targetRadius,
+      )
+    }
   }
 
   isTargetInRange() {
@@ -253,6 +271,13 @@ export class TargetingWindow implements InputController, RenderWindow {
       if (this.isTargetAllowable()) {
         color = Colors.InspectLocation
       }
+    }
+
+    if (this.splashFOV.length > 0) {
+      const splashColor = MixColors(color, Colors.Ambient)
+      this.splashFOV.forEach((p) => {
+        display.drawOver(p.x, p.y, '', null, splashColor)
+      })
     }
 
     display.drawOver(

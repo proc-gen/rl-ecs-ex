@@ -5,5 +5,6 @@ export const SpellComponent = {
 export type Spell = {
     range: number
     damage: number
+    radius?: number
     spellName: string
 }

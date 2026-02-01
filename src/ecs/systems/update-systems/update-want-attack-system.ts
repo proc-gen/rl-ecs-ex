@@ -47,7 +47,7 @@ export class UpdateWantAttackSystem implements UpdateSystem {
           infoActor,
           infoBlocker,
         )
-      } else if(attack.attackType === AttackType.Spell) {
+      } else if (attack.attackType === AttackType.Spell) {
         processedAttack = this.processSpellAttack(
           attack,
           statsAttacker,
@@ -59,7 +59,6 @@ export class UpdateWantAttackSystem implements UpdateSystem {
 
       this.log.addMessage(processedAttack.message)
       if (processedAttack.damage > 0) {
-
         healthBlocker.current = Math.max(
           0,
           healthBlocker.current - processedAttack.damage,
@@ -85,12 +84,11 @@ export class UpdateWantAttackSystem implements UpdateSystem {
     const damage = statsAttacker.strength - statsBlocker.defense
     const attackDescription = `${infoActor.name} attacks ${infoBlocker.name}`
     let message = ''
-    if(damage > 0){
+    if (damage > 0) {
       message = `${attackDescription} for ${damage} health.`
-    } else{
+    } else {
       message = `${attackDescription} but can't seem to leave a mark.`
     }
-
 
     return { damage, message }
   }
@@ -100,17 +98,21 @@ export class UpdateWantAttackSystem implements UpdateSystem {
     statsAttacker: Stats,
     statsBlocker: Stats,
     infoActor: Info,
-    infoBlocker: Info,){
-      const spell = SpellComponent.spell[attack.spell!]
-      const damage = spell.damage
-      let message = ''
+    infoBlocker: Info,
+  ) {
+    const spell = SpellComponent.spell[attack.spell!]
+    const damage = spell.damage
+    let message = ''
 
-      switch(spell.spellName){
-        case 'Lightning':
-          message = `A lightning bolt strikes the ${infoBlocker.name} with loud thunder, for ${damage} damage!`
-          break
-      }
-
-      return { damage, message }
+    switch (spell.spellName) {
+      case 'Lightning':
+        message = `A lightning bolt strikes the ${infoBlocker.name} with loud thunder, for ${damage} damage!`
+        break
+      case 'Fireball':
+        message = `The ${infoBlocker.name} is engulfed in a fiery explosion, taking ${damage} damage!`
+        break
     }
+
+    return { damage, message }
+  }
 }
