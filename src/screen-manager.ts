@@ -35,8 +35,10 @@ export class ScreenManager {
     this.currentScreen.render()
   }
 
-  setNextScreen(screen: Screen){
+  setNextScreen(screen: Screen) {
     this.currentScreen = screen
-    this.render()
+    setTimeout(() => {
+      this.render()
+    }, 100)
   }
 }

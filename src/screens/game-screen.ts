@@ -185,6 +185,10 @@ export class GameScreen extends Screen {
 
   keyDown(event: KeyboardEvent) {
     if (this.playerTurn) {
+      if(hasComponent(this.world, this.player, DeadComponent)){
+        this.backToMainMenu(false)
+      }
+
       if (this.targetingWindow.active) {
         const inputInfo = this.targetingWindow.handleKeyboardInput(event)
         this.handleInputInfo(inputInfo)
@@ -239,12 +243,19 @@ export class GameScreen extends Screen {
             this.render()
             break
           case 'Escape':
-            const mainMenu = new MainMenuScreen(this.display, this.manager)
-            this.manager.setNextScreen(mainMenu)
+            this.backToMainMenu(true)
             break
         }
       }
     }
+  }
+
+  backToMainMenu(saveGame: boolean){
+    if(saveGame){
+      
+    }
+    const mainMenu = new MainMenuScreen(this.display, this.manager)
+    this.manager.setNextScreen(mainMenu)
   }
 
   mouseMove(event: MouseEvent | WheelEvent) {
