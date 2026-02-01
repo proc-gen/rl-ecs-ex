@@ -11,13 +11,13 @@ import {
   DeadComponent,
   PositionComponent,
   RemoveComponent,
-} from './ecs/components'
+} from '../ecs/components'
 import {
   type RenderSystem,
   RenderEntitySystem,
   RenderHudSystem,
   RenderMapSystem,
-} from './ecs/systems/render-systems'
+} from '../ecs/systems/render-systems'
 import {
   type UpdateSystem,
   UpdateActionSystem,
@@ -27,22 +27,24 @@ import {
   UpdateWantUseItemSystem,
   UpdateTurnsLeftSystem,
   UpdateWantCauseSpellEffectSystem,
-} from './ecs/systems/update-systems'
-import { Map } from './map'
-import { DefaultGenerator, type Generator } from './map/generators'
-import type { HandleInputInfo, Vector2 } from './types'
-import { createPlayer } from './ecs/templates'
-import { MessageLog } from './utils/message-log'
-import { InventoryWindow, MessageHistoryWindow, TargetingWindow } from './windows'
-import { processPlayerFOV } from './utils/fov-funcs'
+} from '../ecs/systems/update-systems'
+import { Map } from '../map'
+import { DefaultGenerator, type Generator } from '../map/generators'
+import type { HandleInputInfo, Vector2 } from '../types'
+import { createPlayer } from '../ecs/templates'
+import { MessageLog } from '../utils/message-log'
+import {
+  InventoryWindow,
+  MessageHistoryWindow,
+  TargetingWindow,
+} from '../windows'
+import { processPlayerFOV } from '../utils/fov-funcs'
+import { Screen } from './screen'
 
-export class Engine {
-  public static readonly WIDTH = 80
-  public static readonly HEIGHT = 50
+export class GameScreen extends Screen {
   public static readonly MAP_WIDTH = 80
   public static readonly MAP_HEIGHT = 45
 
-  display: Display
   world: World
   player: EntityId
   actors: EntityId[]
@@ -59,14 +61,11 @@ export class Engine {
   updateSystems: UpdateSystem[]
   playerTurn: boolean
 
-  constructor() {
-    this.display = new Display({
-      width: Engine.WIDTH,
-      height: Engine.HEIGHT,
-      forceSquareRatio: true,
-    })
+  constructor(display: Display) {
+    super(display)
+
     this.world = createWorld()
-    this.map = new Map(this.world, Engine.MAP_WIDTH, Engine.MAP_HEIGHT)
+    this.map = new Map(this.world, GameScreen.MAP_WIDTH, GameScreen.MAP_HEIGHT)
     this.playerFOV = []
     this.log = new MessageLog()
     this.log.addMessage('Welcome to your doom, adventurer...')
@@ -130,14 +129,16 @@ export class Engine {
 
     this.historyViewer = new MessageHistoryWindow(this.log)
     this.inventoryWindow = new InventoryWindow(this.world, this.player)
-    this.targetingWindow = new TargetingWindow(this.world, this.log, this.map, this.player, this.playerFOV)
+    this.targetingWindow = new TargetingWindow(
+      this.world,
+      this.log,
+      this.map,
+      this.player,
+      this.playerFOV,
+    )
 
     this.playerTurn = true
     this.currentActor = this.player
-
-    window.addEventListener('keydown', (e) => this.keyDown(e))
-    window.addEventListener('mousemove', (e) => this.mouseMove(e))
-    window.addEventListener('wheel', (e) => this.mouseMove(e))
   }
 
   render() {
@@ -147,7 +148,7 @@ export class Engine {
       rs.render(this.display)
     })
 
-    if(this.targetingWindow.active){
+    if (this.targetingWindow.active) {
       this.targetingWindow.render(this.display)
     } else if (this.inventoryWindow.active) {
       this.inventoryWindow.render(this.display)
@@ -181,11 +182,10 @@ export class Engine {
   }
 
   keyDown(event: KeyboardEvent) {
-    event.preventDefault()
     if (this.playerTurn) {
-      if(this.targetingWindow.active){
+      if (this.targetingWindow.active) {
         const inputInfo = this.targetingWindow.handleKeyboardInput(event)
-          this.handleInputInfo(inputInfo)
+        this.handleInputInfo(inputInfo)
       } else if (this.inventoryWindow.active) {
         const inputInfo = this.inventoryWindow.handleKeyboardInput(event)
         this.handleInputInfo(inputInfo)
@@ -243,7 +243,6 @@ export class Engine {
 
   mouseMove(event: MouseEvent | WheelEvent) {
     if (this.playerTurn) {
-      
       if (this.targetingWindow.active) {
         const inputInfo = this.targetingWindow.handleMouseInput(
           event,
@@ -281,7 +280,7 @@ export class Engine {
       this.update()
     } else if (inputInfo.needRender) {
       this.render()
-    } else if (inputInfo.needTargeting !== undefined){
+    } else if (inputInfo.needTargeting !== undefined) {
       this.targetingWindow.setActive(true)
       this.targetingWindow.setTargetingEntity(inputInfo.needTargeting)
       this.render()
