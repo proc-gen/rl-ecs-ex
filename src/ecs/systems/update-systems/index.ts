@@ -4,6 +4,8 @@ import { UpdateWantAttackSystem } from './update-want-attack-system'
 import { UpdateRemoveSystem } from './update-remove-system'
 import { UpdateAiActionSystem } from './update-ai-action-system'
 import { UpdateWantUseItemSystem } from './update-want-use-item-system'
+import { UpdateTurnsLeftSystem } from './update-turns-left-system'
+import { UpdateWantCauseSpellEffectSystem } from './update-want-cause-spell-effect-system'
 
 export {
   type UpdateSystem,
@@ -12,4 +14,6 @@ export {
   UpdateWantAttackSystem,
   UpdateRemoveSystem,
   UpdateWantUseItemSystem,
+  UpdateTurnsLeftSystem,
+  UpdateWantCauseSpellEffectSystem,
 }

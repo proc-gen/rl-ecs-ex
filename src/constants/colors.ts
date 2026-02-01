@@ -11,10 +11,16 @@ export const Colors = {
 
   HealthBar: '#aa0000',
   InspectLocation: '#00ee00',
+  WarningLocation: '#eeee00',
+  ErrorLocation: '#ee0000',
 
   Player: '#ffee00',
-  Orc: '#7f3f3f',
-  Troll: '#7f0000',
+  Orc: '#3f7f3f',
+  Troll: '#007f00',
+
+  LightningScroll: '#aaaa00',
+  ConfusionScroll: '#cf3fff',
+  FireballScroll: '#ff0000',
 }
 
 export const HexColors = {
@@ -28,8 +34,14 @@ export const HexColors = {
 
   HealthBar: Color.fromString(Colors.HealthBar),
   InspectLocation: Color.fromString(Colors.InspectLocation),
+  WarningLocation: Color.fromString(Colors.WarningLocation),
+  ErrorLocation: Color.fromString(Colors.ErrorLocation),
 
   Player: Color.fromString(Colors.Player),
   Orc: Color.fromString(Colors.Orc),
   Troll: Color.fromString(Colors.Troll),
+
+  LightningScroll: Color.fromString(Colors.LightningScroll),
+  ConfusionScroll: Color.fromString(Colors.ConfusionScroll),
+  FireballScroll: Color.fromString(Colors.FireballScroll),
 }

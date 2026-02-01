@@ -1,3 +1,4 @@
 export const ConsumableType = {
-    Heal: 'Heal'
+    Heal: 'Heal',
+    Spell: 'Spell',
 }

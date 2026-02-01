@@ -16,6 +16,7 @@ import type { MessageLog } from '../../../utils/message-log'
 import type { InputController } from '../../../interfaces/input-controller'
 import type { HandleInputInfo, Vector2 } from '../../../types'
 import type { Map } from '../../../map'
+import { equal } from '../../../utils/vector-2-funcs'
 
 export class RenderHudSystem implements RenderSystem, InputController {
   world: World
@@ -49,8 +50,7 @@ export class RenderHudSystem implements RenderSystem, InputController {
   setActive(value: boolean): void {
     this.active = value
     if (this.active) {
-      this.inspectLocation.x = PositionComponent.position[this.player].x
-      this.inspectLocation.y = PositionComponent.position[this.player].y
+      this.inspectLocation = {...PositionComponent.position[this.player]}
     }
   }
 
@@ -180,7 +180,7 @@ export class RenderHudSystem implements RenderSystem, InputController {
       Colors.InspectLocation,
     )
     const atLocation = [
-      `Inspecting (${this.inspectLocation.x},${this.inspectLocation.y})`,
+      `Inspecting (${this.inspectLocation.x}, ${this.inspectLocation.y})`,
     ]
 
     if (this.map.tiles[this.inspectLocation.x][this.inspectLocation.y].seen) {
@@ -190,8 +190,7 @@ export class RenderHudSystem implements RenderSystem, InputController {
 
       if (
         this.playerFOV.find(
-          (a) =>
-            a.x === this.inspectLocation.x && a.y === this.inspectLocation.y,
+          (a) => equal(a, this.inspectLocation)
         ) !== undefined
       ) {
         const entitiesAtLocation = this.map.getEntitiesAtLocation(

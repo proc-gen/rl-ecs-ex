@@ -1,6 +1,7 @@
 import { type Action, ActionComponent } from './action'
 import { type Alive, AliveComponent } from './alive'
 import { type Blocker, BlockerComponent } from './blocker'
+import { type Confusion, ConfusionComponent } from './confusion'
 import { type Consumable, ConsumableComponent } from './consumable'
 import { type Dead, DeadComponent } from './dead'
 import { type Enemy, EnemyComponent } from './enemy'
@@ -22,15 +23,21 @@ import {
   RenderLayerBlockerComponent,
   RenderOrder,
 } from './render-layer'
+import { type Spell, SpellComponent } from './spell'
 import { type Stats, StatsComponent } from './stats'
+import { type Targeting, TargetingComponent } from './targeting'
 import {
-  type WantMeleeAttack,
-  WantMeleeAttackComponent,
-} from './want-melee-attack'
+  type WantAttack,
+  WantAttackComponent,
+} from './want-attack'
 import {
   type WantUseItem,
   WantUseItemComponent,
 } from './want-use-item'
+import {
+  type WantCauseSpellEffect,
+  WantCauseSpellEffectComponent,
+} from './want-cause-spell-effect'
 
 export {
   type Action,
@@ -39,6 +46,8 @@ export {
   AliveComponent,
   type Blocker,
   BlockerComponent,
+  type Confusion,
+  ConfusionComponent,
   type Consumable,
   ConsumableComponent,
   type Dead,
@@ -70,10 +79,16 @@ export {
   RenderLayerItemComponent,
   RenderLayerBlockerComponent,
   RenderOrder,
+  type Spell,
+  SpellComponent,
   type Stats,
   StatsComponent,
-  type WantMeleeAttack,
-  WantMeleeAttackComponent,
+  type Targeting,
+  TargetingComponent,
+  type WantAttack,
+  WantAttackComponent,
   type WantUseItem,
   WantUseItemComponent,
+  type WantCauseSpellEffect,
+  WantCauseSpellEffectComponent,
 }

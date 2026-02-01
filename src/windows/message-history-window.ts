@@ -32,32 +32,32 @@ export class MessageHistoryWindow implements InputController, RenderWindow {
 
   setActive(value: boolean): void {
     this.active = value
-    this.logPosition = 0
+    if (this.active) {
+      this.logPosition = 0
+    }
   }
 
   handleKeyboardInput(event: KeyboardEvent): HandleInputInfo {
     const inputInfo = { needRender: false, needUpdate: false }
-    if (this.active) {
-      switch (event.key) {
-        case 'ArrowUp':
-        case 'w':
-          this.logPosition = Math.max(0, this.logPosition - 1)
-          inputInfo.needRender = true
-          break
-        case 'ArrowDown':
-        case 's':
-          this.logPosition = Math.min(
-            this.log.messages.length - 1,
-            this.logPosition + 1,
-          )
-          inputInfo.needRender = true
-          break
-        case 'Escape':
-        case 'Delete':
-          this.active = false
-          inputInfo.needRender = true
-          break
-      }
+    switch (event.key) {
+      case 'ArrowUp':
+      case 'w':
+        this.logPosition = Math.max(0, this.logPosition - 1)
+        inputInfo.needRender = true
+        break
+      case 'ArrowDown':
+      case 's':
+        this.logPosition = Math.min(
+          this.log.messages.length - 1,
+          this.logPosition + 1,
+        )
+        inputInfo.needRender = true
+        break
+      case 'Escape':
+      case 'End':
+        this.active = false
+        inputInfo.needRender = true
+        break
     }
 
     return inputInfo
@@ -65,7 +65,7 @@ export class MessageHistoryWindow implements InputController, RenderWindow {
 
   handleMouseInput(event: WheelEvent, _position: Vector2): HandleInputInfo {
     const inputInfo = { needRender: false, needUpdate: false }
-    if (this.active && event.deltaY !== undefined) {
+    if (event.deltaY !== undefined) {
       if (event.deltaY < 0) {
         this.logPosition = Math.min(
           this.log.messages.length - 1,

@@ -1,4 +1,4 @@
-import { query, type EntityId, type World } from 'bitecs'
+import { hasComponent, query, type EntityId, type World } from 'bitecs'
 import type { HandleInputInfo, Vector2 } from '../types'
 import type { Display } from 'rot-js'
 import {
@@ -12,6 +12,7 @@ import {
   InfoComponent,
   ItemComponent,
   OwnerComponent,
+  TargetingComponent,
 } from '../ecs/components'
 import { ItemActionType } from '../constants/item-action-type'
 import { Colors } from '../constants/colors'
@@ -45,59 +46,64 @@ export class InventoryWindow implements InputController, RenderWindow {
 
   setActive(value: boolean): void {
     this.active = value
-    this.playerItems.length = 0
-    for (const eid of query(this.world, [OwnerComponent, ItemComponent])) {
-      if (OwnerComponent.owner[eid].owner === this.player) {
-        console.log(eid)
-        this.playerItems.push(eid)
+    if (this.active) {
+      this.playerItems.length = 0
+      for (const eid of query(this.world, [OwnerComponent, ItemComponent])) {
+        if (OwnerComponent.owner[eid].owner === this.player) {
+          this.playerItems.push(eid)
+        }
       }
+      this.itemIndex = 0
     }
-    this.itemIndex = 0
   }
 
   handleKeyboardInput(event: KeyboardEvent): HandleInputInfo {
     const inputInfo = { needRender: false, needUpdate: false }
-    if (this.active) {
-      switch (event.key) {
-        case 'ArrowUp':
-        case 'w':
-          this.itemIndex = Math.floor(Math.max(0, this.itemIndex - 1))
-          inputInfo.needRender = true
-          break
-        case 'ArrowDown':
-        case 's':
-          this.itemIndex = Math.floor(
-            Math.min(this.playerItems.length - 1, this.itemIndex + 1),
-          )
-          inputInfo.needRender = true
-          break
-        case 'Enter':
-        case 'e':
-          this.setPlayerAction(
-            this.playerItems[this.itemIndex],
-            ItemActionType.Use,
-          )
-          this.active = false
-          inputInfo.needUpdate = true
-          break
-        case 'Delete':
-        case 'q':
-          this.setPlayerAction(
-            this.playerItems[this.itemIndex],
-            ItemActionType.Drop,
-          )
-          this.active = false
-          inputInfo.needUpdate = true
-          break
-        case 'Escape':
-        case 'End':
-          this.active = false
-          inputInfo.needRender = true
-          break
-      }
+    switch (event.key) {
+      case 'ArrowUp':
+      case 'w':
+        this.itemIndex = Math.floor(Math.max(0, this.itemIndex - 1))
+        inputInfo.needRender = true
+        break
+      case 'ArrowDown':
+      case 's':
+        this.itemIndex = Math.floor(
+          Math.min(this.playerItems.length - 1, this.itemIndex + 1),
+        )
+        inputInfo.needRender = true
+        break
+      case 'Enter':
+      case 'e':
+        this.useItem(inputInfo)
+        break
+      case 'Delete':
+      case 'q':
+        this.setPlayerAction(
+          this.playerItems[this.itemIndex],
+          ItemActionType.Drop,
+        )
+        this.active = false
+        inputInfo.needUpdate = true
+        break
+      case 'Escape':
+      case 'End':
+        this.active = false
+        inputInfo.needRender = true
+        break
     }
 
     return inputInfo
+  }
+
+  useItem(inputInfo: HandleInputInfo) {
+    const entity = this.playerItems[this.itemIndex]
+    if (hasComponent(this.world, entity, TargetingComponent)) {
+      inputInfo.needTargeting = entity
+    } else {
+      this.setPlayerAction(entity, ItemActionType.Use)
+      this.active = false
+      inputInfo.needUpdate = true
+    }
   }
 
   handleMouseInput(_event: MouseEvent, _position: Vector2): HandleInputInfo {
