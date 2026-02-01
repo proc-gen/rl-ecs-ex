@@ -40,6 +40,8 @@ import {
 } from '../windows'
 import { processPlayerFOV } from '../utils/fov-funcs'
 import { Screen } from './screen'
+import type { ScreenManager } from '../screen-manager'
+import { MainMenuScreen } from './main-menu-screen'
 
 export class GameScreen extends Screen {
   public static readonly MAP_WIDTH = 80
@@ -61,8 +63,8 @@ export class GameScreen extends Screen {
   updateSystems: UpdateSystem[]
   playerTurn: boolean
 
-  constructor(display: Display) {
-    super(display)
+  constructor(display: Display, manager: ScreenManager) {
+    super(display, manager)
 
     this.world = createWorld()
     this.map = new Map(this.world, GameScreen.MAP_WIDTH, GameScreen.MAP_HEIGHT)
@@ -235,6 +237,10 @@ export class GameScreen extends Screen {
           case 'i':
             this.inventoryWindow.setActive(true)
             this.render()
+            break
+          case 'Escape':
+            const mainMenu = new MainMenuScreen(this.display, this.manager)
+            this.manager.setNextScreen(mainMenu)
             break
         }
       }

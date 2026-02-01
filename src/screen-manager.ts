@@ -1,5 +1,5 @@
 import { Display } from 'rot-js'
-import { GameScreen, Screen } from './screens'
+import { MainMenuScreen, Screen } from './screens'
 
 export class ScreenManager {
   public static readonly WIDTH = 80
@@ -15,7 +15,7 @@ export class ScreenManager {
       forceSquareRatio: true,
     })
 
-    this.currentScreen = new GameScreen(this.display)
+    this.currentScreen = new MainMenuScreen(this.display, this)
 
     window.addEventListener('keydown', (e) => this.keyDown(e))
     window.addEventListener('mousemove', (e) => this.mouseMove(e))
@@ -33,5 +33,10 @@ export class ScreenManager {
 
   render() {
     this.currentScreen.render()
+  }
+
+  setNextScreen(screen: Screen){
+    this.currentScreen = screen
+    this.render()
   }
 }
