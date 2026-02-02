@@ -1,6 +1,7 @@
 import {
   addComponent,
   addComponents,
+  hasComponent,
   query,
   removeComponent,
   type EntityId,
@@ -12,6 +13,7 @@ import {
   DeadComponent,
   HealthComponent,
   InfoComponent,
+  PlayerComponent,
   RemoveComponent,
   SpellComponent,
   StatsComponent,
@@ -66,7 +68,17 @@ export class UpdateWantAttackSystem implements UpdateSystem {
 
         if (healthBlocker.current === 0) {
           this.log.addMessage(`${infoBlocker.name} has died.`)
-          addComponents(world, attack.defender, RemoveComponent, DeadComponent)
+          if (hasComponent(world, attack.defender, PlayerComponent)) {
+            addComponent(world, attack.defender, DeadComponent)
+          } else {
+            addComponents(
+              world,
+              attack.defender,
+              RemoveComponent,
+              DeadComponent,
+            )
+          }
+
           removeComponent(world, attack.defender, AliveComponent)
         }
       }

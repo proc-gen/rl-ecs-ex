@@ -9,15 +9,16 @@ import {
 import {
   ActionComponent,
   DeadComponent,
+  PlayerComponent,
   PositionComponent,
   RemoveComponent,
-} from './ecs/components'
+} from '../ecs/components'
 import {
   type RenderSystem,
   RenderEntitySystem,
   RenderHudSystem,
   RenderMapSystem,
-} from './ecs/systems/render-systems'
+} from '../ecs/systems/render-systems'
 import {
   type UpdateSystem,
   UpdateActionSystem,
@@ -27,29 +28,33 @@ import {
   UpdateWantUseItemSystem,
   UpdateTurnsLeftSystem,
   UpdateWantCauseSpellEffectSystem,
-} from './ecs/systems/update-systems'
-import { Map } from './map'
-import { DefaultGenerator, type Generator } from './map/generators'
-import type { HandleInputInfo, Vector2 } from './types'
-import { createPlayer } from './ecs/templates'
-import { MessageLog } from './utils/message-log'
-import { InventoryWindow, MessageHistoryWindow, TargetingWindow } from './windows'
-import { processPlayerFOV } from './utils/fov-funcs'
+} from '../ecs/systems/update-systems'
+import { Map } from '../map'
+import { DefaultGenerator } from '../map/generators'
+import type { HandleInputInfo, Vector2 } from '../types'
+import { createPlayer } from '../ecs/templates'
+import { MessageLog } from '../utils/message-log'
+import {
+  InventoryWindow,
+  MessageHistoryWindow,
+  TargetingWindow,
+} from '../windows'
+import { processPlayerFOV } from '../utils/fov-funcs'
+import { Screen } from './screen'
+import type { ScreenManager } from '../screen-manager'
+import { MainMenuScreen } from './main-menu-screen'
+import { deserializeWorld, serializeWorld } from '../serialization'
 
-export class Engine {
-  public static readonly WIDTH = 80
-  public static readonly HEIGHT = 50
+export class GameScreen extends Screen {
   public static readonly MAP_WIDTH = 80
   public static readonly MAP_HEIGHT = 45
 
-  display: Display
   world: World
   player: EntityId
   actors: EntityId[]
   currentActor: EntityId
   playerFOV: Vector2[]
   map: Map
-  generator: Generator
   log: MessageLog
   historyViewer: MessageHistoryWindow
   inventoryWindow: InventoryWindow
@@ -59,38 +64,56 @@ export class Engine {
   updateSystems: UpdateSystem[]
   playerTurn: boolean
 
-  constructor() {
-    this.display = new Display({
-      width: Engine.WIDTH,
-      height: Engine.HEIGHT,
-      forceSquareRatio: true,
-    })
-    this.world = createWorld()
-    this.map = new Map(this.world, Engine.MAP_WIDTH, Engine.MAP_HEIGHT)
+  constructor(
+    display: Display,
+    manager: ScreenManager,
+    saveGame: string | undefined = undefined,
+  ) {
+    super(display, manager)
     this.playerFOV = []
+    this.actors = []
+
+    if (saveGame !== undefined) {
+      localStorage.removeItem('rogue-save')
+      const { world, map, log } = deserializeWorld(saveGame)
+      this.world = world
+      this.map = map
+      this.log = log
+      this.player = (query(this.world, [PlayerComponent]) as EntityId[])[0]
+
+      this.log.addMessage('Welcome back, adventurer...')
+    } else {
+      this.world = createWorld()
+      this.map = new Map(
+        this.world,
+        GameScreen.MAP_WIDTH,
+        GameScreen.MAP_HEIGHT,
+      )
     this.log = new MessageLog()
-    this.log.addMessage('Welcome to your doom, adventurer...')
 
-    this.generator = new DefaultGenerator(
-      this.world,
-      this.map,
-      10,
-      5,
-      12,
-      10,
-      4,
-    )
-    this.generator.generate()
-    const startPosition = this.generator.playerStartPosition()
+      this.log.addMessage('Welcome to your doom, adventurer...')
 
-    this.player = createPlayer(this.world, startPosition)
+      const generator = new DefaultGenerator(
+        this.world,
+        this.map,
+        10,
+        5,
+        12,
+        10,
+        4,
+      )
+      generator.generate()
+      const startPosition = generator.playerStartPosition()
+
+      this.player = createPlayer(this.world, startPosition)
+    }
+
     processPlayerFOV(
       this.map,
       PositionComponent.position[this.player],
       this.playerFOV,
     )
 
-    this.actors = []
     this.actors.push(this.player)
 
     for (const eid of query(this.world, [PositionComponent])) {
@@ -130,14 +153,16 @@ export class Engine {
 
     this.historyViewer = new MessageHistoryWindow(this.log)
     this.inventoryWindow = new InventoryWindow(this.world, this.player)
-    this.targetingWindow = new TargetingWindow(this.world, this.log, this.map, this.player, this.playerFOV)
+    this.targetingWindow = new TargetingWindow(
+      this.world,
+      this.log,
+      this.map,
+      this.player,
+      this.playerFOV,
+    )
 
     this.playerTurn = true
     this.currentActor = this.player
-
-    window.addEventListener('keydown', (e) => this.keyDown(e))
-    window.addEventListener('mousemove', (e) => this.mouseMove(e))
-    window.addEventListener('wheel', (e) => this.mouseMove(e))
   }
 
   render() {
@@ -147,7 +172,7 @@ export class Engine {
       rs.render(this.display)
     })
 
-    if(this.targetingWindow.active){
+    if (this.targetingWindow.active) {
       this.targetingWindow.render(this.display)
     } else if (this.inventoryWindow.active) {
       this.inventoryWindow.render(this.display)
@@ -181,11 +206,14 @@ export class Engine {
   }
 
   keyDown(event: KeyboardEvent) {
-    event.preventDefault()
     if (this.playerTurn) {
-      if(this.targetingWindow.active){
+      if (hasComponent(this.world, this.player, DeadComponent)) {
+        this.backToMainMenu(false)
+      }
+
+      if (this.targetingWindow.active) {
         const inputInfo = this.targetingWindow.handleKeyboardInput(event)
-          this.handleInputInfo(inputInfo)
+        this.handleInputInfo(inputInfo)
       } else if (this.inventoryWindow.active) {
         const inputInfo = this.inventoryWindow.handleKeyboardInput(event)
         this.handleInputInfo(inputInfo)
@@ -236,14 +264,30 @@ export class Engine {
             this.inventoryWindow.setActive(true)
             this.render()
             break
+          case 'Escape':
+            this.backToMainMenu(true)
+            break
         }
       }
     }
   }
 
+  backToMainMenu(saveGame: boolean) {
+    if (saveGame) {
+      const serializedWorld = serializeWorld(this.world, this.map, this.log)
+
+      try {
+        localStorage.setItem('rogue-save', JSON.stringify(serializedWorld))
+      } catch (ex) {
+        console.log(ex)
+      }
+    }
+    const mainMenu = new MainMenuScreen(this.display, this.manager)
+    this.manager.setNextScreen(mainMenu)
+  }
+
   mouseMove(event: MouseEvent | WheelEvent) {
     if (this.playerTurn) {
-      
       if (this.targetingWindow.active) {
         const inputInfo = this.targetingWindow.handleMouseInput(
           event,
@@ -281,7 +325,7 @@ export class Engine {
       this.update()
     } else if (inputInfo.needRender) {
       this.render()
-    } else if (inputInfo.needTargeting !== undefined){
+    } else if (inputInfo.needTargeting !== undefined) {
       this.targetingWindow.setActive(true)
       this.targetingWindow.setTargetingEntity(inputInfo.needTargeting)
       this.render()

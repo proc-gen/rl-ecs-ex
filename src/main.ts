@@ -1,13 +1,13 @@
-import { Engine } from './engine'
+import { ScreenManager } from './screen-manager'
 
 const runGame = () => {
-  const engine = new Engine()
+  const screenManager = new ScreenManager()
 
-  const container = engine.display.getContainer()!
+  const container = screenManager.display.getContainer()!
   document.getElementById('game-window')?.appendChild(container)
-  
+
   setTimeout(() => {
-    engine.render()
+    screenManager.render()
   }, 100)
 }
 
