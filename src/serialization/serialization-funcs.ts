@@ -16,8 +16,9 @@ import {
   setDataForComponent,
   WorldComponents,
 } from '../ecs/components'
+import { MessageLog } from '../utils/message-log'
 
-export const serializeWorld = (world: World, map: Map) => {
+export const serializeWorld = (world: World, map: Map, log: MessageLog) => {
   const entities = getAllEntities(world)
   const serializedEntities = entities.map((e) => {
     const components = WorldComponents.map((componentType) => {
@@ -37,6 +38,7 @@ export const serializeWorld = (world: World, map: Map) => {
   return {
     width: map.width,
     height: map.height,
+    messages: log.messages,
     tiles: map.tiles,
     serializedEntities: serializedEntities,
   } as SerializedWorld
@@ -74,8 +76,12 @@ export const deserializeWorld = (saveGame: string) => {
     map.addEntityAtLocation(eid, position)
   }
 
+  const log = new MessageLog()
+  log.messages = parsedWorld.messages
+
   return {
     world,
     map,
+    log,
   }
 }

@@ -71,15 +71,14 @@ export class GameScreen extends Screen {
   ) {
     super(display, manager)
     this.playerFOV = []
-    this.log = new MessageLog()
     this.actors = []
 
     if (saveGame !== undefined) {
       localStorage.removeItem('rogue-save')
-      const { world, map } = deserializeWorld(saveGame)
+      const { world, map, log } = deserializeWorld(saveGame)
       this.world = world
       this.map = map
-
+      this.log = log
       this.player = (query(this.world, [PlayerComponent]) as EntityId[])[0]
 
       this.log.addMessage('Welcome back, adventurer...')
@@ -90,6 +89,7 @@ export class GameScreen extends Screen {
         GameScreen.MAP_WIDTH,
         GameScreen.MAP_HEIGHT,
       )
+    this.log = new MessageLog()
 
       this.log.addMessage('Welcome to your doom, adventurer...')
 
@@ -274,7 +274,7 @@ export class GameScreen extends Screen {
 
   backToMainMenu(saveGame: boolean) {
     if (saveGame) {
-      const serializedWorld = serializeWorld(this.world, this.map)
+      const serializedWorld = serializeWorld(this.world, this.map, this.log)
 
       try {
         localStorage.setItem('rogue-save', JSON.stringify(serializedWorld))
