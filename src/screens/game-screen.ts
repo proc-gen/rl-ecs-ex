@@ -5,10 +5,13 @@ import {
   type EntityId,
   query,
   hasComponent,
+  removeEntity,
+  Not,
 } from 'bitecs'
 import {
   ActionComponent,
   DeadComponent,
+  OwnerComponent,
   PlayerComponent,
   PositionComponent,
   RemoveComponent,
@@ -55,6 +58,7 @@ export class GameScreen extends Screen {
   currentActor: EntityId
   playerFOV: Vector2[]
   map: Map
+  level: number
   log: MessageLog
   historyViewer: MessageHistoryWindow
   inventoryWindow: InventoryWindow
@@ -75,58 +79,23 @@ export class GameScreen extends Screen {
 
     if (saveGame !== undefined) {
       localStorage.removeItem('rogue-save')
-      const { world, map, log } = deserializeWorld(saveGame)
+      const { world, map, log, level } = deserializeWorld(saveGame)
       this.world = world
       this.map = map
       this.log = log
-      this.player = (query(this.world, [PlayerComponent]) as EntityId[])[0]
+      this.level = level
 
       this.log.addMessage('Welcome back, adventurer...')
     } else {
       this.world = createWorld()
-      this.map = new Map(
-        this.world,
-        GameScreen.MAP_WIDTH,
-        GameScreen.MAP_HEIGHT,
-      )
-    this.log = new MessageLog()
-
-      this.log.addMessage('Welcome to your doom, adventurer...')
-
-      const generator = new DefaultGenerator(
-        this.world,
-        this.map,
-        10,
-        5,
-        12,
-        10,
-        4,
-      )
-      generator.generate()
-      const startPosition = generator.playerStartPosition()
-
-      this.player = createPlayer(this.world, startPosition)
+      this.level = 1
+      this.log = new MessageLog()
+      this.map = this.generateMap()
     }
 
-    processPlayerFOV(
-      this.map,
-      PositionComponent.position[this.player],
-      this.playerFOV,
-    )
+    this.player = (query(this.world, [PlayerComponent]) as EntityId[])[0]
 
-    this.actors.push(this.player)
-
-    for (const eid of query(this.world, [PositionComponent])) {
-      const position = PositionComponent.position[eid]
-      this.map.addEntityAtLocation(eid, { x: position.x, y: position.y })
-
-      if (
-        hasComponent(this.world, eid, ActionComponent) &&
-        eid !== this.player
-      ) {
-        this.actors.push(eid)
-      }
-    }
+    this.postProcessMap()
 
     this.updateSystems = [
       new UpdateRemoveSystem(this.map),
@@ -163,6 +132,64 @@ export class GameScreen extends Screen {
 
     this.playerTurn = true
     this.currentActor = this.player
+  }
+
+  generateMap() {
+    if (this.level > 1) {
+      for (const eid of query(this.world, [OwnerComponent])) {
+        if (OwnerComponent.owner[eid].owner !== this.player) {
+          removeEntity(this.world, eid)
+        }
+      }
+
+      for (const eid of query(this.world, [Not(PlayerComponent)])) {
+        removeEntity(this.world, eid)
+      }
+    }
+
+    const map = new Map(
+      this.world,
+      GameScreen.MAP_WIDTH,
+      GameScreen.MAP_HEIGHT,
+      this.level,
+    )
+    const generator = new DefaultGenerator(this.world, map, 10, 5, 12, 10, 4)
+    generator.generate()
+    const startPosition = generator.playerStartPosition()
+
+    if (this.level === 1) {
+      createPlayer(this.world, startPosition)
+      this.log.addMessage('Welcome to your doom, adventurer...')
+    } else {
+      this.log.addMessage('You journey closer to your doom, adventurer...')
+      PositionComponent.position[this.player].x = startPosition.x
+      PositionComponent.position[this.player].y = startPosition.y
+    }
+
+    return map
+  }
+
+  postProcessMap() {
+    processPlayerFOV(
+      this.map,
+      PositionComponent.position[this.player],
+      this.playerFOV,
+    )
+
+    this.actors.length = 0
+    this.actors.push(this.player)
+
+    for (const eid of query(this.world, [PositionComponent])) {
+      const position = PositionComponent.position[eid]
+      this.map.addEntityAtLocation(eid, { x: position.x, y: position.y })
+
+      if (
+        hasComponent(this.world, eid, ActionComponent) &&
+        eid !== this.player
+      ) {
+        this.actors.push(eid)
+      }
+    }
   }
 
   render() {
@@ -264,12 +291,29 @@ export class GameScreen extends Screen {
             this.inventoryWindow.setActive(true)
             this.render()
             break
+          case 'v':
+            this.tryToDescend()
+            break
           case 'Escape':
             this.backToMainMenu(true)
             break
         }
       }
     }
+  }
+
+  tryToDescend() {
+    const playerPosition = PositionComponent.position[this.player]
+    const tile = this.map.tiles[playerPosition.x][playerPosition.y]
+    if (tile.name === 'Stairs Down') {
+      this.level++
+      this.map.copyFromOtherMap(this.generateMap())
+      this.postProcessMap()
+    } else {
+      this.log.addMessage('The stairs are not here')
+    }
+
+    this.render()
   }
 
   backToMainMenu(saveGame: boolean) {

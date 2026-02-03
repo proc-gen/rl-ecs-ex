@@ -38,6 +38,7 @@ export const serializeWorld = (world: World, map: Map, log: MessageLog) => {
   return {
     width: map.width,
     height: map.height,
+    level: map.level,
     messages: log.messages,
     tiles: map.tiles,
     serializedEntities: serializedEntities,
@@ -68,6 +69,7 @@ export const deserializeWorld = (saveGame: string) => {
     world,
     parsedWorld.width,
     parsedWorld.height,
+    parsedWorld.level,
     parsedWorld.tiles,
   )
 
@@ -83,5 +85,6 @@ export const deserializeWorld = (saveGame: string) => {
     world,
     map,
     log,
+    level: parsedWorld.level,
   }
 }

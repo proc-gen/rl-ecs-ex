@@ -7,10 +7,11 @@ import { BlockerComponent, PlayerComponent } from '../ecs/components'
 export class Map {
   width: number
   height: number
+  level: number
   world: World
   pathStart: Vector2
   tiles: Tile[][]
-  private entityLocations: {
+  entityLocations: {
     position: Vector2
     entities: EntityId[]
   }[]
@@ -19,10 +20,12 @@ export class Map {
     world: World,
     width: number,
     height: number,
+    level: number,
     tiles: Tile[][] | undefined = undefined,
   ) {
     this.width = width
     this.height = height
+    this.level = level
     this.world = world
     this.entityLocations = []
     this.pathStart = { x: 0, y: 0 }
@@ -35,6 +38,14 @@ export class Map {
     } else {
       this.tiles = tiles
     }
+  }
+
+  copyFromOtherMap(otherMap: Map) {
+    this.width = otherMap.width
+    this.height = otherMap.height
+    this.level = otherMap.level
+    this.entityLocations = otherMap.entityLocations
+    this.tiles = otherMap.tiles
   }
 
   isInBounds(x: number, y: number) {

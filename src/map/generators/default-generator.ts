@@ -1,6 +1,6 @@
 import type { World } from 'bitecs'
 
-import { FLOOR_TILE } from '../../constants/tiles'
+import { FLOOR_TILE, STAIRS_DOWN_TILE } from '../../constants/tiles'
 import type { Map } from '../map'
 import { Room, type Sector } from '../containers'
 import { clearMap, tunnel, type Generator } from './generator'
@@ -51,6 +51,8 @@ export class DefaultGenerator implements Generator {
 
     this.copyRoomsToMap()
     this.copyTunnelsToMap()
+
+    this.placeStairs()
   }
 
   createRooms() {
@@ -205,5 +207,11 @@ export class DefaultGenerator implements Generator {
   playerStartPosition(): Vector2 {
     const firstRoom = this.rooms[0]
     return firstRoom.center()
+  }
+
+  placeStairs() {
+    const lastRoom = this.rooms[this.rooms.length - 1]
+    const center = lastRoom.center()
+    this.map.tiles[center.x][center.y] = { ...STAIRS_DOWN_TILE }
   }
 }

@@ -50,7 +50,7 @@ export class RenderHudSystem implements RenderSystem, InputController {
   setActive(value: boolean): void {
     this.active = value
     if (this.active) {
-      this.inspectLocation = {...PositionComponent.position[this.player]}
+      this.inspectLocation = { ...PositionComponent.position[this.player] }
     }
   }
 
@@ -127,6 +127,13 @@ export class RenderHudSystem implements RenderSystem, InputController {
       Colors.VeryDarkGrey,
     )
     this.renderHealthBar(display)
+    renderSingleLineTextOver(
+      display,
+      { x: 1, y: 46 },
+      `Depth: ${this.map.level}`,
+      Colors.White,
+      null,
+    )
 
     if (this.active) {
       this.renderInspection(display)
@@ -189,9 +196,7 @@ export class RenderHudSystem implements RenderSystem, InputController {
       )
 
       if (
-        this.playerFOV.find(
-          (a) => equal(a, this.inspectLocation)
-        ) !== undefined
+        this.playerFOV.find((a) => equal(a, this.inspectLocation)) !== undefined
       ) {
         const entitiesAtLocation = this.map.getEntitiesAtLocation(
           this.inspectLocation,
