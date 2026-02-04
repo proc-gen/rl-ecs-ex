@@ -71,6 +71,10 @@ export class UpdateWantAttackSystem implements UpdateSystem {
           if (hasComponent(world, attack.defender, PlayerComponent)) {
             addComponent(world, attack.defender, DeadComponent)
           } else {
+            const gainedXp = StatsComponent.stats[attack.defender].xpGiven
+            PlayerComponent.player[attack.attacker].currentXp += gainedXp
+            this.log.addMessage(`You gain ${gainedXp} experience points`)
+
             addComponents(
               world,
               attack.defender,

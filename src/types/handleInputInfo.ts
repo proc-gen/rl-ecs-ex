@@ -4,4 +4,5 @@ export type HandleInputInfo = {
     needUpdate: boolean
     needRender: boolean
     needTargeting?: EntityId
+    finishTurn?: boolean
 }

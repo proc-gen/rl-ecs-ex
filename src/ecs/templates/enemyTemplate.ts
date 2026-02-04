@@ -46,6 +46,8 @@ export const createEnemy = (
     yOffset: 0,
     useItem: undefined,
     actionSuccessful: true,
+    pickUpItem: false,
+    itemActionType: undefined,
   }
   InfoComponent.info[enemy] = { name }
   PositionComponent.position[enemy] = { ...startPosition }
@@ -61,6 +63,7 @@ export const createEnemy = (
   StatsComponent.stats[enemy] = {
     strength: enemyStats.strength,
     defense: enemyStats.defense,
+    xpGiven: enemyStats.xpGiven,
   }
 
   return enemy
@@ -75,6 +78,7 @@ const enemyStatLookup = (name: string) => {
       health: 10,
       strength: 3,
       defense: 0,
+      xpGiven: 35,
     }
   } else if (name === 'Troll') {
     return {
@@ -84,6 +88,7 @@ const enemyStatLookup = (name: string) => {
       health: 16,
       strength: 4,
       defense: 1,
+      xpGiven: 100,
     }
   }
 
