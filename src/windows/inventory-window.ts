@@ -12,6 +12,8 @@ import {
   InfoComponent,
   ItemComponent,
   OwnerComponent,
+  PlayerComponent,
+  StatsComponent,
   TargetingComponent,
 } from '../ecs/components'
 import { ItemActionType } from '../constants/item-action-type'
@@ -22,6 +24,7 @@ export class InventoryWindow implements InputController, RenderWindow {
   windowPosition: Vector2
   windowDimension: Vector2
   renderPosition: Vector2
+  renderPositionRight: Vector2
 
   world: World
   player: EntityId
@@ -30,9 +33,10 @@ export class InventoryWindow implements InputController, RenderWindow {
 
   constructor(world: World, player: EntityId) {
     this.active = false
-    this.windowPosition = { x: 20, y: 10 }
-    this.windowDimension = { x: 40, y: 30 }
-    this.renderPosition = { x: 23, y: 12 }
+    this.windowPosition = { x: 15, y: 10 }
+    this.windowDimension = { x: 50, y: 30 }
+    this.renderPosition = { x: 18, y: 12 }
+    this.renderPositionRight = { x: 40, y: 12 }
 
     this.world = world
     this.player = player
@@ -115,16 +119,26 @@ export class InventoryWindow implements InputController, RenderWindow {
       display,
       this.windowPosition,
       this.windowDimension,
-      'Inventory',
+      'Character',
     )
 
     this.renderInventoryItems(display)
+    this.renderStats(display)
   }
 
   renderInventoryItems(display: Display) {
+    let renderPos = { ...this.renderPosition }
+    renderSingleLineTextOver(
+          display,
+          renderPos,
+          'Inventory',
+          Colors.White,
+          null,
+        )
+    renderPos.y += 2
+
     if (this.playerItems.length > 0) {
       let i = 0
-      let renderPos = { ...this.renderPosition }
 
       while (i < 15 && i < this.playerItems.length) {
         const itemInfo = InfoComponent.info[this.playerItems[i]]
@@ -143,12 +157,72 @@ export class InventoryWindow implements InputController, RenderWindow {
     } else {
       renderSingleLineTextOver(
         display,
-        this.renderPosition,
+        renderPos,
         'No items',
         Colors.White,
         null,
       )
     }
+  }
+
+  renderStats(display: Display){
+    let renderPos = { ...this.renderPositionRight }
+    renderSingleLineTextOver(
+          display,
+          renderPos,
+          'Stats',
+          Colors.White,
+          null,
+        )
+    renderPos.y += 2
+
+    const playerStats = PlayerComponent.player[this.player]
+    const stats = StatsComponent.stats[this.player]
+
+    renderSingleLineTextOver(
+        display,
+        renderPos,
+        `Level: ${playerStats.currentLevel}`,
+        Colors.White,
+        null,
+      )
+      renderPos.y++
+
+      renderSingleLineTextOver(
+        display,
+        renderPos,
+        `Current XP: ${playerStats.currentXp}`,
+        Colors.White,
+        null,
+      )
+      renderPos.y++
+
+      renderSingleLineTextOver(
+        display,
+        renderPos,
+        `XP for next level: ${playerStats.experienceToNextLevel}`,
+        Colors.White,
+        null,
+      )
+      renderPos.y++
+
+      renderSingleLineTextOver(
+        display,
+        renderPos,
+        `Strength: ${stats.strength}`,
+        Colors.White,
+        null,
+      )
+      renderPos.y++
+
+      renderSingleLineTextOver(
+        display,
+        renderPos,
+        `Defense: ${stats.defense}`,
+        Colors.White,
+        null,
+      )
+      renderPos.y++
   }
 
   setPlayerAction(

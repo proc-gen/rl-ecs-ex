@@ -9,7 +9,10 @@ export const Colors = {
   VeryDarkGrey: '#222222',
   DarkRed: '#660000',
 
+  Stairs: '#009fff',
+
   HealthBar: '#aa0000',
+  ExperienceBar: '#aaaa00',
   InspectLocation: '#00ee00',
   WarningLocation: '#eeee00',
   ErrorLocation: '#ee0000',
@@ -32,7 +35,10 @@ export const HexColors = {
   VeryDarkGrey: Color.fromString(Colors.VeryDarkGrey),
   DarkRed: Color.fromString(Colors.DarkRed),
 
+  Stairs: Color.fromString(Colors.Stairs),
+
   HealthBar: Color.fromString(Colors.HealthBar),
+  ExperienceBar: Color.fromString(Colors.ExperienceBar),
   InspectLocation: Color.fromString(Colors.InspectLocation),
   WarningLocation: Color.fromString(Colors.WarningLocation),
   ErrorLocation: Color.fromString(Colors.ErrorLocation),

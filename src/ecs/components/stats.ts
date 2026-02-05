@@ -5,4 +5,5 @@ export const StatsComponent = {
 export type Stats = {
   strength: number
   defense: number
+  xpGiven: number
 }

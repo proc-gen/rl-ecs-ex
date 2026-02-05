@@ -4,6 +4,7 @@ import type { Display } from 'rot-js'
 import {
   HealthComponent,
   InfoComponent,
+  PlayerComponent,
   PositionComponent,
 } from '../../components'
 import {
@@ -50,7 +51,7 @@ export class RenderHudSystem implements RenderSystem, InputController {
   setActive(value: boolean): void {
     this.active = value
     if (this.active) {
-      this.inspectLocation = {...PositionComponent.position[this.player]}
+      this.inspectLocation = { ...PositionComponent.position[this.player] }
     }
   }
 
@@ -126,13 +127,27 @@ export class RenderHudSystem implements RenderSystem, InputController {
       Colors.VeryDarkGrey,
       Colors.VeryDarkGrey,
     )
-    this.renderHealthBar(display)
+
+    this.renderStats(display)
 
     if (this.active) {
       this.renderInspection(display)
     } else {
       this.renderMessageLog(display)
     }
+  }
+
+  renderStats(display: Display) {
+    this.renderHealthBar(display)
+    this.renderExperienceBar(display)
+
+    renderSingleLineTextOver(
+      display,
+      { x: 1, y: 47 },
+      `Depth: ${this.map.level}`,
+      Colors.White,
+      null,
+    )
   }
 
   renderHealthBar(display: Display) {
@@ -152,6 +167,25 @@ export class RenderHudSystem implements RenderSystem, InputController {
     const text = `HP: ${health.current} / ${health.max}`
 
     renderSingleLineTextOver(display, { x: 1, y: 45 }, text, Colors.White, null)
+  }
+
+  renderExperienceBar(display: Display) {
+    const stats = PlayerComponent.player[this.player]
+    const barLocation = { x: 0, y: 46 }
+    const totalWidth = 20
+    const barWidth = Math.min(totalWidth, Math.floor((stats.currentXp - stats.levelUpBase) / (stats.experienceToNextLevel - stats.levelUpBase) * totalWidth))
+
+    renderHorizontalColoredBar(
+      display,
+      barLocation,
+      totalWidth,
+      Colors.DarkGrey,
+    )
+    renderHorizontalColoredBar(display, barLocation, barWidth, Colors.ExperienceBar)
+
+    const text = `Level: ${stats.currentLevel}`
+
+    renderSingleLineTextOver(display, { x: 1, y: 46 }, text, Colors.White, null)
   }
 
   renderMessageLog(display: Display) {
@@ -189,9 +223,7 @@ export class RenderHudSystem implements RenderSystem, InputController {
       )
 
       if (
-        this.playerFOV.find(
-          (a) => equal(a, this.inspectLocation)
-        ) !== undefined
+        this.playerFOV.find((a) => equal(a, this.inspectLocation)) !== undefined
       ) {
         const entitiesAtLocation = this.map.getEntitiesAtLocation(
           this.inspectLocation,
