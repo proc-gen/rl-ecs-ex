@@ -4,6 +4,8 @@ export const StatsComponent = {
 
 export type Stats = {
   strength: number
+  currentStrength: number
   defense: number
+  currentDefense: number
   xpGiven: number
 }
