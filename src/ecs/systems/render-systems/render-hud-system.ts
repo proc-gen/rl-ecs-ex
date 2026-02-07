@@ -6,6 +6,7 @@ import {
   InfoComponent,
   PlayerComponent,
   PositionComponent,
+  type Position,
 } from '../../components'
 import {
   renderBox,
@@ -119,7 +120,7 @@ export class RenderHudSystem implements RenderSystem, InputController {
     return inputInfo
   }
 
-  render(display: Display) {
+  render(display: Display, _playerPosition: Position) {
     renderBox(
       display,
       { x: 0, y: 45 },

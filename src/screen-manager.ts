@@ -1,17 +1,15 @@
 import { Display } from 'rot-js'
 import { MainMenuScreen, Screen } from './screens'
+import { DisplayValues } from './constants/display-values'
 
 export class ScreenManager {
-  public static readonly WIDTH = 80
-  public static readonly HEIGHT = 50
-
   display: Display
   private currentScreen: Screen
 
   constructor() {
     this.display = new Display({
-      width: ScreenManager.WIDTH,
-      height: ScreenManager.HEIGHT,
+      width: DisplayValues.ScreenWidth,
+      height: DisplayValues.ScreenHeight,
       forceSquareRatio: true,
     })
 

@@ -212,8 +212,9 @@ export class GameScreen extends Screen {
   render() {
     this.display.clear()
 
+    const playerPosition = PositionComponent.values[this.player]
     this.renderSystems.forEach((rs) => {
-      rs.render(this.display)
+      rs.render(this.display, playerPosition)
     })
 
     if (this.levelUpWindow.active) {
