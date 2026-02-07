@@ -10,8 +10,10 @@ import { Colors } from '../../constants/colors'
 import { ItemType } from '../../constants/item-type'
 import { ConsumableType } from '../../constants/consumable-type'
 import {
+  ArmorComponent,
   ConfusionComponent,
   ConsumableComponent,
+  EquippableComponent,
   HealComponent,
   InfoComponent,
   ItemComponent,
@@ -21,8 +23,10 @@ import {
   RenderLayerItemComponent,
   SpellComponent,
   TargetingComponent,
+  WeaponComponent,
 } from '../components'
 import { TargetingType } from '../../constants/targeting-type'
+import { EquipmentType } from '../../constants/equipment-type'
 
 export const createItem = (
   world: World,
@@ -65,6 +69,8 @@ export const createItem = (
 
   if (itemStats.itemType === ItemType.Consumable) {
     createConsumableComponents(world, item, name)
+  } else if (itemStats.itemType === ItemType.Equipment) {
+    createEquipmentComponents(world, item, name, owner)
   }
 
   createEffectComponents(world, item, name)
@@ -95,6 +101,30 @@ const createConsumableComponents = (
   }
 }
 
+const createEquipmentComponents = (
+  world: World,
+  item: EntityId,
+  name: string,
+  owner: EntityId | undefined,
+) => {
+  const eqipmentStats = eqipmentStatLookup(name)
+  if (eqipmentStats === undefined) {
+    return
+  }
+
+  addComponent(world, item, EquippableComponent)
+  EquippableComponent.equippable[item] = {
+    equipped: owner !== undefined,
+  }
+  if (eqipmentStats.equipmentType === EquipmentType.Armor) {
+    addComponent(world, item, ArmorComponent)
+    ArmorComponent.armor[item] = { defense: eqipmentStats.amount }
+  } else if (eqipmentStats.equipmentType === EquipmentType.Weapon) {
+    addComponent(world, item, WeaponComponent)
+    WeaponComponent.weapon[item] = { attack: eqipmentStats.amount }
+  }
+}
+
 const createEffectComponents = (world: World, item: EntityId, name: string) => {
   if (name === 'Confusion Scroll') {
     addComponents(world, item, ConfusionComponent, TargetingComponent)
@@ -103,7 +133,7 @@ const createEffectComponents = (world: World, item: EntityId, name: string) => {
       targetingType: TargetingType.SingleTargetEntity,
       position: { x: 0, y: 0 },
     }
-  } else if(name === 'Fireball Scroll') {
+  } else if (name === 'Fireball Scroll') {
     addComponent(world, item, TargetingComponent)
     TargetingComponent.targeting[item] = {
       targetingType: TargetingType.SingleTargetPosition,
@@ -143,6 +173,34 @@ const itemStatLookup = (name: string) => {
       fg: Colors.FireballScroll,
       bg: null,
     }
+  } else if (name === 'Dagger') {
+    return {
+      char: '/',
+      itemType: ItemType.Equipment,
+      fg: Colors.WeaponPickup,
+      bg: null,
+    }
+  } else if (name === 'Sword') {
+    return {
+      char: '/',
+      itemType: ItemType.Equipment,
+      fg: Colors.WeaponPickup,
+      bg: null,
+    }
+  } else if (name === 'Leather Armor') {
+    return {
+      char: '[',
+      itemType: ItemType.Equipment,
+      fg: Colors.ArmorPickup,
+      bg: null,
+    }
+  } else if (name === 'Chain Mail') {
+    return {
+      char: '[',
+      itemType: ItemType.Equipment,
+      fg: Colors.ArmorPickup,
+      bg: null,
+    }
   }
 
   return undefined
@@ -180,6 +238,32 @@ const consumableStatLookup = (name: string) => {
       damage: 12,
       range: 8,
       spellName: 'Fireball',
+    }
+  }
+
+  return undefined
+}
+
+const eqipmentStatLookup = (name: string) => {
+  if (name === 'Dagger') {
+    return {
+      equipmentType: EquipmentType.Weapon,
+      amount: 2,
+    }
+  } else if (name === 'Sword') {
+    return {
+      equipmentType: EquipmentType.Weapon,
+      amount: 4,
+    }
+  } else if (name === 'Leather Armor') {
+    return {
+      equipmentType: EquipmentType.Armor,
+      amount: 1,
+    }
+  } else if (name === 'Chain Mail') {
+    return {
+      equipmentType: EquipmentType.Armor,
+      amount: 3,
     }
   }
 

@@ -1,10 +1,13 @@
 import { type Action, ActionComponent } from './action'
 import { type Alive, AliveComponent } from './alive'
+import { type Armor, ArmorComponent } from './armor'
 import { type Blocker, BlockerComponent } from './blocker'
 import { type Confusion, ConfusionComponent } from './confusion'
 import { type Consumable, ConsumableComponent } from './consumable'
 import { type Dead, DeadComponent } from './dead'
 import { type Enemy, EnemyComponent } from './enemy'
+import { type Equippable, EquippableComponent } from './equippable'
+import { type Equipment, EquipmentComponent } from './equipment'
 import { type Heal, HealComponent } from './heal'
 import { type Health, HealthComponent } from './health'
 import { type Info, InfoComponent } from './info'
@@ -32,6 +35,7 @@ import {
   type WantCauseSpellEffect,
   WantCauseSpellEffectComponent,
 } from './want-cause-spell-effect'
+import { type Weapon, WeaponComponent } from './weapon'
 
 import {
   WorldComponents,
@@ -44,6 +48,8 @@ export {
   ActionComponent,
   type Alive,
   AliveComponent,
+  type Armor,
+  ArmorComponent,
   type Blocker,
   BlockerComponent,
   type Confusion,
@@ -54,6 +60,10 @@ export {
   DeadComponent,
   type Enemy,
   EnemyComponent,
+  type Equippable,
+  EquippableComponent,
+  type Equipment,
+  EquipmentComponent,
   type Heal,
   HealComponent,
   type Health,
@@ -91,6 +101,8 @@ export {
   WantUseItemComponent,
   type WantCauseSpellEffect,
   WantCauseSpellEffectComponent,
+  type Weapon,
+  WeaponComponent,
   WorldComponents,
   getDataFromComponent,
   setDataForComponent,

@@ -9,6 +9,8 @@ import type { InputController } from '../interfaces/input-controller'
 import type { RenderWindow } from '.'
 import {
   ActionComponent,
+  EquipmentComponent,
+  EquippableComponent,
   InfoComponent,
   ItemComponent,
   OwnerComponent,
@@ -54,7 +56,11 @@ export class InventoryWindow implements InputController, RenderWindow {
       this.playerItems.length = 0
       for (const eid of query(this.world, [OwnerComponent, ItemComponent])) {
         if (OwnerComponent.owner[eid].owner === this.player) {
-          this.playerItems.push(eid)
+          if (
+            !hasComponent(this.world, eid, EquippableComponent) ||
+            !EquippableComponent.equippable[eid].equipped
+          )
+            this.playerItems.push(eid)
         }
       }
       this.itemIndex = 0
@@ -129,12 +135,12 @@ export class InventoryWindow implements InputController, RenderWindow {
   renderInventoryItems(display: Display) {
     let renderPos = { ...this.renderPosition }
     renderSingleLineTextOver(
-          display,
-          renderPos,
-          'Inventory',
-          Colors.White,
-          null,
-        )
+      display,
+      renderPos,
+      'Inventory',
+      Colors.White,
+      null,
+    )
     renderPos.y += 2
 
     if (this.playerItems.length > 0) {
@@ -165,64 +171,77 @@ export class InventoryWindow implements InputController, RenderWindow {
     }
   }
 
-  renderStats(display: Display){
+  renderStats(display: Display) {
     let renderPos = { ...this.renderPositionRight }
-    renderSingleLineTextOver(
-          display,
-          renderPos,
-          'Stats',
-          Colors.White,
-          null,
-        )
+    renderSingleLineTextOver(display, renderPos, 'Stats', Colors.White, null)
     renderPos.y += 2
 
     const playerStats = PlayerComponent.player[this.player]
     const stats = StatsComponent.stats[this.player]
+    const equipment = EquipmentComponent.equipment[this.player]
 
     renderSingleLineTextOver(
-        display,
-        renderPos,
-        `Level: ${playerStats.currentLevel}`,
-        Colors.White,
-        null,
-      )
-      renderPos.y++
+      display,
+      renderPos,
+      `Level: ${playerStats.currentLevel}`,
+      Colors.White,
+      null,
+    )
+    renderPos.y++
 
-      renderSingleLineTextOver(
-        display,
-        renderPos,
-        `Current XP: ${playerStats.currentXp}`,
-        Colors.White,
-        null,
-      )
-      renderPos.y++
+    renderSingleLineTextOver(
+      display,
+      renderPos,
+      `Current XP: ${playerStats.currentXp}`,
+      Colors.White,
+      null,
+    )
+    renderPos.y++
 
-      renderSingleLineTextOver(
-        display,
-        renderPos,
-        `XP for next level: ${playerStats.experienceToNextLevel}`,
-        Colors.White,
-        null,
-      )
-      renderPos.y++
+    renderSingleLineTextOver(
+      display,
+      renderPos,
+      `XP for next level: ${playerStats.experienceToNextLevel}`,
+      Colors.White,
+      null,
+    )
+    renderPos.y++
 
-      renderSingleLineTextOver(
-        display,
-        renderPos,
-        `Strength: ${stats.strength}`,
-        Colors.White,
-        null,
-      )
-      renderPos.y++
+    renderSingleLineTextOver(
+      display,
+      renderPos,
+      `Strength: ${stats.currentStrength} (base: ${stats.strength})`,
+      Colors.White,
+      null,
+    )
+    renderPos.y++
 
-      renderSingleLineTextOver(
-        display,
-        renderPos,
-        `Defense: ${stats.defense}`,
-        Colors.White,
-        null,
-      )
-      renderPos.y++
+    renderSingleLineTextOver(
+      display,
+      renderPos,
+      `Defense: ${stats.currentDefense} (base: ${stats.defense})`,
+      Colors.White,
+      null,
+    )
+    renderPos.y += 2
+
+    renderSingleLineTextOver(
+      display,
+      renderPos,
+      `Armor: ${equipment.armor !== -1 ? InfoComponent.info[equipment.armor].name : ''}`,
+      Colors.White,
+      null,
+    )
+    renderPos.y++
+
+    renderSingleLineTextOver(
+      display,
+      renderPos,
+      `Weapon: ${equipment.weapon !== -1 ? InfoComponent.info[equipment.weapon].name : ''}`,
+      Colors.White,
+      null,
+    )
+    renderPos.y++
   }
 
   setPlayerAction(

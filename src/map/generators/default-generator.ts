@@ -137,16 +137,18 @@ export class DefaultGenerator implements Generator {
   }
 
   getItemWeights(): WeightMap {
-    const weights: WeightMap = { 'Health Potion': 35 }
+    const weights: WeightMap = { 'Health Potion': 35, 'Dagger': 10, 'Leather Armor': 10 }
 
     if (this.map.level >= 2) {
       weights['Confusion Scroll'] = 10
     }
     if (this.map.level >= 4) {
       weights['Lightning Scroll'] = 25
+      weights['Sword'] = 5
     }
     if (this.map.level >= 6) {
       weights['Fireball Scroll'] = 25
+      weights['Chain Mail'] = 15
     }
 
     return weights

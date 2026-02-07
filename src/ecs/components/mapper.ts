@@ -2,11 +2,14 @@ import { addComponent, type EntityId, type World } from 'bitecs'
 import {
   ActionComponent,
   AliveComponent,
+  ArmorComponent,
   BlockerComponent,
   ConfusionComponent,
   ConsumableComponent,
   DeadComponent,
   EnemyComponent,
+  EquippableComponent,
+  EquipmentComponent,
   HealComponent,
   HealthComponent,
   InfoComponent,
@@ -25,16 +28,20 @@ import {
   WantAttackComponent,
   WantCauseSpellEffectComponent,
   WantUseItemComponent,
+  WeaponComponent,
 } from '.'
 
 export const WorldComponents = [
   ActionComponent,
   AliveComponent,
+  ArmorComponent,
   BlockerComponent,
   ConfusionComponent,
   ConsumableComponent,
   DeadComponent,
   EnemyComponent,
+  EquippableComponent,
+  EquipmentComponent,
   HealComponent,
   HealthComponent,
   InfoComponent,
@@ -53,6 +60,7 @@ export const WorldComponents = [
   WantAttackComponent,
   WantUseItemComponent,
   WantCauseSpellEffectComponent,
+  WeaponComponent,
 ]
 
 export const getDataFromComponent = (entity: EntityId, componentType: any) => {
@@ -69,6 +77,10 @@ export const getDataFromComponent = (entity: EntityId, componentType: any) => {
     case AliveComponent:
       componentData.componentType = 'AliveComponent'
       componentData.data = AliveComponent.alive[entity]
+      break
+    case ArmorComponent:
+      componentData.componentType = 'ArmorComponent'
+      componentData.data = ArmorComponent.armor[entity]
       break
     case BlockerComponent:
       componentData.componentType = 'BlockerComponent'
@@ -89,6 +101,14 @@ export const getDataFromComponent = (entity: EntityId, componentType: any) => {
     case EnemyComponent:
       componentData.componentType = 'EnemyComponent'
       componentData.data = EnemyComponent.enemy[entity]
+      break
+    case EquippableComponent:
+      componentData.componentType = 'EquippableComponent'
+      componentData.data = EquippableComponent.equippable[entity]
+      break
+    case EquipmentComponent:
+      componentData.componentType = 'EquipmentComponent'
+      componentData.data = EquipmentComponent.equipment[entity]
       break
     case HealComponent:
       componentData.componentType = 'HealComponent'
@@ -162,6 +182,10 @@ export const getDataFromComponent = (entity: EntityId, componentType: any) => {
       componentData.componentType = 'WantCauseSpellEffectComponent'
       componentData.data = WantCauseSpellEffectComponent.effect[entity]
       break
+    case WeaponComponent:
+      componentData.componentType = 'WeaponComponent'
+      componentData.data = WeaponComponent.weapon[entity]
+      break
   }
 
   return componentData
@@ -182,6 +206,10 @@ export const setDataForComponent = (
       addComponent(world, entity, AliveComponent)
       AliveComponent.alive[entity] = data
       break
+    case 'ArmorComponent':
+      addComponent(world, entity, ArmorComponent)
+      ArmorComponent.armor[entity] = data
+      break
     case 'BlockerComponent':
       addComponent(world, entity, BlockerComponent)
       BlockerComponent.blocker[entity] = data
@@ -201,6 +229,14 @@ export const setDataForComponent = (
     case 'EnemyComponent':
       addComponent(world, entity, EnemyComponent)
       EnemyComponent.enemy[entity] = data
+      break
+    case 'EquippableComponent':
+      addComponent(world, entity, EquippableComponent)
+      EquippableComponent.equippable[entity] = data
+      break
+    case 'EquipmentComponent':
+      addComponent(world, entity, EquipmentComponent)
+      EquipmentComponent.equipment[entity] = data
       break
     case 'HealComponent':
       addComponent(world, entity, HealComponent)
@@ -273,6 +309,10 @@ export const setDataForComponent = (
     case 'WantCauseSpellEffectComponent':
       addComponent(world, entity, WantCauseSpellEffectComponent)
       WantCauseSpellEffectComponent.effect[entity] = data
+      break
+    case 'WeaponComponent':
+      addComponent(world, entity, WeaponComponent)
+      WeaponComponent.weapon[entity] = data
       break
   }
 }
