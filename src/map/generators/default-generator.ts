@@ -4,9 +4,11 @@ import { FLOOR_TILE, STAIRS_DOWN_TILE } from '../../constants/tiles'
 import type { Map } from '../map'
 import { Room, type Sector } from '../containers'
 import { clearMap, tunnel, type Generator } from './generator'
-import type { Vector2 } from '../../types'
+import type { Vector2, WeightMap } from '../../types'
 import { getRandomNumber } from '../../utils/random'
 import { createEnemy, createItem } from '../../ecs/templates'
+import { equal } from '../../utils/vector-2-funcs'
+import { RNG } from 'rot-js'
 
 export class DefaultGenerator implements Generator {
   world: World
@@ -101,13 +103,61 @@ export class DefaultGenerator implements Generator {
     let monstersLeft = this.maxMonsters
     let itemsLeft = this.maxItems
     const playerStart = this.playerStartPosition()
+    const enemyWeights = this.getEnemyWeights()
+    const itemWeights = this.getItemWeights()
+
     this.rooms.forEach((a) => {
-      monstersLeft -= this.placeEnemiesForRoom(a, monstersLeft, playerStart)
-      itemsLeft -= this.placeItemsForRoom(a, itemsLeft, playerStart)
+      monstersLeft -= this.placeEnemiesForRoom(
+        a,
+        monstersLeft,
+        playerStart,
+        enemyWeights,
+      )
+      itemsLeft -= this.placeItemsForRoom(
+        a,
+        itemsLeft,
+        playerStart,
+        itemWeights,
+      )
     })
   }
 
-  placeEnemiesForRoom(a: Room, monstersLeft: number, playerStart: Vector2) {
+  getEnemyWeights(): WeightMap {
+    const weights: WeightMap = { Orc: 80 }
+
+    if (this.map.level >= 3 && this.map.level < 5) {
+      weights['Troll'] = 15
+    } else if (this.map.level >= 5 && this.map.level < 7) {
+      weights['Troll'] = 30
+    } else if (this.map.level >= 7) {
+      weights['Troll'] = 60
+    }
+
+    return weights
+  }
+
+  getItemWeights(): WeightMap {
+    const weights: WeightMap = { 'Health Potion': 35 }
+
+    if (this.map.level >= 2) {
+      weights['Confusion Scroll'] = 10
+    }
+    if (this.map.level >= 4) {
+      weights['Lightning Scroll'] = 25
+    }
+    if (this.map.level >= 6) {
+      weights['Fireball Scroll'] = 25
+    }
+
+    return weights
+  }
+
+  placeEnemiesForRoom(
+    a: Room,
+    monstersLeft: number,
+    playerStart: Vector2,
+    weights: WeightMap,
+  ) {
     let numEnemies = Math.min(getRandomNumber(0, 2), monstersLeft)
 
     if (numEnemies > 0) {
@@ -120,29 +170,30 @@ export class DefaultGenerator implements Generator {
 
         if (
           (positions.length === 0 ||
-            positions.find((p) => p.x === position.x && p.y === position.y) ===
-              undefined) &&
-          (position.x !== playerStart.x || position.y !== playerStart.y)
+            positions.find((p) => equal(position, p)) === undefined) &&
+          !equal(position, playerStart)
         ) {
           positions.push(position)
         }
       }
 
       positions.forEach((p) => {
-        let name = 'Orc'
-
-        if (getRandomNumber(0, 100) < 80) {
-          name = 'Troll'
+        const enemy = RNG.getWeightedValue(weights)
+        if (enemy !== undefined) {
+          createEnemy(this.world, p, enemy)
         }
-
-        createEnemy(this.world, p, name)
       })
     }
 
     return numEnemies
   }
 
-  placeItemsForRoom(a: Room, itemsLeft: number, playerStart: Vector2) {
+  placeItemsForRoom(
+    a: Room,
+    itemsLeft: number,
+    playerStart: Vector2,
+    weights: WeightMap,
+  ) {
     let numItems = Math.min(getRandomNumber(0, 2), itemsLeft)
 
     if (numItems > 0) {
@@ -155,25 +206,17 @@ export class DefaultGenerator implements Generator {
 
         if (
           (positions.length === 0 ||
-            positions.find((p) => p.x === position.x && p.y === position.y) ===
-              undefined) &&
-          (position.x !== playerStart.x || position.y !== playerStart.y)
+            positions.find((p) => equal(position, p)) === undefined) &&
+          !equal(position, playerStart)
         ) {
           positions.push(position)
         }
       }
 
       positions.forEach((p) => {
-        const chance = getRandomNumber(0, 100)
-
-        if (chance < 70) {
-          createItem(this.world, 'Health Potion', p, undefined)
-        } else if (chance < 80) {
-          createItem(this.world, 'Fireball Scroll', p, undefined)
-        } else if (chance < 90) {
-          createItem(this.world, 'Confusion Scroll', p, undefined)
-        } else {
-          createItem(this.world, 'Lightning Scroll', p, undefined)
+        const item = RNG.getWeightedValue(weights)
+        if (item !== undefined) {
+          createItem(this.world, item, p, undefined)
         }
       })
     }

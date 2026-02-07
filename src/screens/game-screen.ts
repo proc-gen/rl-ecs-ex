@@ -156,7 +156,11 @@ export class GameScreen extends Screen {
       GameScreen.MAP_HEIGHT,
       this.level,
     )
-    const generator = new DefaultGenerator(this.world, map, 10, 5, 12, 10, 4)
+    const maxRooms = 8 + Math.floor(this.level / 2)
+    const maxMonsters = 3 + Math.floor(this.level / 2)
+    const maxItems = 2 + Math.floor(this.level / 4)
+
+    const generator = new DefaultGenerator(this.world, map, maxRooms, 5, 12, maxMonsters, maxItems)
     generator.generate()
     const startPosition = generator.playerStartPosition()
 
