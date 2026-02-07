@@ -104,7 +104,7 @@ export const getDataFromComponent = (entity: EntityId, componentType: any) => {
       break
     case EquippableComponent:
       componentData.componentType = 'EquippableComponent'
-      componentData.data = EquippableComponent.equipable[entity]
+      componentData.data = EquippableComponent.equippable[entity]
       break
     case EquipmentComponent:
       componentData.componentType = 'EquipmentComponent'
@@ -232,7 +232,7 @@ export const setDataForComponent = (
       break
     case 'EquippableComponent':
       addComponent(world, entity, EquippableComponent)
-      EquippableComponent.equipable[entity] = data
+      EquippableComponent.equippable[entity] = data
       break
     case 'EquipmentComponent':
       addComponent(world, entity, EquipmentComponent)

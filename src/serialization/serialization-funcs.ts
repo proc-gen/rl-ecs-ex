@@ -10,6 +10,7 @@ import { Map } from '../map'
 
 import type { SerializedEntity, SerializedWorld } from './serialized-world'
 import {
+  EquipmentComponent,
   getDataFromComponent,
   OwnerComponent,
   PositionComponent,
@@ -63,6 +64,23 @@ export const deserializeWorld = (saveGame: string) => {
       (a) => a.savedId === ownerComponent.owner,
     )
     ownerComponent.owner = newOwner!.loadedId!
+  }
+
+  for (const eid of query(world, [EquipmentComponent])) {
+    const equipment = EquipmentComponent.equipment[eid]
+    if (equipment.armor !== -1) {
+      const newEid = parsedWorld.serializedEntities.find(
+        (a) => a.savedId === equipment.armor,
+      )
+      equipment.armor = newEid!.loadedId!
+    }
+
+    if (equipment.weapon !== -1) {
+      const newEid = parsedWorld.serializedEntities.find(
+        (a) => a.savedId === equipment.weapon,
+      )
+      equipment.weapon = newEid!.loadedId!
+    }
   }
 
   const map = new Map(
