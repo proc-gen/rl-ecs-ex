@@ -59,7 +59,7 @@ export const deserializeWorld = (saveGame: string) => {
   })
 
   for (const eid of query(world, [OwnerComponent])) {
-    const ownerComponent = OwnerComponent.owner[eid]
+    const ownerComponent = OwnerComponent.values[eid]
     const newOwner = parsedWorld.serializedEntities.find(
       (a) => a.savedId === ownerComponent.owner,
     )
@@ -67,7 +67,7 @@ export const deserializeWorld = (saveGame: string) => {
   }
 
   for (const eid of query(world, [EquipmentComponent])) {
-    const equipment = EquipmentComponent.equipment[eid]
+    const equipment = EquipmentComponent.values[eid]
     if (equipment.armor !== -1) {
       const newEid = parsedWorld.serializedEntities.find(
         (a) => a.savedId === equipment.armor,
@@ -92,7 +92,7 @@ export const deserializeWorld = (saveGame: string) => {
   )
 
   for (const eid of query(world, [PositionComponent])) {
-    const position = PositionComponent.position[eid]
+    const position = PositionComponent.values[eid]
     map.addEntityAtLocation(eid, position)
   }
 

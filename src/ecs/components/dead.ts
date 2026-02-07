@@ -1,5 +1,7 @@
-export const DeadComponent = {
-  dead: [] as Dead[],
+import type { Component } from './component'
+
+export const DeadComponent: Component<Dead> = {
+  values: [] as Dead[],
 }
 
 export type Dead = {}

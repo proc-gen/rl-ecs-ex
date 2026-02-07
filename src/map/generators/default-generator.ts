@@ -137,7 +137,11 @@ export class DefaultGenerator implements Generator {
   }
 
   getItemWeights(): WeightMap {
-    const weights: WeightMap = { 'Health Potion': 35, 'Dagger': 10, 'Leather Armor': 10 }
+    const weights: WeightMap = {
+      'Health Potion': 35,
+      Dagger: 10,
+      'Leather Armor': 10,
+    }
 
     if (this.map.level >= 2) {
       weights['Confusion Scroll'] = 10

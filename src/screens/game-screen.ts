@@ -140,7 +140,7 @@ export class GameScreen extends Screen {
   generateMap() {
     if (this.level > 1) {
       for (const eid of query(this.world, [OwnerComponent])) {
-        if (OwnerComponent.owner[eid].owner !== this.player) {
+        if (OwnerComponent.values[eid].owner !== this.player) {
           removeEntity(this.world, eid)
         }
       }
@@ -179,8 +179,8 @@ export class GameScreen extends Screen {
       this.log.addMessage('Welcome to your doom, adventurer...')
     } else {
       this.log.addMessage('You journey closer to your doom, adventurer...')
-      PositionComponent.position[this.player].x = startPosition.x
-      PositionComponent.position[this.player].y = startPosition.y
+      PositionComponent.values[this.player].x = startPosition.x
+      PositionComponent.values[this.player].y = startPosition.y
     }
 
     return map
@@ -189,7 +189,7 @@ export class GameScreen extends Screen {
   postProcessMap() {
     processPlayerFOV(
       this.map,
-      PositionComponent.position[this.player],
+      PositionComponent.values[this.player],
       this.playerFOV,
     )
 
@@ -197,7 +197,7 @@ export class GameScreen extends Screen {
     this.actors.push(this.player)
 
     for (const eid of query(this.world, [PositionComponent])) {
-      const position = PositionComponent.position[eid]
+      const position = PositionComponent.values[eid]
       this.map.addEntityAtLocation(eid, { x: position.x, y: position.y })
 
       if (
@@ -243,7 +243,7 @@ export class GameScreen extends Screen {
       if (!this.playerTurn) {
         this.changeCurrentActor()
       } else {
-        const playerStats = PlayerComponent.player[this.player]
+        const playerStats = PlayerComponent.values[this.player]
         if (playerStats.currentXp >= playerStats.experienceToNextLevel) {
           this.levelUpWindow.setActive(true)
           this.render()
@@ -255,7 +255,7 @@ export class GameScreen extends Screen {
   }
 
   changeCurrentActor() {
-    const action = ActionComponent.action[this.currentActor]
+    const action = ActionComponent.values[this.currentActor]
 
     if (action.actionSuccessful) {
       this.actors.push(this.actors.shift()!)
@@ -338,7 +338,7 @@ export class GameScreen extends Screen {
   }
 
   tryToDescend() {
-    const playerPosition = PositionComponent.position[this.player]
+    const playerPosition = PositionComponent.values[this.player]
     const tile = this.map.tiles[playerPosition.x][playerPosition.y]
     if (tile.name === 'Stairs Down') {
       this.level++
@@ -431,7 +431,7 @@ export class GameScreen extends Screen {
     yOffset: number,
     pickUpItem: boolean = false,
   ) {
-    const action = ActionComponent.action[this.player]
+    const action = ActionComponent.values[this.player]
     action.xOffset = xOffset
     action.yOffset = yOffset
     action.pickUpItem = pickUpItem

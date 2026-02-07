@@ -1,7 +1,8 @@
 import type { EntityId } from 'bitecs'
+import type { Component } from './component'
 
-export const WantAttackComponent = {
-  WantAttack: [] as WantAttack[],
+export const WantAttackComponent: Component<WantAttack> = {
+  values: [] as WantAttack[],
 }
 
 export type WantAttack = {

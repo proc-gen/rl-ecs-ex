@@ -1,7 +1,8 @@
-import type { EntityId } from "bitecs"
+import type { EntityId } from 'bitecs'
+import type { Component } from './component'
 
-export const ActionComponent = {
-  action: [] as Action[],
+export const ActionComponent: Component<Action> = {
+  values: [] as Action[],
 }
 
 export type Action = {

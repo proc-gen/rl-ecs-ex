@@ -55,10 +55,10 @@ export class InventoryWindow implements InputController, RenderWindow {
     if (this.active) {
       this.playerItems.length = 0
       for (const eid of query(this.world, [OwnerComponent, ItemComponent])) {
-        if (OwnerComponent.owner[eid].owner === this.player) {
+        if (OwnerComponent.values[eid].owner === this.player) {
           if (
             !hasComponent(this.world, eid, EquippableComponent) ||
-            !EquippableComponent.equippable[eid].equipped
+            !EquippableComponent.values[eid].equipped
           )
             this.playerItems.push(eid)
         }
@@ -147,7 +147,7 @@ export class InventoryWindow implements InputController, RenderWindow {
       let i = 0
 
       while (i < 15 && i < this.playerItems.length) {
-        const itemInfo = InfoComponent.info[this.playerItems[i]]
+        const itemInfo = InfoComponent.values[this.playerItems[i]]
         const message = `${i === this.itemIndex ? `-> ` : `   `}${itemInfo.name}`
         renderSingleLineTextOver(
           display,
@@ -176,9 +176,9 @@ export class InventoryWindow implements InputController, RenderWindow {
     renderSingleLineTextOver(display, renderPos, 'Stats', Colors.White, null)
     renderPos.y += 2
 
-    const playerStats = PlayerComponent.player[this.player]
-    const stats = StatsComponent.stats[this.player]
-    const equipment = EquipmentComponent.equipment[this.player]
+    const playerStats = PlayerComponent.values[this.player]
+    const stats = StatsComponent.values[this.player]
+    const equipment = EquipmentComponent.values[this.player]
 
     renderSingleLineTextOver(
       display,
@@ -228,7 +228,7 @@ export class InventoryWindow implements InputController, RenderWindow {
     renderSingleLineTextOver(
       display,
       renderPos,
-      `Armor: ${equipment.armor !== -1 ? InfoComponent.info[equipment.armor].name : ''}`,
+      `Armor: ${equipment.armor !== -1 ? InfoComponent.values[equipment.armor].name : ''}`,
       Colors.White,
       null,
     )
@@ -237,7 +237,7 @@ export class InventoryWindow implements InputController, RenderWindow {
     renderSingleLineTextOver(
       display,
       renderPos,
-      `Weapon: ${equipment.weapon !== -1 ? InfoComponent.info[equipment.weapon].name : ''}`,
+      `Weapon: ${equipment.weapon !== -1 ? InfoComponent.values[equipment.weapon].name : ''}`,
       Colors.White,
       null,
     )
@@ -248,7 +248,7 @@ export class InventoryWindow implements InputController, RenderWindow {
     useItem: EntityId | undefined = undefined,
     itemActionType: string,
   ) {
-    const action = ActionComponent.action[this.player]
+    const action = ActionComponent.values[this.player]
     action.xOffset = 0
     action.yOffset = 0
     action.pickUpItem = false

@@ -81,15 +81,16 @@ export class TargetingWindow implements InputController, RenderWindow {
 
   setTargetingEntity(targetingEntity: EntityId) {
     this.targetingEntity = targetingEntity
-    this.targetPosition = { ...PositionComponent.position[this.player] }
+    this.targetPosition = { ...PositionComponent.values[this.player] }
     this.targetingType =
-      TargetingComponent.targeting[this.targetingEntity].targetingType
+      TargetingComponent.values[this.targetingEntity].targetingType
     if (hasComponent(this.world, this.targetingEntity, SpellComponent)) {
-      this.targetRange = SpellComponent.spell[this.targetingEntity].range
-      this.targetRadius = SpellComponent.spell[this.targetingEntity].radius ?? 0
+      this.targetRange = SpellComponent.values[this.targetingEntity].range
+      this.targetRadius =
+        SpellComponent.values[this.targetingEntity].radius ?? 0
       this.targetFOV = processFOV(
         this.map,
-        PositionComponent.position[this.player],
+        PositionComponent.values[this.player],
         this.targetRange,
       )
       this.updateSplashFOV()
@@ -147,9 +148,9 @@ export class TargetingWindow implements InputController, RenderWindow {
 
   useItem(inputInfo: HandleInputInfo) {
     if (this.isTargetAllowable()) {
-      TargetingComponent.targeting[this.targetingEntity].position =
+      TargetingComponent.values[this.targetingEntity].position =
         this.targetPosition
-      const action = ActionComponent.action[this.player]
+      const action = ActionComponent.values[this.player]
       action.xOffset = 0
       action.yOffset = 0
       action.pickUpItem = false
@@ -186,8 +187,8 @@ export class TargetingWindow implements InputController, RenderWindow {
         this.targetRadius,
       )
 
-      this.splashFOV = this.splashFOV.filter((a) =>
-        this.map.isWalkable(a.x, a.y) && this.map.tiles[a.x][a.y].seen,
+      this.splashFOV = this.splashFOV.filter(
+        (a) => this.map.isWalkable(a.x, a.y) && this.map.tiles[a.x][a.y].seen,
       )
     }
   }
@@ -236,7 +237,7 @@ export class TargetingWindow implements InputController, RenderWindow {
       'Targeting',
     )
 
-    const itemInfo = InfoComponent.info[this.targetingEntity]
+    const itemInfo = InfoComponent.values[this.targetingEntity]
     renderSingleLineTextOver(
       display,
       this.renderPositionLine1,
@@ -255,7 +256,7 @@ export class TargetingWindow implements InputController, RenderWindow {
         hasComponent(this.world, a, HealthComponent),
       )
       if (healthBlocker !== undefined) {
-        description = InfoComponent.info[healthBlocker].name
+        description = InfoComponent.values[healthBlocker].name
       }
     } else {
       description = 'Out of Range'

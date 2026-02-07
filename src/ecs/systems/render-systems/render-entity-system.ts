@@ -25,8 +25,8 @@ export class RenderEntitySystem implements RenderSystem {
         RenderableComponent,
         layerComponent,
       ])) {
-        const position = PositionComponent.position[eid]
-        const renderable = RenderableComponent.renderable[eid]
+        const position = PositionComponent.values[eid]
+        const renderable = RenderableComponent.values[eid]
 
         if (
           !hasComponent(this.world, eid, DeadComponent) &&

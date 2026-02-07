@@ -1,5 +1,7 @@
-export const PlayerComponent = {
-  player: [] as Player[],
+import type { Component } from './component'
+
+export const PlayerComponent: Component<Player> = {
+  values: [] as Player[],
 }
 
 export type Player = {

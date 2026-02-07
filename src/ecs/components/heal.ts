@@ -1,7 +1,9 @@
-export const HealComponent = {
-  heal: [] as Heal[],
+import type { Component } from './component'
+
+export const HealComponent: Component<Heal> = {
+  values: [] as Heal[],
 }
 
 export type Heal = {
-    amount: number
+  amount: number
 }

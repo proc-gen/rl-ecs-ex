@@ -47,7 +47,7 @@ export class LevelUpWindow implements InputController, RenderWindow {
     this.active = value
     if (this.active) {
       this.selectedOption = 0
-      const playerStats = PlayerComponent.player[this.player]
+      const playerStats = PlayerComponent.values[this.player]
       playerStats.levelUpBase +=
         playerStats.currentLevel * playerStats.levelUpFactor
       playerStats.currentLevel++
@@ -84,8 +84,8 @@ export class LevelUpWindow implements InputController, RenderWindow {
   }
 
   processLevelUp() {
-    const playerStats = StatsComponent.stats[this.player]
-    const playerHealth = HealthComponent.health[this.player]
+    const playerStats = StatsComponent.values[this.player]
+    const playerHealth = HealthComponent.values[this.player]
 
     switch (this.selectedOption) {
       case 0:

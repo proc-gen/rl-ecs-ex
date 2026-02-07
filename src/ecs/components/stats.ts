@@ -1,5 +1,7 @@
-export const StatsComponent = {
-  stats: [] as Stats[],
+import type { Component } from './component'
+
+export const StatsComponent: Component<Stats> = {
+  values: [] as Stats[],
 }
 
 export type Stats = {

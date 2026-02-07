@@ -1,3 +1,5 @@
+import { type Component } from './component'
+
 import { type Action, ActionComponent } from './action'
 import { type Alive, AliveComponent } from './alive'
 import { type Armor, ArmorComponent } from './armor'
@@ -44,6 +46,7 @@ import {
 } from './mapper'
 
 export {
+  type Component,
   type Action,
   ActionComponent,
   type Alive,

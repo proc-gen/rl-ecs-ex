@@ -1,7 +1,9 @@
-export const ArmorComponent = {
-  armor: [] as Armor[],
+import type { Component } from './component'
+
+export const ArmorComponent: Component<Armor> = {
+  values: [] as Armor[],
 }
 
 export type Armor = {
-    defense: number
+  defense: number
 }

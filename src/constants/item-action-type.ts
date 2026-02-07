@@ -1,4 +1,4 @@
 export const ItemActionType = {
-    Use: 'Use',
-    Drop: 'Drop',
+  Use: 'Use',
+  Drop: 'Drop',
 }

@@ -1,4 +1,4 @@
 export const ItemType = {
-    Consumable: 'Consumable',
-    Equipment: 'Equipment'
+  Consumable: 'Consumable',
+  Equipment: 'Equipment',
 }

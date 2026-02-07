@@ -27,10 +27,10 @@ export class UpdateWantCauseSpellEffectSystem implements UpdateSystem {
 
   update(world: World, _entity: EntityId) {
     for (const eid of query(world, [WantCauseSpellEffectComponent])) {
-      const effect = WantCauseSpellEffectComponent.effect[eid]
+      const effect = WantCauseSpellEffectComponent.values[eid]
       if (!hasComponent(world, effect.defender, DeadComponent)) {
-        const spell = SpellComponent.spell[effect.spell]
-        const infoBlocker = InfoComponent.info[effect.defender]
+        const spell = SpellComponent.values[effect.spell]
+        const infoBlocker = InfoComponent.values[effect.defender]
 
         if (spell.spellName === 'Confusion') {
           this.processConfusion(world, effect, infoBlocker)
@@ -45,9 +45,9 @@ export class UpdateWantCauseSpellEffectSystem implements UpdateSystem {
     effect: WantCauseSpellEffect,
     infoBlocker: Info,
   ) {
-    const confusion = ConfusionComponent.confusion[effect.spell]
+    const confusion = ConfusionComponent.values[effect.spell]
     if (hasComponent(world, effect.defender, ConfusionComponent)) {
-      const defenderConfused = ConfusionComponent.confusion[effect.defender]
+      const defenderConfused = ConfusionComponent.values[effect.defender]
       defenderConfused.turnsLeft = confusion.turnsLeft
 
       this.log.addMessage(
@@ -55,7 +55,7 @@ export class UpdateWantCauseSpellEffectSystem implements UpdateSystem {
       )
     } else {
       addComponent(world, effect.defender, ConfusionComponent)
-      ConfusionComponent.confusion[effect.defender] = { ...confusion }
+      ConfusionComponent.values[effect.defender] = { ...confusion }
 
       this.log.addMessage(
         `The eyes of the ${infoBlocker.name} look vacant as it begins to stumble around`,

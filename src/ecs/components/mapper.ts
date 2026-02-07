@@ -72,119 +72,119 @@ export const getDataFromComponent = (entity: EntityId, componentType: any) => {
   switch (componentType) {
     case ActionComponent:
       componentData.componentType = 'ActionComponent'
-      componentData.data = ActionComponent.action[entity]
+      componentData.data = ActionComponent.values[entity]
       break
     case AliveComponent:
       componentData.componentType = 'AliveComponent'
-      componentData.data = AliveComponent.alive[entity]
+      componentData.data = AliveComponent.values[entity]
       break
     case ArmorComponent:
       componentData.componentType = 'ArmorComponent'
-      componentData.data = ArmorComponent.armor[entity]
+      componentData.data = ArmorComponent.values[entity]
       break
     case BlockerComponent:
       componentData.componentType = 'BlockerComponent'
-      componentData.data = BlockerComponent.blocker[entity]
+      componentData.data = BlockerComponent.values[entity]
       break
     case ConfusionComponent:
       componentData.componentType = 'ConfusionComponent'
-      componentData.data = ConfusionComponent.confusion[entity]
+      componentData.data = ConfusionComponent.values[entity]
       break
     case ConsumableComponent:
       componentData.componentType = 'ConsumableComponent'
-      componentData.data = ConsumableComponent.consumable[entity]
+      componentData.data = ConsumableComponent.values[entity]
       break
     case DeadComponent:
       componentData.componentType = 'DeadComponent'
-      componentData.data = DeadComponent.dead[entity]
+      componentData.data = DeadComponent.values[entity]
       break
     case EnemyComponent:
       componentData.componentType = 'EnemyComponent'
-      componentData.data = EnemyComponent.enemy[entity]
+      componentData.data = EnemyComponent.values[entity]
       break
     case EquippableComponent:
       componentData.componentType = 'EquippableComponent'
-      componentData.data = EquippableComponent.equippable[entity]
+      componentData.data = EquippableComponent.values[entity]
       break
     case EquipmentComponent:
       componentData.componentType = 'EquipmentComponent'
-      componentData.data = EquipmentComponent.equipment[entity]
+      componentData.data = EquipmentComponent.values[entity]
       break
     case HealComponent:
       componentData.componentType = 'HealComponent'
-      componentData.data = HealComponent.heal[entity]
+      componentData.data = HealComponent.values[entity]
       break
     case HealthComponent:
       componentData.componentType = 'HealthComponent'
-      componentData.data = HealthComponent.health[entity]
+      componentData.data = HealthComponent.values[entity]
       break
     case InfoComponent:
       componentData.componentType = 'InfoComponent'
-      componentData.data = InfoComponent.info[entity]
+      componentData.data = InfoComponent.values[entity]
       break
     case ItemComponent:
       componentData.componentType = 'ItemComponent'
-      componentData.data = ItemComponent.item[entity]
+      componentData.data = ItemComponent.values[entity]
       break
     case OwnerComponent:
       componentData.componentType = 'OwnerComponent'
-      componentData.data = OwnerComponent.owner[entity]
+      componentData.data = OwnerComponent.values[entity]
       break
     case PlayerComponent:
       componentData.componentType = 'PlayerComponent'
-      componentData.data = PlayerComponent.player[entity]
+      componentData.data = PlayerComponent.values[entity]
       break
     case PositionComponent:
       componentData.componentType = 'PositionComponent'
-      componentData.data = PositionComponent.position[entity]
+      componentData.data = PositionComponent.values[entity]
       break
     case RemoveComponent:
       componentData.componentType = 'RemoveComponent'
-      componentData.data = RemoveComponent.remove[entity]
+      componentData.data = RemoveComponent.values[entity]
       break
     case RenderableComponent:
       componentData.componentType = 'RenderableComponent'
-      componentData.data = RenderableComponent.renderable[entity]
+      componentData.data = RenderableComponent.values[entity]
       break
     case RenderLayerGroundComponent:
       componentData.componentType = 'RenderLayerGroundComponent'
-      componentData.data = RenderLayerGroundComponent.renderLayer[entity]
+      componentData.data = RenderLayerGroundComponent.values[entity]
       break
     case RenderLayerItemComponent:
       componentData.componentType = 'RenderLayerItemComponent'
-      componentData.data = RenderLayerItemComponent.renderLayer[entity]
+      componentData.data = RenderLayerItemComponent.values[entity]
       break
     case RenderLayerBlockerComponent:
       componentData.componentType = 'RenderLayerBlockerComponent'
-      componentData.data = RenderLayerBlockerComponent.renderLayer[entity]
+      componentData.data = RenderLayerBlockerComponent.values[entity]
       break
     case SpellComponent:
       componentData.componentType = 'SpellComponent'
-      componentData.data = SpellComponent.spell[entity]
+      componentData.data = SpellComponent.values[entity]
       break
     case StatsComponent:
       componentData.componentType = 'StatsComponent'
-      componentData.data = StatsComponent.stats[entity]
+      componentData.data = StatsComponent.values[entity]
       break
     case TargetingComponent:
       componentData.componentType = 'TargetingComponent'
-      componentData.data = TargetingComponent.targeting[entity]
+      componentData.data = TargetingComponent.values[entity]
       break
     case WantAttackComponent:
       componentData.componentType = 'WantAttackComponent'
-      componentData.data = WantAttackComponent.WantAttack[entity]
+      componentData.data = WantAttackComponent.values[entity]
       break
     case WantUseItemComponent:
       componentData.componentType = 'WantUseItemComponent'
-      componentData.data = WantUseItemComponent.wantUseItem[entity]
+      componentData.data = WantUseItemComponent.values[entity]
       break
     case WantCauseSpellEffectComponent:
       componentData.componentType = 'WantCauseSpellEffectComponent'
-      componentData.data = WantCauseSpellEffectComponent.effect[entity]
+      componentData.data = WantCauseSpellEffectComponent.values[entity]
       break
     case WeaponComponent:
       componentData.componentType = 'WeaponComponent'
-      componentData.data = WeaponComponent.weapon[entity]
+      componentData.data = WeaponComponent.values[entity]
       break
   }
 
@@ -200,119 +200,119 @@ export const setDataForComponent = (
   switch (componentType) {
     case 'ActionComponent':
       addComponent(world, entity, ActionComponent)
-      ActionComponent.action[entity] = data
+      ActionComponent.values[entity] = data
       break
     case 'AliveComponent':
       addComponent(world, entity, AliveComponent)
-      AliveComponent.alive[entity] = data
+      AliveComponent.values[entity] = data
       break
     case 'ArmorComponent':
       addComponent(world, entity, ArmorComponent)
-      ArmorComponent.armor[entity] = data
+      ArmorComponent.values[entity] = data
       break
     case 'BlockerComponent':
       addComponent(world, entity, BlockerComponent)
-      BlockerComponent.blocker[entity] = data
+      BlockerComponent.values[entity] = data
       break
     case 'ConfusionComponent':
       addComponent(world, entity, ConfusionComponent)
-      ConfusionComponent.confusion[entity] = data
+      ConfusionComponent.values[entity] = data
       break
     case 'ConsumableComponent':
       addComponent(world, entity, ConsumableComponent)
-      ConsumableComponent.consumable[entity] = data
+      ConsumableComponent.values[entity] = data
       break
     case 'DeadComponent':
       addComponent(world, entity, DeadComponent)
-      DeadComponent.dead[entity] = data
+      DeadComponent.values[entity] = data
       break
     case 'EnemyComponent':
       addComponent(world, entity, EnemyComponent)
-      EnemyComponent.enemy[entity] = data
+      EnemyComponent.values[entity] = data
       break
     case 'EquippableComponent':
       addComponent(world, entity, EquippableComponent)
-      EquippableComponent.equippable[entity] = data
+      EquippableComponent.values[entity] = data
       break
     case 'EquipmentComponent':
       addComponent(world, entity, EquipmentComponent)
-      EquipmentComponent.equipment[entity] = data
+      EquipmentComponent.values[entity] = data
       break
     case 'HealComponent':
       addComponent(world, entity, HealComponent)
-      HealComponent.heal[entity] = data
+      HealComponent.values[entity] = data
       break
     case 'HealthComponent':
       addComponent(world, entity, HealthComponent)
-      HealthComponent.health[entity] = data
+      HealthComponent.values[entity] = data
       break
     case 'InfoComponent':
       addComponent(world, entity, InfoComponent)
-      InfoComponent.info[entity] = data
+      InfoComponent.values[entity] = data
       break
     case 'ItemComponent':
       addComponent(world, entity, ItemComponent)
-      ItemComponent.item[entity] = data
+      ItemComponent.values[entity] = data
       break
     case 'OwnerComponent':
       addComponent(world, entity, OwnerComponent)
-      OwnerComponent.owner[entity] = data
+      OwnerComponent.values[entity] = data
       break
     case 'PlayerComponent':
       addComponent(world, entity, PlayerComponent)
-      PlayerComponent.player[entity] = data
+      PlayerComponent.values[entity] = data
       break
     case 'PositionComponent':
       addComponent(world, entity, PositionComponent)
-      PositionComponent.position[entity] = data
+      PositionComponent.values[entity] = data
       break
     case 'RemoveComponent':
       addComponent(world, entity, RemoveComponent)
-      RemoveComponent.remove[entity] = data
+      RemoveComponent.values[entity] = data
       break
     case 'RenderableComponent':
       addComponent(world, entity, RenderableComponent)
-      RenderableComponent.renderable[entity] = data
+      RenderableComponent.values[entity] = data
       break
     case 'RenderLayerGroundComponent':
       addComponent(world, entity, RenderLayerGroundComponent)
-      RenderLayerGroundComponent.renderLayer[entity] = data
+      RenderLayerGroundComponent.values[entity] = data
       break
     case 'RenderLayerItemComponent':
       addComponent(world, entity, RenderLayerItemComponent)
-      RenderLayerItemComponent.renderLayer[entity] = data
+      RenderLayerItemComponent.values[entity] = data
       break
     case 'RenderLayerBlockerComponent':
       addComponent(world, entity, RenderLayerBlockerComponent)
-      RenderLayerBlockerComponent.renderLayer[entity] = data
+      RenderLayerBlockerComponent.values[entity] = data
       break
     case 'SpellComponent':
       addComponent(world, entity, SpellComponent)
-      SpellComponent.spell[entity] = data
+      SpellComponent.values[entity] = data
       break
     case 'StatsComponent':
       addComponent(world, entity, StatsComponent)
-      StatsComponent.stats[entity] = data
+      StatsComponent.values[entity] = data
       break
     case 'TargetingComponent':
       addComponent(world, entity, TargetingComponent)
-      TargetingComponent.targeting[entity] = data
+      TargetingComponent.values[entity] = data
       break
     case 'WantAttackComponent':
       addComponent(world, entity, WantAttackComponent)
-      WantAttackComponent.WantAttack[entity] = data
+      WantAttackComponent.values[entity] = data
       break
     case 'WantUseItemComponent':
       addComponent(world, entity, WantUseItemComponent)
-      WantUseItemComponent.wantUseItem[entity] = data
+      WantUseItemComponent.values[entity] = data
       break
     case 'WantCauseSpellEffectComponent':
       addComponent(world, entity, WantCauseSpellEffectComponent)
-      WantCauseSpellEffectComponent.effect[entity] = data
+      WantCauseSpellEffectComponent.values[entity] = data
       break
     case 'WeaponComponent':
       addComponent(world, entity, WeaponComponent)
-      WeaponComponent.weapon[entity] = data
+      WeaponComponent.values[entity] = data
       break
   }
 }
