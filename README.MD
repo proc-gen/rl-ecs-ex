@@ -9,6 +9,11 @@ Having also followed the Rust Roguelike tutorial and converted much of the first
 - [Nick Klepinger's ROT.js Tutorial](https://klepinger.dev/rotjs-tutorial)
 - [Rust Roguelike Tutorial](https://bfnightly.bracketproductions.com/chapter_0.html)
 
+## Libraries
+
+- [ROT.js](https://github.com/ondras/rot.js)
+- [bitECS](https://github.com/NateTheGreatt/bitECS/tree/main)
+
 ## How to run
 
 For any branch you pick, run the following commands in the project directory to start it up:
