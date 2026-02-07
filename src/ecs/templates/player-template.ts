@@ -58,10 +58,10 @@ export const createPlayer = (world: World, startPosition: Vector2) => {
   }
   HealthComponent.values[player] = { current: 30, max: 30 }
   StatsComponent.values[player] = {
-    strength: 2,
-    currentStrength: 2,
-    defense: 0,
-    currentDefense: 0,
+    strength: 3,
+    currentStrength: 3,
+    defense: 1,
+    currentDefense: 1,
     xpGiven: 0,
   }
   EquipmentComponent.values[player] = {
