@@ -38,6 +38,12 @@ This readme was created as part of the `refactor-1` branch to fix some inconsist
 - Ranged Weapons with ammunition
 - Ranged enemies + revamped ai
 
+## Errata
+
+### Copying Rooms to Map
+
+Prior to branch `part-new-15`, adjacent rooms may generate without a dividing wall, allowing for monster and item count per "room" to be broken.
+
 ## Post-Tutorial Branch Summaries
 
 ### Refactor 1
@@ -47,3 +53,6 @@ The main thing I wanted to fix here was the mapping portion of the serialization
 Less important, but something I wanted to put in place since the beginning of the project was a way to decouple the size of the map from the screen. The player is now always centered on the screen.
 
 And lastly, I made some files that didn't conform to kebab-casing. This has been fixed.
+
+### Part New 15 - Doors & Pretty Walls
+
