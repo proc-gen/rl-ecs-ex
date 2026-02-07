@@ -10,7 +10,10 @@ import type { MessageLog } from '../../../utils/message-log'
 import type { UpdateSystem } from './update-system'
 import {
   ActionComponent,
+  ArmorComponent,
   ConsumableComponent,
+  EquipmentComponent,
+  EquippableComponent,
   HealComponent,
   HealthComponent,
   InfoComponent,
@@ -18,10 +21,13 @@ import {
   PositionComponent,
   RemoveComponent,
   SpellComponent,
+  StatsComponent,
   TargetingComponent,
   WantAttackComponent,
   WantCauseSpellEffectComponent,
   WantUseItemComponent,
+  WeaponComponent,
+  type Info,
   type Spell,
   type Targeting,
   type WantUseItem,
@@ -32,6 +38,7 @@ import { AttackType } from '../../../constants/attack-type'
 import { processFOV } from '../../../utils/fov-funcs'
 import { TargetingType } from '../../../constants/targeting-type'
 import type { Vector2 } from '../../../types'
+import { EquipmentType } from '../../../constants/equipment-type'
 
 export class UpdateWantUseItemSystem implements UpdateSystem {
   log: MessageLog
@@ -48,6 +55,8 @@ export class UpdateWantUseItemSystem implements UpdateSystem {
       if (this.checkOwnerOwnsItem(world, useItem)) {
         if (hasComponent(world, useItem.item, ConsumableComponent)) {
           this.useConsumableItem(world, useItem)
+        } else if (hasComponent(world, useItem.item, EquippableComponent)) {
+          this.useEquippableItem(world, useItem)
         } else {
           this.actionError(useItem.owner, 'Invalid item type to use')
         }
@@ -81,6 +90,48 @@ export class UpdateWantUseItemSystem implements UpdateSystem {
     }
   }
 
+  useEquippableItem(world: World, useItem: WantUseItem) {
+    const equipment = EquipmentComponent.equipment[useItem.owner]
+    const ownerInfo = InfoComponent.info[useItem.owner]
+    let equipmentType = EquipmentType.Armor
+    if (hasComponent(world, useItem.item, WeaponComponent)) {
+      equipmentType = EquipmentType.Weapon
+    }
+
+    if (equipmentType === EquipmentType.Armor) {
+      this.setEquippedForItem(equipment.armor, false, ownerInfo)
+      equipment.armor = useItem.item
+      this.setEquippedForItem(equipment.armor, true, ownerInfo)
+    } else {
+      this.setEquippedForItem(equipment.weapon, false, ownerInfo)
+      equipment.weapon = useItem.item
+      this.setEquippedForItem(equipment.weapon, true, ownerInfo)
+    }
+
+    const stats = StatsComponent.stats[useItem.owner]
+    const weaponMod =
+      equipment.weapon !== -1
+        ? WeaponComponent.weapon[equipment.weapon].attack
+        : 0
+    const armorMod =
+      equipment.armor !== -1 ? ArmorComponent.armor[equipment.armor].defense : 0
+    stats.currentDefense = stats.defense + armorMod
+    stats.currentStrength = stats.strength + weaponMod
+  }
+
+  setEquippedForItem(item: EntityId, equipped: boolean, ownerInfo: Info) {
+    if (item === -1) {
+      return
+    }
+    const itemInfo = InfoComponent.info[item]
+
+    this.log.addMessage(
+      `${ownerInfo.name} ${equipped ? '' : 'un'}equipped ${itemInfo.name}`,
+    )
+
+    EquippableComponent.equippable[item].equipped = equipped
+  }
+
   processHeal(world: World, useItem: WantUseItem) {
     const heal = HealComponent.heal[useItem.item]
     const health = HealthComponent.health[useItem.owner]
@@ -109,7 +160,9 @@ export class UpdateWantUseItemSystem implements UpdateSystem {
       const targeting = TargetingComponent.targeting[useItem.item]
       if (targeting.targetingType === TargetingType.SingleTargetEntity) {
         this.processSingleTargetEntitySpell(world, useItem, spell, targeting)
-      } else if(targeting.targetingType === TargetingType.SingleTargetPosition){
+      } else if (
+        targeting.targetingType === TargetingType.SingleTargetPosition
+      ) {
         this.processSingleTargetPositionSpell(world, useItem, spell, targeting)
       }
     } else {

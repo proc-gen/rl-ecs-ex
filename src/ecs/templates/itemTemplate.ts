@@ -13,7 +13,7 @@ import {
   ArmorComponent,
   ConfusionComponent,
   ConsumableComponent,
-  EquipmentComponent,
+  EquippableComponent,
   HealComponent,
   InfoComponent,
   ItemComponent,
@@ -70,7 +70,7 @@ export const createItem = (
   if (itemStats.itemType === ItemType.Consumable) {
     createConsumableComponents(world, item, name)
   } else if (itemStats.itemType === ItemType.Equipment) {
-    createEquipmentComponents(world, item, name)
+    createEquipmentComponents(world, item, name, owner)
   }
 
   createEffectComponents(world, item, name)
@@ -105,13 +105,17 @@ const createEquipmentComponents = (
   world: World,
   item: EntityId,
   name: string,
+  owner: EntityId | undefined,
 ) => {
   const eqipmentStats = eqipmentStatLookup(name)
   if (eqipmentStats === undefined) {
     return
   }
 
-  addComponent(world, item, EquipmentComponent)
+  addComponent(world, item, EquippableComponent)
+  EquippableComponent.equippable[item] = {
+    equipped: owner !== undefined,
+  }
   if (eqipmentStats.equipmentType === EquipmentType.Armor) {
     addComponent(world, item, ArmorComponent)
     ArmorComponent.armor[item] = { defense: eqipmentStats.amount }

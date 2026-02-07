@@ -8,7 +8,7 @@ import {
   ConsumableComponent,
   DeadComponent,
   EnemyComponent,
-  EquipableComponent,
+  EquippableComponent,
   EquipmentComponent,
   HealComponent,
   HealthComponent,
@@ -40,7 +40,7 @@ export const WorldComponents = [
   ConsumableComponent,
   DeadComponent,
   EnemyComponent,
-  EquipableComponent,
+  EquippableComponent,
   EquipmentComponent,
   HealComponent,
   HealthComponent,
@@ -102,9 +102,9 @@ export const getDataFromComponent = (entity: EntityId, componentType: any) => {
       componentData.componentType = 'EnemyComponent'
       componentData.data = EnemyComponent.enemy[entity]
       break
-    case EquipableComponent:
-      componentData.componentType = 'EquipableComponent'
-      componentData.data = EquipableComponent.equipable[entity]
+    case EquippableComponent:
+      componentData.componentType = 'EquippableComponent'
+      componentData.data = EquippableComponent.equipable[entity]
       break
     case EquipmentComponent:
       componentData.componentType = 'EquipmentComponent'
@@ -230,9 +230,9 @@ export const setDataForComponent = (
       addComponent(world, entity, EnemyComponent)
       EnemyComponent.enemy[entity] = data
       break
-    case 'EquipableComponent':
-      addComponent(world, entity, EquipableComponent)
-      EquipableComponent.equipable[entity] = data
+    case 'EquippableComponent':
+      addComponent(world, entity, EquippableComponent)
+      EquippableComponent.equipable[entity] = data
       break
     case 'EquipmentComponent':
       addComponent(world, entity, EquipmentComponent)

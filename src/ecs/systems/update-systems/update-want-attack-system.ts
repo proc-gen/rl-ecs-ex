@@ -97,7 +97,7 @@ export class UpdateWantAttackSystem implements UpdateSystem {
     infoActor: Info,
     infoBlocker: Info,
   ) {
-    const damage = statsAttacker.strength - statsBlocker.defense
+    const damage = statsAttacker.currentStrength - statsBlocker.currentDefense
     const attackDescription = `${infoActor.name} attacks ${infoBlocker.name}`
     let message = ''
     if (damage > 0) {

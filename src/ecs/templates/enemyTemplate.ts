@@ -62,7 +62,9 @@ export const createEnemy = (
   }
   StatsComponent.stats[enemy] = {
     strength: enemyStats.strength,
+    currentStrength: enemyStats.strength,
     defense: enemyStats.defense,
+    currentDefense: enemyStats.defense,
     xpGiven: enemyStats.xpGiven,
   }
 

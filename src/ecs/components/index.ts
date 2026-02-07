@@ -6,7 +6,7 @@ import { type Confusion, ConfusionComponent } from './confusion'
 import { type Consumable, ConsumableComponent } from './consumable'
 import { type Dead, DeadComponent } from './dead'
 import { type Enemy, EnemyComponent } from './enemy'
-import { type Equipable, EquipableComponent } from './equippable'
+import { type Equippable, EquippableComponent } from './equippable'
 import { type Equipment, EquipmentComponent } from './equipment'
 import { type Heal, HealComponent } from './heal'
 import { type Health, HealthComponent } from './health'
@@ -60,8 +60,8 @@ export {
   DeadComponent,
   type Enemy,
   EnemyComponent,
-  type Equipable,
-  EquipableComponent,
+  type Equippable,
+  EquippableComponent,
   type Equipment,
   EquipmentComponent,
   type Heal,

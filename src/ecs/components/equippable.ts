@@ -1,5 +1,7 @@
-export const EquipableComponent = {
-  equipable: [] as Equipable[],
+export const EquippableComponent = {
+  equippable: [] as Equippable[],
 }
 
-export type Equipable = {}
+export type Equippable = {
+    equipped: boolean
+}
