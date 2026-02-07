@@ -11,6 +11,7 @@ import {
   HealthComponent,
   StatsComponent,
   RenderLayerBlockerComponent,
+  EquipmentComponent,
 } from '../components'
 import { Colors } from '../../constants/colors'
 
@@ -39,6 +40,7 @@ export const createEnemy = (
     AliveComponent,
     HealthComponent,
     StatsComponent,
+    EquipmentComponent,
   )
   ActionComponent.action[enemy] = {
     processed: true,
@@ -67,7 +69,10 @@ export const createEnemy = (
     currentDefense: enemyStats.defense,
     xpGiven: enemyStats.xpGiven,
   }
-
+  EquipmentComponent.equipment[enemy] = {
+    armor: -1,
+    weapon: -1,
+  }
   return enemy
 }
 

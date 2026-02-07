@@ -4,6 +4,7 @@ import {
   ActionComponent,
   AliveComponent,
   BlockerComponent,
+  EquipmentComponent,
   HealthComponent,
   InfoComponent,
   PlayerComponent,
@@ -30,6 +31,7 @@ export const createPlayer = (world: World, startPosition: Vector2) => {
     AliveComponent,
     HealthComponent,
     StatsComponent,
+    EquipmentComponent,
   )
   PlayerComponent.player[player] = {
     levelUpBase: 0,
@@ -61,6 +63,10 @@ export const createPlayer = (world: World, startPosition: Vector2) => {
     defense: 2,
     currentDefense: 2,
     xpGiven: 0,
+  }
+  EquipmentComponent.equipment[player] = {
+    armor: -1,
+    weapon: -1
   }
   return player
 }

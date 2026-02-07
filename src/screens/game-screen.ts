@@ -146,7 +146,9 @@ export class GameScreen extends Screen {
       }
 
       for (const eid of query(this.world, [Not(PlayerComponent)])) {
-        removeEntity(this.world, eid)
+        if (!hasComponent(this.world, eid, OwnerComponent)) {
+          removeEntity(this.world, eid)
+        }
       }
     }
 
@@ -160,7 +162,15 @@ export class GameScreen extends Screen {
     const maxMonsters = 3 + Math.floor(this.level / 2)
     const maxItems = 2 + Math.floor(this.level / 4)
 
-    const generator = new DefaultGenerator(this.world, map, maxRooms, 5, 12, maxMonsters, maxItems)
+    const generator = new DefaultGenerator(
+      this.world,
+      map,
+      maxRooms,
+      5,
+      12,
+      maxMonsters,
+      maxItems,
+    )
     generator.generate()
     const startPosition = generator.playerStartPosition()
 
