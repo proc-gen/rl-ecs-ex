@@ -6,6 +6,7 @@ import {
   InfoComponent,
   PlayerComponent,
   PositionComponent,
+  type Position,
 } from '../../components'
 import {
   renderBox,
@@ -51,7 +52,7 @@ export class RenderHudSystem implements RenderSystem, InputController {
   setActive(value: boolean): void {
     this.active = value
     if (this.active) {
-      this.inspectLocation = { ...PositionComponent.position[this.player] }
+      this.inspectLocation = { ...PositionComponent.values[this.player] }
     }
   }
 
@@ -119,7 +120,7 @@ export class RenderHudSystem implements RenderSystem, InputController {
     return inputInfo
   }
 
-  render(display: Display) {
+  render(display: Display, _playerPosition: Position) {
     renderBox(
       display,
       { x: 0, y: 45 },
@@ -151,7 +152,7 @@ export class RenderHudSystem implements RenderSystem, InputController {
   }
 
   renderHealthBar(display: Display) {
-    const health = HealthComponent.health[this.player]
+    const health = HealthComponent.values[this.player]
     const barLocation = { x: 0, y: 45 }
     const totalWidth = 20
     const barWidth = Math.floor((health.current / health.max) * totalWidth)
@@ -170,10 +171,17 @@ export class RenderHudSystem implements RenderSystem, InputController {
   }
 
   renderExperienceBar(display: Display) {
-    const stats = PlayerComponent.player[this.player]
+    const stats = PlayerComponent.values[this.player]
     const barLocation = { x: 0, y: 46 }
     const totalWidth = 20
-    const barWidth = Math.min(totalWidth, Math.floor((stats.currentXp - stats.levelUpBase) / (stats.experienceToNextLevel - stats.levelUpBase) * totalWidth))
+    const barWidth = Math.min(
+      totalWidth,
+      Math.floor(
+        ((stats.currentXp - stats.levelUpBase) /
+          (stats.experienceToNextLevel - stats.levelUpBase)) *
+          totalWidth,
+      ),
+    )
 
     renderHorizontalColoredBar(
       display,
@@ -181,7 +189,12 @@ export class RenderHudSystem implements RenderSystem, InputController {
       totalWidth,
       Colors.DarkGrey,
     )
-    renderHorizontalColoredBar(display, barLocation, barWidth, Colors.ExperienceBar)
+    renderHorizontalColoredBar(
+      display,
+      barLocation,
+      barWidth,
+      Colors.ExperienceBar,
+    )
 
     const text = `Level: ${stats.currentLevel}`
 
@@ -230,7 +243,7 @@ export class RenderHudSystem implements RenderSystem, InputController {
         )
         if (entitiesAtLocation.length > 0) {
           entitiesAtLocation.forEach((entity) => {
-            const info = InfoComponent.info[entity]
+            const info = InfoComponent.values[entity]
             atLocation.push(info.name)
           })
         }

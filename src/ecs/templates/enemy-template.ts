@@ -42,7 +42,7 @@ export const createEnemy = (
     StatsComponent,
     EquipmentComponent,
   )
-  ActionComponent.action[enemy] = {
+  ActionComponent.values[enemy] = {
     processed: true,
     xOffset: 0,
     yOffset: 0,
@@ -51,25 +51,25 @@ export const createEnemy = (
     pickUpItem: false,
     itemActionType: undefined,
   }
-  InfoComponent.info[enemy] = { name }
-  PositionComponent.position[enemy] = { ...startPosition }
-  RenderableComponent.renderable[enemy] = {
+  InfoComponent.values[enemy] = { name }
+  PositionComponent.values[enemy] = { ...startPosition }
+  RenderableComponent.values[enemy] = {
     char: enemyStats.char,
     fg: enemyStats.fg,
     bg: enemyStats.bg,
   }
-  HealthComponent.health[enemy] = {
+  HealthComponent.values[enemy] = {
     current: enemyStats.health,
     max: enemyStats.health,
   }
-  StatsComponent.stats[enemy] = {
+  StatsComponent.values[enemy] = {
     strength: enemyStats.strength,
     currentStrength: enemyStats.strength,
     defense: enemyStats.defense,
     currentDefense: enemyStats.defense,
     xpGiven: enemyStats.xpGiven,
   }
-  EquipmentComponent.equipment[enemy] = {
+  EquipmentComponent.values[enemy] = {
     armor: -1,
     weapon: -1,
   }

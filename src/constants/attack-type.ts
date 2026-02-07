@@ -1,4 +1,4 @@
 export const AttackType = {
-    Melee: 'Melee',
-    Spell: 'Spell'
+  Melee: 'Melee',
+  Spell: 'Spell',
 }

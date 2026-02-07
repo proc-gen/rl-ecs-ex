@@ -34,12 +34,12 @@ export class UpdateWantAttackSystem implements UpdateSystem {
 
   update(world: World, _entity: EntityId) {
     for (const eid of query(world, [WantAttackComponent])) {
-      const attack = WantAttackComponent.WantAttack[eid]
-      const infoActor = InfoComponent.info[attack.attacker]
-      const statsAttacker = StatsComponent.stats[attack.attacker]
-      const infoBlocker = InfoComponent.info[attack.defender]
-      const statsBlocker = StatsComponent.stats[attack.defender]
-      const healthBlocker = HealthComponent.health[attack.defender]
+      const attack = WantAttackComponent.values[eid]
+      const infoActor = InfoComponent.values[attack.attacker]
+      const statsAttacker = StatsComponent.values[attack.attacker]
+      const infoBlocker = InfoComponent.values[attack.defender]
+      const statsBlocker = StatsComponent.values[attack.defender]
+      const healthBlocker = HealthComponent.values[attack.defender]
 
       let processedAttack = { damage: 0, message: '' }
       if (attack.attackType === AttackType.Melee) {
@@ -71,8 +71,8 @@ export class UpdateWantAttackSystem implements UpdateSystem {
           if (hasComponent(world, attack.defender, PlayerComponent)) {
             addComponent(world, attack.defender, DeadComponent)
           } else {
-            const gainedXp = StatsComponent.stats[attack.defender].xpGiven
-            PlayerComponent.player[attack.attacker].currentXp += gainedXp
+            const gainedXp = StatsComponent.values[attack.defender].xpGiven
+            PlayerComponent.values[attack.attacker].currentXp += gainedXp
             this.log.addMessage(`You gain ${gainedXp} experience points`)
 
             addComponents(
@@ -116,7 +116,7 @@ export class UpdateWantAttackSystem implements UpdateSystem {
     infoActor: Info,
     infoBlocker: Info,
   ) {
-    const spell = SpellComponent.spell[attack.spell!]
+    const spell = SpellComponent.values[attack.spell!]
     const damage = spell.damage
     let message = ''
 

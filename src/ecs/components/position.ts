@@ -1,5 +1,7 @@
-export const PositionComponent = {
-  position: [] as Position[],
+import type { Component } from './component'
+
+export const PositionComponent: Component<Position> = {
+  values: [] as Position[],
 }
 
 export type Position = {

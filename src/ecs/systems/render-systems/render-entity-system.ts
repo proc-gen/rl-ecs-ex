@@ -5,9 +5,11 @@ import {
   PositionComponent,
   RenderableComponent,
   RenderOrder,
+  type Position,
 } from '../../components'
 import { Display } from 'rot-js'
 import type { Vector2 } from '../../../types'
+import { DisplayValues } from '../../../constants/display-values'
 
 export class RenderEntitySystem implements RenderSystem {
   world: World
@@ -18,15 +20,18 @@ export class RenderEntitySystem implements RenderSystem {
     this.playerFOV = playerFOV
   }
 
-  render(display: Display) {
+  render(display: Display, playerPosition: Position) {
+    const xOffset = DisplayValues.HalfWidth - playerPosition.x
+    const yOffset = DisplayValues.HalfHeight - playerPosition.y
+
     RenderOrder.forEach((layerComponent) => {
       for (const eid of query(this.world, [
         PositionComponent,
         RenderableComponent,
         layerComponent,
       ])) {
-        const position = PositionComponent.position[eid]
-        const renderable = RenderableComponent.renderable[eid]
+        const position = PositionComponent.values[eid]
+        const renderable = RenderableComponent.values[eid]
 
         if (
           !hasComponent(this.world, eid, DeadComponent) &&
@@ -35,8 +40,8 @@ export class RenderEntitySystem implements RenderSystem {
           ) !== undefined
         ) {
           display.drawOver(
-            position.x,
-            position.y,
+            position.x + xOffset,
+            position.y + yOffset,
             renderable.char,
             renderable.fg,
             renderable.bg,

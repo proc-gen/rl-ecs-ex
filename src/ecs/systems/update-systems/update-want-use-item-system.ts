@@ -51,7 +51,7 @@ export class UpdateWantUseItemSystem implements UpdateSystem {
 
   update(world: World, _entity: EntityId) {
     for (const eid of query(world, [WantUseItemComponent])) {
-      const useItem = WantUseItemComponent.wantUseItem[eid]
+      const useItem = WantUseItemComponent.values[eid]
       if (this.checkOwnerOwnsItem(world, useItem)) {
         if (hasComponent(world, useItem.item, ConsumableComponent)) {
           this.useConsumableItem(world, useItem)
@@ -71,7 +71,7 @@ export class UpdateWantUseItemSystem implements UpdateSystem {
       this.actionError(useItem.owner, 'Invalid item selected')
       ownerOwnsItem = false
     } else {
-      const itemOwner = OwnerComponent.owner[useItem.item]
+      const itemOwner = OwnerComponent.values[useItem.item]
       if (itemOwner.owner !== useItem.owner) {
         this.actionError(useItem.owner, 'Invalid item selected')
         ownerOwnsItem = false
@@ -91,8 +91,8 @@ export class UpdateWantUseItemSystem implements UpdateSystem {
   }
 
   useEquippableItem(world: World, useItem: WantUseItem) {
-    const equipment = EquipmentComponent.equipment[useItem.owner]
-    const ownerInfo = InfoComponent.info[useItem.owner]
+    const equipment = EquipmentComponent.values[useItem.owner]
+    const ownerInfo = InfoComponent.values[useItem.owner]
     let equipmentType = EquipmentType.Armor
     if (hasComponent(world, useItem.item, WeaponComponent)) {
       equipmentType = EquipmentType.Weapon
@@ -108,13 +108,15 @@ export class UpdateWantUseItemSystem implements UpdateSystem {
       this.setEquippedForItem(equipment.weapon, true, ownerInfo)
     }
 
-    const stats = StatsComponent.stats[useItem.owner]
+    const stats = StatsComponent.values[useItem.owner]
     const weaponMod =
       equipment.weapon !== -1
-        ? WeaponComponent.weapon[equipment.weapon].attack
+        ? WeaponComponent.values[equipment.weapon].attack
         : 0
     const armorMod =
-      equipment.armor !== -1 ? ArmorComponent.armor[equipment.armor].defense : 0
+      equipment.armor !== -1
+        ? ArmorComponent.values[equipment.armor].defense
+        : 0
     stats.currentDefense = stats.defense + armorMod
     stats.currentStrength = stats.strength + weaponMod
   }
@@ -123,18 +125,18 @@ export class UpdateWantUseItemSystem implements UpdateSystem {
     if (item === -1) {
       return
     }
-    const itemInfo = InfoComponent.info[item]
+    const itemInfo = InfoComponent.values[item]
 
     this.log.addMessage(
       `${ownerInfo.name} ${equipped ? '' : 'un'}equipped ${itemInfo.name}`,
     )
 
-    EquippableComponent.equippable[item].equipped = equipped
+    EquippableComponent.values[item].equipped = equipped
   }
 
   processHeal(world: World, useItem: WantUseItem) {
-    const heal = HealComponent.heal[useItem.item]
-    const health = HealthComponent.health[useItem.owner]
+    const heal = HealComponent.values[useItem.item]
+    const health = HealthComponent.values[useItem.owner]
     if (health.current === health.max) {
       this.actionError(useItem.owner, 'Health is already full')
     } else {
@@ -142,8 +144,8 @@ export class UpdateWantUseItemSystem implements UpdateSystem {
         Math.min(health.max - health.current, heal.amount),
       )
       health.current += healAmount
-      const infoOwner = InfoComponent.info[useItem.owner]
-      const infoItem = InfoComponent.info[useItem.item]
+      const infoOwner = InfoComponent.values[useItem.owner]
+      const infoItem = InfoComponent.values[useItem.item]
       this.actionSuccess(
         world,
         useItem.item,
@@ -153,11 +155,11 @@ export class UpdateWantUseItemSystem implements UpdateSystem {
   }
 
   processSpell(world: World, useItem: WantUseItem) {
-    const spell = SpellComponent.spell[useItem.item]
+    const spell = SpellComponent.values[useItem.item]
     if (!hasComponent(world, useItem.item, TargetingComponent)) {
       this.processRandomTargetSpell(world, useItem, spell)
     } else if (hasComponent(world, useItem.item, TargetingComponent)) {
-      const targeting = TargetingComponent.targeting[useItem.item]
+      const targeting = TargetingComponent.values[useItem.item]
       if (targeting.targetingType === TargetingType.SingleTargetEntity) {
         this.processSingleTargetEntitySpell(world, useItem, spell, targeting)
       } else if (
@@ -171,7 +173,7 @@ export class UpdateWantUseItemSystem implements UpdateSystem {
   }
 
   processRandomTargetSpell(world: World, useItem: WantUseItem, spell: Spell) {
-    const position = PositionComponent.position[useItem.owner]
+    const position = PositionComponent.values[useItem.owner]
     const fov = processFOV(this.map, position, spell.range)
     const sortedFov = fov.toSorted((a, b) => {
       return distance(a, position) - distance(b, position)
@@ -287,7 +289,7 @@ export class UpdateWantUseItemSystem implements UpdateSystem {
   ) {
     const attack = addEntity(world)
     addComponent(world, attack, WantAttackComponent)
-    WantAttackComponent.WantAttack[attack] = {
+    WantAttackComponent.values[attack] = {
       attackType: AttackType.Spell,
       attacker: useItem.owner,
       defender: targetEntity,
@@ -302,7 +304,7 @@ export class UpdateWantUseItemSystem implements UpdateSystem {
   ) {
     const effect = addEntity(world)
     addComponent(world, effect, WantCauseSpellEffectComponent)
-    WantCauseSpellEffectComponent.effect[effect] = {
+    WantCauseSpellEffectComponent.values[effect] = {
       attacker: useItem.owner,
       defender: targetEntity,
       spell: useItem.item,
@@ -326,7 +328,7 @@ export class UpdateWantUseItemSystem implements UpdateSystem {
 
   actionError(owner: EntityId, error: string) {
     this.log.addMessage(error)
-    const action = ActionComponent.action[owner]
+    const action = ActionComponent.values[owner]
     action.actionSuccessful = false
   }
 }

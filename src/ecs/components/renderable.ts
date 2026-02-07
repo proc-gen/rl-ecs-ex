@@ -1,5 +1,7 @@
-export const RenderableComponent = {
-  renderable: [] as Renderable[],
+import type { Component } from './component'
+
+export const RenderableComponent: Component<Renderable> = {
+  values: [] as Renderable[],
 }
 
 export type Renderable = {

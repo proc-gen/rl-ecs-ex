@@ -1,4 +1,4 @@
 export const TargetingType = {
-    SingleTargetEntity: 'SingleTargetEntity',
-    SingleTargetPosition: 'SingleTargetPosition'
+  SingleTargetEntity: 'SingleTargetEntity',
+  SingleTargetPosition: 'SingleTargetPosition',
 }

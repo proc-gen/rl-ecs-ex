@@ -33,14 +33,14 @@ export const createPlayer = (world: World, startPosition: Vector2) => {
     StatsComponent,
     EquipmentComponent,
   )
-  PlayerComponent.player[player] = {
+  PlayerComponent.values[player] = {
     levelUpBase: 0,
     currentLevel: 1,
     currentXp: 0,
     levelUpFactor: 200,
     experienceToNextLevel: 200,
   }
-  ActionComponent.action[player] = {
+  ActionComponent.values[player] = {
     processed: true,
     xOffset: 0,
     yOffset: 0,
@@ -49,24 +49,24 @@ export const createPlayer = (world: World, startPosition: Vector2) => {
     itemActionType: undefined,
     pickUpItem: false,
   }
-  InfoComponent.info[player] = { name: 'Player' }
-  PositionComponent.position[player] = { ...startPosition }
-  RenderableComponent.renderable[player] = {
+  InfoComponent.values[player] = { name: 'Player' }
+  PositionComponent.values[player] = { ...startPosition }
+  RenderableComponent.values[player] = {
     char: '@',
     fg: Colors.Player,
     bg: null,
   }
-  HealthComponent.health[player] = { current: 30, max: 30 }
-  StatsComponent.stats[player] = {
-    strength: 2,
-    currentStrength: 2,
-    defense: 0,
-    currentDefense: 0,
+  HealthComponent.values[player] = { current: 30, max: 30 }
+  StatsComponent.values[player] = {
+    strength: 3,
+    currentStrength: 3,
+    defense: 1,
+    currentDefense: 1,
     xpGiven: 0,
   }
-  EquipmentComponent.equipment[player] = {
+  EquipmentComponent.values[player] = {
     armor: -1,
-    weapon: -1
+    weapon: -1,
   }
   return player
 }

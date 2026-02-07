@@ -26,21 +26,20 @@ export class UpdateAiActionSystem implements UpdateSystem {
       hasComponent(world, entity, ActionComponent) &&
       !hasComponent(world, entity, PlayerComponent)
     ) {
-      const aiPosition = PositionComponent.position[entity]
+      const aiPosition = PositionComponent.values[entity]
       if (
         this.playerFOV.find(
           (a) => a.x === aiPosition.x && a.y === aiPosition.y,
         ) !== undefined
       ) {
-        const aiAction = ActionComponent.action[entity]
+        const aiAction = ActionComponent.values[entity]
         aiAction.processed = false
 
-        if(hasComponent(world, entity, ConfusionComponent)){
+        if (hasComponent(world, entity, ConfusionComponent)) {
           aiAction.xOffset = getRandomNumber(-1, 1)
           aiAction.yOffset = aiAction.xOffset === 0 ? getRandomNumber(-1, 1) : 0
-        }
-        else{
-          const playerPosition = PositionComponent.position[this.player]
+        } else {
+          const playerPosition = PositionComponent.values[this.player]
           const path = this.map.getPath(aiPosition, playerPosition)
 
           if (path.length > 0) {

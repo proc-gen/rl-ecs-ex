@@ -20,9 +20,9 @@ export const createCorpse = (world: World, position: Vector2, name: string) => {
     RenderLayerGroundComponent,
   )
 
-  InfoComponent.info[corpse] = { name: `Corpse of ${name}` }
-  PositionComponent.position[corpse] = { ...position }
-  RenderableComponent.renderable[corpse] = {
+  InfoComponent.values[corpse] = { name: `Corpse of ${name}` }
+  PositionComponent.values[corpse] = { ...position }
+  RenderableComponent.values[corpse] = {
     char: '%',
     fg: Colors.LightGrey,
     bg: Colors.DarkRed,

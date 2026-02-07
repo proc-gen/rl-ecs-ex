@@ -1,6 +1,6 @@
-import { createPlayer } from './playerTemplate'
-import { createEnemy } from './enemyTemplate'
-import { createCorpse } from './corpseTemplate'
-import { createItem } from './itemTemplate'
+import { createPlayer } from './player-template'
+import { createEnemy } from './enemy-template'
+import { createCorpse } from './corpse-template'
+import { createItem } from './item-template'
 
 export { createPlayer, createEnemy, createCorpse, createItem }

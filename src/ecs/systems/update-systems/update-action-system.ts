@@ -41,8 +41,8 @@ export class UpdateActionSystem implements UpdateSystem {
   }
 
   update(world: World, entity: EntityId) {
-    const position = PositionComponent.position[entity]
-    const action = ActionComponent.action[entity]
+    const position = PositionComponent.values[entity]
+    const action = ActionComponent.values[entity]
 
     if (!action.processed) {
       const newPosition = {
@@ -54,7 +54,7 @@ export class UpdateActionSystem implements UpdateSystem {
         if (action.itemActionType === ItemActionType.Use) {
           const item = addEntity(world)
           addComponent(world, item, WantUseItemComponent)
-          WantUseItemComponent.wantUseItem[item] = {
+          WantUseItemComponent.values[item] = {
             owner: entity,
             item: action.useItem,
           }
@@ -80,7 +80,7 @@ export class UpdateActionSystem implements UpdateSystem {
 
                 removeComponent(world, action.useItem, OwnerComponent)
                 addComponent(world, action.useItem, PositionComponent)
-                PositionComponent.position[action.useItem] = { ...sortedFov[i] }
+                PositionComponent.values[action.useItem] = { ...sortedFov[i] }
                 this.map.addEntityAtLocation(action.useItem, sortedFov[i])
               }
             }
@@ -93,7 +93,7 @@ export class UpdateActionSystem implements UpdateSystem {
           this.resetAction(action, false)
         }
       } else if (position.x === newPosition.x && position.y === newPosition.y) {
-        const info = InfoComponent.info[entity]
+        const info = InfoComponent.values[entity]
         if (action.pickUpItem) {
           const entities = this.map.getEntitiesAtLocation(position)
           if (
@@ -109,8 +109,8 @@ export class UpdateActionSystem implements UpdateSystem {
             )!
             removeComponent(world, item, PositionComponent)
             addComponent(world, item, OwnerComponent)
-            OwnerComponent.owner[item] = { owner: entity }
-            const itemInfo = InfoComponent.info[item]
+            OwnerComponent.values[item] = { owner: entity }
+            const itemInfo = InfoComponent.values[item]
             this.log.addMessage(`${info.name} picks up ${itemInfo.name}`)
             this.resetAction(action, true)
           }
@@ -136,7 +136,7 @@ export class UpdateActionSystem implements UpdateSystem {
             const attack = addEntity(world)
             addComponent(world, attack, WantAttackComponent)
 
-            WantAttackComponent.WantAttack[attack] = {
+            WantAttackComponent.values[attack] = {
               attackType: AttackType.Melee,
               attacker: entity,
               defender: blocker,
@@ -145,11 +145,11 @@ export class UpdateActionSystem implements UpdateSystem {
           }
         }
       } else {
-        if(hasComponent(world, entity, ConfusionComponent)){
-          const info = InfoComponent.info[entity]
+        if (hasComponent(world, entity, ConfusionComponent)) {
+          const info = InfoComponent.values[entity]
           this.log.addMessage(`The ${info.name} tries running into a wall`)
           this.resetAction(action, true)
-        }else{
+        } else {
           this.log.addMessage('That direction is blocked')
           this.resetAction(action, false)
         }

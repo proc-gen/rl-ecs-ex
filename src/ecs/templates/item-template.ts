@@ -50,8 +50,8 @@ export const createItem = (
     RenderLayerItemComponent,
   )
 
-  InfoComponent.info[item] = { name }
-  RenderableComponent.renderable[item] = {
+  InfoComponent.values[item] = { name }
+  RenderableComponent.values[item] = {
     char: itemStats.char,
     fg: itemStats.fg,
     bg: itemStats.bg,
@@ -59,12 +59,12 @@ export const createItem = (
 
   if (position !== undefined) {
     addComponent(world, item, PositionComponent)
-    PositionComponent.position[item] = { ...position }
+    PositionComponent.values[item] = { ...position }
   }
 
   if (owner !== undefined) {
     addComponent(world, item, OwnerComponent)
-    OwnerComponent.owner[item] = { owner }
+    OwnerComponent.values[item] = { owner }
   }
 
   if (itemStats.itemType === ItemType.Consumable) {
@@ -90,10 +90,10 @@ const createConsumableComponents = (
 
   if (consumableStats.consumableType === ConsumableType.Heal) {
     addComponent(world, item, HealComponent)
-    HealComponent.heal[item] = { amount: consumableStats.damage * -1 }
+    HealComponent.values[item] = { amount: consumableStats.damage * -1 }
   } else if (consumableStats.consumableType === ConsumableType.Spell) {
     addComponent(world, item, SpellComponent)
-    SpellComponent.spell[item] = {
+    SpellComponent.values[item] = {
       range: consumableStats.range,
       damage: consumableStats.damage,
       spellName: consumableStats.spellName,
@@ -113,34 +113,34 @@ const createEquipmentComponents = (
   }
 
   addComponent(world, item, EquippableComponent)
-  EquippableComponent.equippable[item] = {
+  EquippableComponent.values[item] = {
     equipped: owner !== undefined,
   }
   if (eqipmentStats.equipmentType === EquipmentType.Armor) {
     addComponent(world, item, ArmorComponent)
-    ArmorComponent.armor[item] = { defense: eqipmentStats.amount }
+    ArmorComponent.values[item] = { defense: eqipmentStats.amount }
   } else if (eqipmentStats.equipmentType === EquipmentType.Weapon) {
     addComponent(world, item, WeaponComponent)
-    WeaponComponent.weapon[item] = { attack: eqipmentStats.amount }
+    WeaponComponent.values[item] = { attack: eqipmentStats.amount }
   }
 }
 
 const createEffectComponents = (world: World, item: EntityId, name: string) => {
   if (name === 'Confusion Scroll') {
     addComponents(world, item, ConfusionComponent, TargetingComponent)
-    ConfusionComponent.confusion[item] = { turnsLeft: 10 }
-    TargetingComponent.targeting[item] = {
+    ConfusionComponent.values[item] = { turnsLeft: 10 }
+    TargetingComponent.values[item] = {
       targetingType: TargetingType.SingleTargetEntity,
       position: { x: 0, y: 0 },
     }
   } else if (name === 'Fireball Scroll') {
     addComponent(world, item, TargetingComponent)
-    TargetingComponent.targeting[item] = {
+    TargetingComponent.values[item] = {
       targetingType: TargetingType.SingleTargetPosition,
       position: { x: 0, y: 0 },
     }
 
-    SpellComponent.spell[item].radius = 3
+    SpellComponent.values[item].radius = 3
   }
 }
 

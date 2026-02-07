@@ -1,7 +1,8 @@
 import type { EntityId } from 'bitecs'
+import type { Component } from './component'
 
-export const WantCauseSpellEffectComponent = {
-  effect: [] as WantCauseSpellEffect[],
+export const WantCauseSpellEffectComponent: Component<WantCauseSpellEffect> = {
+  values: [] as WantCauseSpellEffect[],
 }
 
 export type WantCauseSpellEffect = {
