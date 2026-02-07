@@ -24,6 +24,9 @@ export const Colors = {
   LightningScroll: '#aaaa00',
   ConfusionScroll: '#cf3fff',
   FireballScroll: '#ff0000',
+
+  WeaponPickup: '#00bfff',
+  ArmorPickup: '#8b4513',
 }
 
 export const HexColors = {
@@ -50,4 +53,7 @@ export const HexColors = {
   LightningScroll: Color.fromString(Colors.LightningScroll),
   ConfusionScroll: Color.fromString(Colors.ConfusionScroll),
   FireballScroll: Color.fromString(Colors.FireballScroll),
+
+  WeaponPickup: Color.fromString(Colors.WeaponPickup),
+  ArmorPickup: Color.fromString(Colors.ArmorPickup),
 }
