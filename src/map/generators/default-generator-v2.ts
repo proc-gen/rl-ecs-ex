@@ -3,7 +3,7 @@ import type { World } from 'bitecs'
 import { FLOOR_TILE, STAIRS_DOWN_TILE } from '../../constants/tiles'
 import type { Map } from '../map'
 import { Room, type Sector } from '../containers'
-import { clearMap, tunnel, type Generator } from './generator'
+import { clearMap, prettify, tunnel, type Generator } from './generator'
 import type { Vector2, WeightMap } from '../../types'
 import { getRandomNumber } from '../../utils/random'
 import { createEnemy, createItem } from '../../ecs/templates'
@@ -53,7 +53,7 @@ export class DefaultGeneratorV2 implements Generator {
 
     this.copyRoomsToMap()
     this.copyTunnelsToMap()
-
+    prettify(this.map)
     this.placeStairs()
   }
 
@@ -269,8 +269,8 @@ export class DefaultGeneratorV2 implements Generator {
         if (
           t.x > a.x &&
           t.y > a.y &&
-          t.x < a.x + a.width - 2 &&
-          t.y < a.y + a.height - 2
+          t.x < a.x + a.width - 1 &&
+          t.y < a.y + a.height - 1
         ) {
           this.map.tiles[t.x][t.y] = { ...FLOOR_TILE }
         }

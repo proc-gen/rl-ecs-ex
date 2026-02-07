@@ -1,6 +1,40 @@
 import { type Tile } from '../map'
 import { Colors } from './colors'
 
+export const GlyphChars = {
+  9: '#',
+  185: '╣',
+  186: '║',
+  187: '╗',
+  188: '╝',
+  200: '╚',
+  201: '╔',
+  202: '╩',
+  203: '╦',
+  204: '╠',
+  205: '═',
+  206: '╬',
+}
+
+export const OrderedGlyphs = [
+  GlyphChars[9],
+  GlyphChars[186],
+  GlyphChars[186],
+  GlyphChars[186],
+  GlyphChars[205],
+  GlyphChars[188],
+  GlyphChars[187],
+  GlyphChars[185],
+  GlyphChars[205],
+  GlyphChars[200],
+  GlyphChars[201],
+  GlyphChars[204],
+  GlyphChars[205],
+  GlyphChars[202],
+  GlyphChars[203],
+  GlyphChars[206],
+]
+
 export const FLOOR_TILE: Tile = {
   walkable: true,
   transparent: true,

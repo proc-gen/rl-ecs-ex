@@ -1,4 +1,4 @@
-import { WALL_TILE } from '../../constants/tiles'
+import { OrderedGlyphs, WALL_TILE } from '../../constants/tiles'
 import type { Vector2 } from '../../types'
 import { Sector } from '../containers'
 import { Map } from '../map'
@@ -51,4 +51,20 @@ export const tunnel = (start: Vector2, end: Vector2): Sector => {
   }
 
   return sector
+}
+
+export const prettify = (map: Map) => {
+  for (let x = 0; x < map.width; x++) {
+    for (let y = 0; y < map.height; y++) {
+      if (!map.tiles[x][y].walkable) {
+        let mask = 0
+        mask += map.isWalkable(x, y - 1) ? 0 : 1
+        mask += map.isWalkable(x, y + 1) ? 0 : 2
+        mask += map.isWalkable(x - 1, y) ? 0 : 4
+        mask += map.isWalkable(x + 1, y) ? 0 : 8
+
+        map.tiles[x][y].char = OrderedGlyphs[mask]
+      }
+    }
+  }
 }
