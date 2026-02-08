@@ -81,6 +81,6 @@ export const OPEN_DOOR_TILE: Tile = {
   char: '\\',
   fg: Colors.Door,
   bg: Colors.Black,
-  seen: true,
+  seen: false,
   name: 'Door Open',
 }
