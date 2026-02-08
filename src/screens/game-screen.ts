@@ -180,7 +180,7 @@ export class GameScreen extends Screen {
     do {
       generator.generate()
       if (
-        map.getPath(generator.playerStartPosition(), generator.stairsLocation())
+        map.getPath(generator.playerStartPosition(), generator.stairsLocation(), true)
           .length > 0 &&
         generator.rooms.length > maxRooms / 2
       ) {

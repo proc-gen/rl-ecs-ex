@@ -64,3 +64,23 @@ export const WALL_TILE: Tile = {
   seen: false,
   name: 'Wall',
 }
+
+export const CLOSED_DOOR_TILE: Tile = {
+  walkable: false,
+  transparent: false,
+  char: '+',
+  fg: Colors.Door,
+  bg: Colors.Black,
+  seen: false,
+  name: 'Door Closed',
+}
+
+export const OPEN_DOOR_TILE: Tile = {
+  walkable: true,
+  transparent: true,
+  char: '\\',
+  fg: Colors.Door,
+  bg: Colors.Black,
+  seen: true,
+  name: 'Door Open',
+}

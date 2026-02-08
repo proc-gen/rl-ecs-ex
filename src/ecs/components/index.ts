@@ -7,6 +7,7 @@ import { type Blocker, BlockerComponent } from './blocker'
 import { type Confusion, ConfusionComponent } from './confusion'
 import { type Consumable, ConsumableComponent } from './consumable'
 import { type Dead, DeadComponent } from './dead'
+import { type Door, DoorComponent } from './door'
 import { type Enemy, EnemyComponent } from './enemy'
 import { type Equippable, EquippableComponent } from './equippable'
 import { type Equipment, EquipmentComponent } from './equipment'
@@ -61,6 +62,8 @@ export {
   ConsumableComponent,
   type Dead,
   DeadComponent,
+  type Door, 
+  DoorComponent,
   type Enemy,
   EnemyComponent,
   type Equippable,

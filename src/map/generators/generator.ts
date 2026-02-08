@@ -1,4 +1,8 @@
-import { OrderedGlyphs, WALL_TILE } from '../../constants/tiles'
+import {
+  CLOSED_DOOR_TILE,
+  OrderedGlyphs,
+  WALL_TILE,
+} from '../../constants/tiles'
 import type { Vector2 } from '../../types'
 import { Sector } from '../containers'
 import { Map } from '../map'
@@ -67,4 +71,42 @@ export const prettify = (map: Map) => {
       }
     }
   }
+}
+
+export const placeDoors = (map: Map) => {
+  const doors:Vector2[] = []
+  for (let x = 0; x < map.width; x++) {
+    for (let y = 0; y < map.height; y++) {
+      if (map.tiles[x][y].walkable) {
+        if (
+          map.isWalkable(x - 1, y) &&
+          map.isWalkable(x + 1, y) &&
+          !map.isWalkable(x, y - 1) &&
+          !map.isWalkable(x, y + 1) &&
+          ((map.isWalkable(x - 1, y - 1) && map.isWalkable(x - 1, y + 1)) ||
+            (map.isWalkable(x + 1, y - 1) && map.isWalkable(x + 1, y + 1)))
+        ) {
+          addDoor(map, x, y, doors)
+        }
+
+        if (
+          map.isWalkable(x, y - 1) &&
+          map.isWalkable(x, y + 1) &&
+          !map.isWalkable(x - 1, y) &&
+          !map.isWalkable(x + 1, y) &&
+          ((map.isWalkable(x - 1, y - 1) && map.isWalkable(x + 1, y - 1)) ||
+            (map.isWalkable(x - 1, y + 1) && map.isWalkable(x + 1, y + 1)))
+        ) {
+          addDoor(map, x, y, doors)
+        }
+      }
+    }
+  }
+
+  return doors
+}
+
+const addDoor = (map: Map, x: number, y: number, doors: Vector2[]) => {
+  map.tiles[x][y] = { ...CLOSED_DOOR_TILE }
+  doors.push({x,y})
 }

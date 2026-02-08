@@ -1,20 +1,28 @@
-import type { World } from 'bitecs'
+import { addComponents, addEntity, type World } from 'bitecs'
 
 import { FLOOR_TILE, STAIRS_DOWN_TILE } from '../../constants/tiles'
 import type { Map } from '../map'
 import { Room, type Sector } from '../containers'
-import { clearMap, prettify, tunnel, type Generator } from './generator'
+import {
+  clearMap,
+  placeDoors,
+  prettify,
+  tunnel,
+  type Generator,
+} from './generator'
 import type { Vector2, WeightMap } from '../../types'
 import { getRandomNumber } from '../../utils/random'
 import { createEnemy, createItem } from '../../ecs/templates'
 import { distance, equal } from '../../utils/vector-2-funcs'
 import { RNG } from 'rot-js'
+import { DoorComponent, PositionComponent } from '../../ecs/components'
 
 export class DefaultGeneratorV2 implements Generator {
   world: World
   map: Map
   rooms: Room[]
   tunnels: Sector[]
+  doors: Vector2[]
 
   minRoomSize: number
   maxRoomSize: number
@@ -35,6 +43,7 @@ export class DefaultGeneratorV2 implements Generator {
     this.map = map
     this.rooms = []
     this.tunnels = []
+    this.doors = []
 
     this.maxRooms = maxRooms
     this.minRoomSize = minRoomSize
@@ -53,6 +62,7 @@ export class DefaultGeneratorV2 implements Generator {
     this.copyTunnelsToMap()
     prettify(this.map)
     this.placeStairs()
+    this.doors = placeDoors(this.map)
   }
 
   createRooms() {
@@ -151,6 +161,18 @@ export class DefaultGeneratorV2 implements Generator {
         itemWeights,
       )
     })
+
+    this.placeDoorEntities()
+  }
+
+  placeDoorEntities() {
+    this.doors.forEach((a) => {
+      const door = addEntity(this.world)
+      addComponents(this.world, door, PositionComponent, DoorComponent)
+      PositionComponent.values[door] = { ...a }
+      DoorComponent.values[door] = { open: false }
+      this.map.addEntityAtLocation(door, PositionComponent.values[door])
+    })
   }
 
   getEnemyWeights(): WeightMap {
@@ -195,7 +217,10 @@ export class DefaultGeneratorV2 implements Generator {
     playerStart: Vector2,
     weights: WeightMap,
   ) {
-    const maxMonstersLeft = Math.min(monstersLeft, Math.floor(this.maxMonsters / 2))
+    const maxMonstersLeft = Math.min(
+      monstersLeft,
+      Math.floor(this.maxMonsters / 2),
+    )
     let numEnemies = Math.min(getRandomNumber(0, 2), maxMonstersLeft)
 
     if (numEnemies > 0) {
