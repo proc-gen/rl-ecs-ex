@@ -15,6 +15,7 @@ import {
   PlayerComponent,
   PositionComponent,
   RemoveComponent,
+  WorldComponents,
 } from '../ecs/components'
 import {
   type RenderSystem,
@@ -33,7 +34,7 @@ import {
   UpdateWantCauseSpellEffectSystem,
 } from '../ecs/systems/update-systems'
 import { Map } from '../map'
-import { DefaultGenerator } from '../map/generators'
+import { DefaultGeneratorV2 } from '../map/generators'
 import type { HandleInputInfo, Vector2 } from '../types'
 import { createPlayer } from '../ecs/templates'
 import { MessageLog } from '../utils/message-log'
@@ -90,6 +91,9 @@ export class GameScreen extends Screen {
       this.log.addMessage('Welcome back, adventurer...')
     } else {
       this.world = createWorld()
+      WorldComponents.forEach(a => {
+          a.values.length = 0
+        })
       this.level = 1
       this.log = new MessageLog()
       this.map = this.generateMap()
@@ -162,7 +166,7 @@ export class GameScreen extends Screen {
     const maxMonsters = 3 + Math.floor(this.level / 2)
     const maxItems = 2 + Math.floor(this.level / 4)
 
-    const generator = new DefaultGenerator(
+    const generator = new DefaultGeneratorV2(
       this.world,
       map,
       maxRooms,
@@ -171,7 +175,20 @@ export class GameScreen extends Screen {
       maxMonsters,
       maxItems,
     )
-    generator.generate()
+
+    let success = false
+    do {
+      generator.generate()
+      if (
+        map.getPath(generator.playerStartPosition(), generator.stairsLocation())
+          .length > 0 &&
+        generator.rooms.length > maxRooms / 2
+      ) {
+        success = true
+      }
+    } while (!success)
+      
+    generator.placeEntities()
     const startPosition = generator.playerStartPosition()
 
     if (this.level === 1) {

@@ -10,8 +10,8 @@ export class Room extends Sector {
     this.width = width
     this.height = height
 
-    for (let i = x; i < x + width - 1; i++) {
-      for (let j = y; j < y + height - 1; j++) {
+    for (let i = x; i < x + width; i++) {
+      for (let j = y; j < y + height; j++) {
         this.includedTiles.push({ x: i, y: j })
       }
     }

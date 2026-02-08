@@ -1,4 +1,5 @@
 import type { Vector2 } from '../../types'
+import { equal } from '../../utils/vector-2-funcs'
 
 export class Sector {
   x: number
@@ -14,7 +15,7 @@ export class Sector {
   intersects(other: Sector) {
     return (
       this.includedTiles.filter((t) =>
-        other.includedTiles.find((oT) => oT.x === t.x && oT.y === t.y),
+        other.includedTiles.find((oT) => equal(oT, t)),
       ).length > 0
     )
   }
