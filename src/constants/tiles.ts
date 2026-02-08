@@ -66,7 +66,7 @@ export const WALL_TILE: Tile = {
 }
 
 export const CLOSED_DOOR_TILE: Tile = {
-  walkable: false,
+  walkable: true,
   transparent: false,
   char: '+',
   fg: Colors.Door,

@@ -20,6 +20,8 @@ import {
   ItemComponent,
   OwnerComponent,
   ConfusionComponent,
+  HealthComponent,
+  DoorComponent,
 } from '../../components'
 import { Map } from '../../../map'
 import type { Vector2 } from '../../../types'
@@ -28,6 +30,7 @@ import { ItemActionType } from '../../../constants/item-action-type'
 import { distance } from '../../../utils/vector-2-funcs'
 import { AttackType } from '../../../constants/attack-type'
 import { processFOV, processPlayerFOV } from '../../../utils/fov-funcs'
+import { OPEN_DOOR_TILE } from '../../../constants/tiles'
 
 export class UpdateActionSystem implements UpdateSystem {
   map: Map
@@ -133,13 +136,26 @@ export class UpdateActionSystem implements UpdateSystem {
             hasComponent(world, a, BlockerComponent),
           )
           if (blocker !== undefined) {
-            const attack = addEntity(world)
-            addComponent(world, attack, WantAttackComponent)
+            if (hasComponent(world, blocker, HealthComponent)) {
+              const attack = addEntity(world)
+              addComponent(world, attack, WantAttackComponent)
 
-            WantAttackComponent.values[attack] = {
-              attackType: AttackType.Melee,
-              attacker: entity,
-              defender: blocker,
+              WantAttackComponent.values[attack] = {
+                attackType: AttackType.Melee,
+                attacker: entity,
+                defender: blocker,
+              }
+            } else if (hasComponent(world, blocker, DoorComponent)) {
+              if (hasComponent(world, entity, PlayerComponent)) {
+                DoorComponent.values[blocker].open = true
+                removeComponent(world, blocker, BlockerComponent)
+                const doorPosition = PositionComponent.values[blocker]
+                this.map.tiles[doorPosition.x][doorPosition.y] = {
+                  ...OPEN_DOOR_TILE,
+                  seen: true,
+                }
+                processPlayerFOV(this.map, position, this.playerFOV)
+              }
             }
             this.resetAction(action, true)
           }
