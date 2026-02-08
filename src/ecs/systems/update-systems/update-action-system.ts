@@ -155,6 +155,8 @@ export class UpdateActionSystem implements UpdateSystem {
                   seen: true,
                 }
                 processPlayerFOV(this.map, position, this.playerFOV)
+                const info = InfoComponent.values[entity]
+                this.log.addMessage(`${info.name} opens the door`)
               }
             }
             this.resetAction(action, true)

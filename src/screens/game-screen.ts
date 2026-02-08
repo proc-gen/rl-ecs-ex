@@ -15,7 +15,6 @@ import {
   PlayerComponent,
   PositionComponent,
   RemoveComponent,
-  WorldComponents,
 } from '../ecs/components'
 import {
   type RenderSystem,
@@ -91,9 +90,6 @@ export class GameScreen extends Screen {
       this.log.addMessage('Welcome back, adventurer...')
     } else {
       this.world = createWorld()
-      WorldComponents.forEach(a => {
-          a.values.length = 0
-        })
       this.level = 1
       this.log = new MessageLog()
       this.map = this.generateMap()
