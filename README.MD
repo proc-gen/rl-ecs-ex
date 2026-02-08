@@ -57,20 +57,20 @@ And lastly, I made some files that didn't conform to kebab-casing. This has been
 
 Obviously the main thing here is the addition of doors. They are placed at the end of hallways that have a single opening into a room with three open cells on the other side.
 
-Ex. (X instead of # for wall)
-X.X
-X.X
-...
+Ex. (X instead of # for wall)  
+X.X  
+X.X  
+...  
 
 Doors are represented as `+` when closed and `\` when open. They can be opened by bumping into them.
 
 Also changed are the wall characters. I'd previously used bit-set walls and liked the look of them, so I brought that in here. It doesn't look as good with the square spacing for the cells, so experiment with setting `forceSquareRatio: false`. This could be remedied by using an image for the tiles instead of characters, though that is a topic for another day.
 
-Ex.
-╔══════════╗
-║          ║
-║  Hello!  ║
-║          ║
-╚══════════╝
+Ex.  
+╔══════════╗  
+║          ║  
+║  Hello!  ║  
+║          ║  
+╚══════════╝  
 
 To reduce the number of odd hallways that get produced, a new generator was made that connects a room to the closest room if a connection hasn't already been made. This no longer guarantees that all rooms end up connected, so that required that a path could be found from the player start position to the stairs down to the next level. Enemies and items are also spawned after a successful map has been generated now, because otherwise they were getting created for each try of making a map.
