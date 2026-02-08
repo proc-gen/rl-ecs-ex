@@ -10,6 +10,7 @@ export const Colors = {
   DarkRed: '#660000',
 
   Stairs: '#009fff',
+  Door: '#ab6533',
 
   HealthBar: '#aa0000',
   ExperienceBar: '#aaaa00',
@@ -39,6 +40,7 @@ export const HexColors = {
   DarkRed: Color.fromString(Colors.DarkRed),
 
   Stairs: Color.fromString(Colors.Stairs),
+  Door: Color.fromString(Colors.Door),
 
   HealthBar: Color.fromString(Colors.HealthBar),
   ExperienceBar: Color.fromString(Colors.ExperienceBar),

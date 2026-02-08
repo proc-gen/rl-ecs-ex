@@ -10,6 +10,7 @@ export class Map {
   level: number
   world: World
   pathStart: Vector2
+  ignoreDoors: boolean
   tiles: Tile[][]
   entityLocations: {
     position: Vector2
@@ -29,6 +30,7 @@ export class Map {
     this.world = world
     this.entityLocations = []
     this.pathStart = { x: 0, y: 0 }
+    this.ignoreDoors = false
     if (tiles === undefined) {
       this.tiles = new Array(this.width)
       for (let x = 0; x < this.width; x++) {
@@ -112,12 +114,13 @@ export class Map {
     return []
   }
 
-  getPath(start: Vector2, end: Vector2) {
+  getPath(start: Vector2, end: Vector2, ignoreDoors: boolean = false) {
     const astar = new AStar(end.x, end.y, this.passableCallBack.bind(this), {
       topology: 4,
     })
     const path: Vector2[] = []
     this.pathStart = start
+    this.ignoreDoors = ignoreDoors
     astar.compute(start.x, start.y, (x: number, y: number) => {
       if (x !== this.pathStart.x || y !== this.pathStart.y) {
         path.push({ x, y })
@@ -149,6 +152,8 @@ export class Map {
       ) {
         return true
       }
+    }else if(this.tiles[x][y].name.includes('Door') && this.ignoreDoors){
+      return true
     }
 
     return false

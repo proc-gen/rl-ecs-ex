@@ -30,6 +30,7 @@ import {
   WantUseItemComponent,
   WeaponComponent,
   type Component,
+  DoorComponent,
 } from '.'
 
 export const WorldComponents: Component<any>[] = [
@@ -40,6 +41,7 @@ export const WorldComponents: Component<any>[] = [
   ConfusionComponent,
   ConsumableComponent,
   DeadComponent,
+  DoorComponent,
   EnemyComponent,
   EquippableComponent,
   EquipmentComponent,
@@ -72,6 +74,7 @@ const WorldComponentNames: string[] = [
   'ConfusionComponent',
   'ConsumableComponent',
   'DeadComponent',
+  'DoorComponent',
   'EnemyComponent',
   'EquippableComponent',
   'EquipmentComponent',
