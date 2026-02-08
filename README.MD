@@ -68,9 +68,9 @@ Also changed are the wall characters. I'd previously used bit-set walls and like
 
 Ex.  
 ╔══════════╗  
-║          ║  
-║  Hello!  ║  
-║          ║  
+║&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;║  
+║&nbsp;&nbsp;Hello!&nbsp;&nbsp;║  
+║&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;║  
 ╚══════════╝  
 
 To reduce the number of odd hallways that get produced, a new generator was made that connects a room to the closest room if a connection hasn't already been made. This no longer guarantees that all rooms end up connected, so that required that a path could be found from the player start position to the stairs down to the next level. Enemies and items are also spawned after a successful map has been generated now, because otherwise they were getting created for each try of making a map.
