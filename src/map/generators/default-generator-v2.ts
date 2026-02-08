@@ -49,8 +49,6 @@ export class DefaultGeneratorV2 implements Generator {
     this.createRooms()
     this.connectRooms()
 
-    this.placeEntities()
-
     this.copyRoomsToMap()
     this.copyTunnelsToMap()
     prettify(this.map)
@@ -197,7 +195,8 @@ export class DefaultGeneratorV2 implements Generator {
     playerStart: Vector2,
     weights: WeightMap,
   ) {
-    let numEnemies = Math.min(getRandomNumber(0, 2), monstersLeft)
+    const maxMonstersLeft = Math.min(monstersLeft, Math.floor(this.maxMonsters / 2))
+    let numEnemies = Math.min(getRandomNumber(0, 2), maxMonstersLeft)
 
     if (numEnemies > 0) {
       const positions: Vector2[] = []
@@ -215,7 +214,6 @@ export class DefaultGeneratorV2 implements Generator {
           positions.push(position)
         }
       }
-
       positions.forEach((p) => {
         const enemy = RNG.getWeightedValue(weights)
         if (enemy !== undefined) {
@@ -233,7 +231,9 @@ export class DefaultGeneratorV2 implements Generator {
     playerStart: Vector2,
     weights: WeightMap,
   ) {
-    let numItems = Math.min(getRandomNumber(0, 2), itemsLeft)
+    const maxItemsLeft = Math.min(itemsLeft, Math.floor(this.maxItems / 2))
+
+    let numItems = Math.min(getRandomNumber(0, 2), maxItemsLeft)
 
     if (numItems > 0) {
       const positions: Vector2[] = []
