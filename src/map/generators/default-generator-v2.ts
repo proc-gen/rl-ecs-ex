@@ -15,7 +15,12 @@ import { getRandomNumber } from '../../utils/random'
 import { createEnemy, createItem } from '../../ecs/templates'
 import { distance, equal } from '../../utils/vector-2-funcs'
 import { RNG } from 'rot-js'
-import { BlockerComponent, DoorComponent, PositionComponent } from '../../ecs/components'
+import {
+  BlockerComponent,
+  DoorComponent,
+  InfoComponent,
+  PositionComponent,
+} from '../../ecs/components'
 
 export class DefaultGeneratorV2 implements Generator {
   world: World
@@ -168,9 +173,17 @@ export class DefaultGeneratorV2 implements Generator {
   placeDoorEntities() {
     this.doors.forEach((a) => {
       const door = addEntity(this.world)
-      addComponents(this.world, door, PositionComponent, DoorComponent, BlockerComponent)
+      addComponents(
+        this.world,
+        door,
+        PositionComponent,
+        DoorComponent,
+        InfoComponent,
+        BlockerComponent,
+      )
       PositionComponent.values[door] = { ...a }
       DoorComponent.values[door] = { open: false }
+      InfoComponent.values[door] = { name: 'Door' }
       this.map.addEntityAtLocation(door, PositionComponent.values[door])
     })
   }
