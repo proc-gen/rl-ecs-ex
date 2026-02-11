@@ -3,6 +3,8 @@ export type Tile = {
   bg: string
   char: string
 
+  lighting: string
+
   walkable: boolean
   transparent: boolean
   seen: boolean

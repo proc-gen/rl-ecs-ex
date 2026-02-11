@@ -43,6 +43,7 @@ export const FLOOR_TILE: Tile = {
   bg: Colors.Black,
   seen: false,
   name: 'Floor',
+  lighting: Colors.Ambient,
 }
 
 export const STAIRS_DOWN_TILE: Tile = {
@@ -53,6 +54,7 @@ export const STAIRS_DOWN_TILE: Tile = {
   bg: Colors.Black,
   seen: false,
   name: 'Stairs Down',
+  lighting: Colors.Ambient,
 }
 
 export const WALL_TILE: Tile = {
@@ -63,6 +65,7 @@ export const WALL_TILE: Tile = {
   bg: Colors.Black,
   seen: false,
   name: 'Wall',
+  lighting: Colors.Ambient,
 }
 
 export const CLOSED_DOOR_TILE: Tile = {
@@ -73,6 +76,7 @@ export const CLOSED_DOOR_TILE: Tile = {
   bg: Colors.Black,
   seen: false,
   name: 'Door Closed',
+  lighting: Colors.Ambient,
 }
 
 export const OPEN_DOOR_TILE: Tile = {
@@ -83,4 +87,5 @@ export const OPEN_DOOR_TILE: Tile = {
   bg: Colors.Black,
   seen: false,
   name: 'Door Open',
+  lighting: Colors.Ambient,
 }

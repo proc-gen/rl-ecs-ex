@@ -3,7 +3,7 @@ import { Color } from 'rot-js'
 export const Colors = {
   White: '#ffffff',
   Black: '#000000',
-  Ambient: '#555555',
+  Ambient: '#333333',
   LightGrey: '#999999',
   DarkGrey: '#444444',
   VeryDarkGrey: '#222222',

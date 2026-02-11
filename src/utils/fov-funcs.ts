@@ -21,7 +21,7 @@ export const processPlayerFOV = (
   playerFOV: Vector2[],
 ) => {
   playerFOV.length = 0
-  const fovPositions = processFOV(map, position, 8)
+  const fovPositions = processFOV(map, position, 99)
   fovPositions.forEach((p) => {
     map.tiles[p.x][p.y].seen = true
     playerFOV.push({ ...p })

@@ -10,13 +10,17 @@ import {
 import { Display } from 'rot-js'
 import type { Vector2 } from '../../../types'
 import { DisplayValues } from '../../../constants/display-values'
+import type { Map } from '../../../map'
+import { MixColors } from '../../../utils/color-funcs'
 
 export class RenderEntitySystem implements RenderSystem {
   world: World
+  map: Map
   playerFOV: Vector2[]
 
-  constructor(world: World, playerFOV: Vector2[]) {
+  constructor(world: World, map: Map, playerFOV: Vector2[]) {
     this.world = world
+    this.map = map
     this.playerFOV = playerFOV
   }
 
@@ -32,6 +36,7 @@ export class RenderEntitySystem implements RenderSystem {
       ])) {
         const position = PositionComponent.values[eid]
         const renderable = RenderableComponent.values[eid]
+        const tile = this.map.tiles[position.x][position.y]
 
         if (
           !hasComponent(this.world, eid, DeadComponent) &&
@@ -39,12 +44,20 @@ export class RenderEntitySystem implements RenderSystem {
             (a) => a.x === position.x && a.y === position.y,
           ) !== undefined
         ) {
+          const fg =
+            renderable.fg !== null
+              ? MixColors(renderable.fg, tile.lighting)
+              : null
+          const bg =
+            renderable.bg !== null
+              ? MixColors(renderable.bg, tile.lighting)
+              : null
           display.drawOver(
             position.x + xOffset,
             position.y + yOffset,
             renderable.char,
-            renderable.fg,
-            renderable.bg,
+            fg,
+            bg,
           )
         }
       }

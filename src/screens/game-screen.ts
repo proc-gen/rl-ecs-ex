@@ -67,6 +67,7 @@ export class GameScreen extends Screen {
   levelUpWindow: LevelUpWindow
   renderSystems: RenderSystem[]
   renderHudSystem: RenderHudSystem
+  renderMapSystem: RenderMapSystem
   updateSystems: UpdateSystem[]
   playerTurn: boolean
 
@@ -116,9 +117,17 @@ export class GameScreen extends Screen {
       this.log,
       this.playerFOV,
     )
+
+    this.renderMapSystem = new RenderMapSystem(
+      this.world,
+      this.map,
+      this.player,
+      this.playerFOV,
+    )
+
     this.renderSystems = [
-      new RenderMapSystem(this.world, this.map, this.playerFOV),
-      new RenderEntitySystem(this.world, this.playerFOV),
+      this.renderMapSystem,
+      new RenderEntitySystem(this.world, this.map, this.playerFOV),
       this.renderHudSystem,
     ]
 
@@ -176,14 +185,17 @@ export class GameScreen extends Screen {
     do {
       generator.generate()
       if (
-        map.getPath(generator.playerStartPosition(), generator.stairsLocation(), true)
-          .length > 0 &&
+        map.getPath(
+          generator.playerStartPosition(),
+          generator.stairsLocation(),
+          true,
+        ).length > 0 &&
         generator.rooms.length > maxRooms / 2
       ) {
         success = true
       }
     } while (!success)
-      
+
     generator.placeEntities()
     const startPosition = generator.playerStartPosition()
 
@@ -226,6 +238,7 @@ export class GameScreen extends Screen {
     this.display.clear()
 
     const playerPosition = PositionComponent.values[this.player]
+    this.renderMapSystem.update(this.world, -1)
     this.renderSystems.forEach((rs) => {
       rs.render(this.display, playerPosition)
     })
