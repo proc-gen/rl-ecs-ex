@@ -61,17 +61,15 @@ export class LevelUpWindow implements InputController, RenderWindow {
   }
 
   handleKeyboardInput(event: KeyboardEvent): HandleInputInfo {
-    const inputInfo: HandleInputInfo = { needRender: false, needUpdate: false }
+    const inputInfo: HandleInputInfo = { needUpdate: false }
     switch (event.key) {
       case 'ArrowUp':
       case 'w':
         this.selectedOption = Math.floor(Math.max(0, this.selectedOption - 1))
-        inputInfo.needRender = true
         break
       case 'ArrowDown':
       case 's':
         this.selectedOption = Math.floor(Math.min(2, this.selectedOption + 1))
-        inputInfo.needRender = true
         break
       case 'Enter':
       case 'e':
@@ -105,7 +103,7 @@ export class LevelUpWindow implements InputController, RenderWindow {
   }
 
   handleMouseInput(_event: MouseEvent, _position: Vector2): HandleInputInfo {
-    return { needRender: false, needUpdate: false }
+    return { needUpdate: false }
   }
 
   render(display: Display) {

@@ -6,9 +6,14 @@ const runGame = () => {
   const container = screenManager.display.getContainer()!
   document.getElementById('game-window')?.appendChild(container)
 
+  renderLoop(screenManager)
+}
+
+const renderLoop = (screenManager: ScreenManager) => {
   setTimeout(() => {
     screenManager.render()
-  }, 100)
+    renderLoop(screenManager)
+  }, 50)
 }
 
 window.addEventListener('DOMContentLoaded', () => {

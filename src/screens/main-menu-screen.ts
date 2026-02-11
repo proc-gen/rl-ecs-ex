@@ -37,7 +37,6 @@ export class MainMenuScreen extends Screen {
       case 'ArrowUp':
       case 'w':
         this.selectedOption = Math.max(0, this.selectedOption - 1)
-        this.render()
         break
       case 'ArrowDown':
       case 's':
@@ -45,7 +44,6 @@ export class MainMenuScreen extends Screen {
           this.options.length - 1,
           this.selectedOption + 1,
         )
-        this.render()
         break
       case 'Enter':
         this.handleSelectedOption()

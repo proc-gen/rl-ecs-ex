@@ -247,8 +247,6 @@ export class GameScreen extends Screen {
         us.update(this.world, this.currentActor)
       })
 
-      this.render()
-
       this.actors = this.actors.filter(
         (a) =>
           !hasComponent(this.world, a, DeadComponent) ||
@@ -260,7 +258,6 @@ export class GameScreen extends Screen {
         const playerStats = PlayerComponent.values[this.player]
         if (playerStats.currentXp >= playerStats.experienceToNextLevel) {
           this.levelUpWindow.setActive(true)
-          this.render()
         } else {
           this.changeCurrentActor()
         }
@@ -328,17 +325,14 @@ export class GameScreen extends Screen {
           case '.':
           case 'q':
             this.renderHudSystem.setActive(true)
-            this.render()
             break
           case 'l':
           case '`':
             this.historyViewer.setActive(true)
-            this.render()
             break
           case 'Tab':
           case 'i':
             this.inventoryWindow.setActive(true)
-            this.render()
             break
           case 'v':
             this.tryToDescend()
@@ -361,8 +355,6 @@ export class GameScreen extends Screen {
     } else {
       this.log.addMessage('The stairs are not here')
     }
-
-    this.render()
   }
 
   backToMainMenu(saveGame: boolean) {
@@ -426,12 +418,9 @@ export class GameScreen extends Screen {
       this.historyViewer.setActive(false)
       this.renderHudSystem.setActive(false)
       this.update()
-    } else if (inputInfo.needRender) {
-      this.render()
     } else if (inputInfo.needTargeting !== undefined) {
       this.targetingWindow.setActive(true)
       this.targetingWindow.setTargetingEntity(inputInfo.needTargeting)
-      this.render()
     }
   }
 

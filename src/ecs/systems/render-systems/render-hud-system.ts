@@ -57,33 +57,28 @@ export class RenderHudSystem implements RenderSystem, InputController {
   }
 
   handleKeyboardInput(event: KeyboardEvent): HandleInputInfo {
-    const inputInfo = { needRender: false, needUpdate: false }
+    const inputInfo = { needUpdate: false }
     if (this.active) {
       switch (event.key) {
         case 'ArrowUp':
         case 'w':
           this.setInspectLocation(0, -1)
-          inputInfo.needRender = true
           break
         case 'ArrowDown':
         case 's':
           this.setInspectLocation(0, 1)
-          inputInfo.needRender = true
           break
         case 'ArrowLeft':
         case 'a':
           this.setInspectLocation(-1, 0)
-          inputInfo.needRender = true
           break
         case 'ArrowRight':
         case 'd':
           this.setInspectLocation(1, 0)
-          inputInfo.needRender = true
           break
         case 'Escape':
         case 'Delete':
           this.active = false
-          inputInfo.needRender = true
           break
       }
     }
@@ -104,7 +99,7 @@ export class RenderHudSystem implements RenderSystem, InputController {
   }
 
   handleMouseInput(_event: MouseEvent, position: Vector2): HandleInputInfo {
-    const inputInfo = { needRender: false, needUpdate: false }
+    const inputInfo = { needUpdate: false }
     if (this.active) {
       if (
         this.map.isInBounds(position.x, position.y) &&
@@ -113,7 +108,6 @@ export class RenderHudSystem implements RenderSystem, InputController {
       ) {
         this.inspectLocation.x = position.x
         this.inspectLocation.y = position.y
-        inputInfo.needRender = true
       }
     }
 
