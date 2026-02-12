@@ -11,7 +11,7 @@ export const Colors = {
   DarkRed: '#660000',
 
   Stairs: '#009fff',
-  Door: '#ab6533',
+  Door: '#cb8553',
 
   HealthBar: '#aa0000',
   ExperienceBar: '#aaaa00',
