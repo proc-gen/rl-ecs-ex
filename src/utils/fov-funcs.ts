@@ -15,6 +15,18 @@ export const processFOV = (map: Map, position: Position, range: number) => {
   return fovPositions
 }
 
+export const processLightFOV = (map: Map, position: Position, range: number) => {
+  const fovPositions: Vector2[] = []
+  const fov = new FOV.PreciseShadowcasting(map.lightPassesThroughForShadow.bind(map))
+  fov.compute(position.x, position.y, range, (x, y, _r, visibility) => {
+    if (visibility === 1) {
+      fovPositions.push({ x, y })
+    }
+  })
+
+  return fovPositions
+}
+
 export const processPlayerFOV = (
   map: Map,
   position: Position,

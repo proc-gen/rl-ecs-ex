@@ -17,7 +17,7 @@ import {
 import { DisplayValues } from '../../../constants/display-values'
 import type { UpdateSystem } from '../update-systems'
 import { angle, distance } from '../../../utils/vector-2-funcs'
-import { processFOV } from '../../../utils/fov-funcs'
+import { processFOV, processLightFOV } from '../../../utils/fov-funcs'
 import { LightType } from '../../../constants/light-type'
 
 export class RenderMapSystem implements RenderSystem, UpdateSystem {
@@ -59,7 +59,7 @@ export class RenderMapSystem implements RenderSystem, UpdateSystem {
     for (const eid of query(world, [LightComponent])) {
       const lightLocation = PositionComponent.values[eid]
       const light = LightComponent.values[eid]
-      const lightFOV = processFOV(this.map, lightLocation, light.intensity * 5)
+      const lightFOV = processLightFOV(this.map, lightLocation, light.intensity * 5)
       lightFOV.forEach((p) => {
         let isLit = true
 
