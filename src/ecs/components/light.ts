@@ -7,7 +7,7 @@ export const LightComponent: Component<Light> = {
 
 export type Light = {
     lightType: string
-    direction?: Vector2
+    target?: Vector2
     color: string
     intensity: number
 }

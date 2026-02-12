@@ -15,7 +15,7 @@ export const createLight = (
   lightType: string,
   color: string,
   intensity: number,
-  direction: Vector2 | undefined = undefined,
+  target: Vector2 | undefined = undefined,
 ) => {
   const light = addEntity(world)
 
@@ -31,7 +31,7 @@ export const createLight = (
   LightComponent.values[light] = {
     lightType,
     intensity,
-    direction,
+    target,
     color,
   }
   RenderableComponent.values[light] = {

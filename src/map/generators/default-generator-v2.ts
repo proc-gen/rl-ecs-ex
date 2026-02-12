@@ -223,21 +223,38 @@ export class DefaultGeneratorV2 implements Generator {
     return weights
   }
 
-  placeLightForRoom(
-    a: Room
-  ){
-    const position = {
-          x: getRandomNumber(a.x + 1, a.x + a.width - 2),
-          y: getRandomNumber(a.y + 1, a.y + a.height - 2),
-        }
+  placeLightForRoom(a: Room) {
+    const positions: Vector2[] = []
+    while (positions.length < 2) {
+      const position = {
+        x: getRandomNumber(a.x + 1, a.x + a.width - 2),
+        y: getRandomNumber(a.y + 1, a.y + a.height - 2),
+      }
 
-    const color = Color.toHex([
-      getRandomNumber(0,255), getRandomNumber(0,255), getRandomNumber(0,255)
-    ])
+      if (
+        positions.length === 0 ||
+        positions.find((p) => equal(position, p)) === undefined
+      ) {
+        positions.push(position)
+      }
+    }
 
-    const intensity = getRandomNumber(1,5)
+    positions.forEach((p) => {
+      const color = Color.toHex([
+        getRandomNumber(0, 255),
+        getRandomNumber(0, 255),
+        getRandomNumber(0, 255),
+      ])
 
-    createLight(this.world, position, LightType.Positional, color, intensity)
+      const intensity = getRandomNumber(1, 3)
+      const lightType =
+        getRandomNumber(0, 100) > 50
+          ? LightType.Point
+          : LightType.Spot
+      const target =
+        lightType === LightType.Spot ? a.center() : undefined
+      createLight(this.world, p, lightType, color, intensity, target)
+    })
   }
 
   placeEnemiesForRoom(

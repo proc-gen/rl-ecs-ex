@@ -16,8 +16,9 @@ import {
 } from '../../components'
 import { DisplayValues } from '../../../constants/display-values'
 import type { UpdateSystem } from '../update-systems'
-import { distance } from '../../../utils/vector-2-funcs'
+import { angle, distance } from '../../../utils/vector-2-funcs'
 import { processFOV } from '../../../utils/fov-funcs'
+import { LightType } from '../../../constants/light-type'
 
 export class RenderMapSystem implements RenderSystem, UpdateSystem {
   map: Map
@@ -51,7 +52,7 @@ export class RenderMapSystem implements RenderSystem, UpdateSystem {
       const attenuation = this.attenuationForLocation(playerLocation, p, 3)
       this.map.tiles[p.x][p.y].lighting = AddColors(
         this.map.tiles[p.x][p.y].lighting,
-        ConstMultiplyColor(Colors.LightGrey, attenuation),
+        ConstMultiplyColor(Colors.MediumGrey, attenuation),
       )
     })
 
@@ -60,15 +61,26 @@ export class RenderMapSystem implements RenderSystem, UpdateSystem {
       const light = LightComponent.values[eid]
       const lightFOV = processFOV(this.map, lightLocation, light.intensity * 5)
       lightFOV.forEach((p) => {
-        const attenuation = this.attenuationForLocation(
-          lightLocation,
-          p,
-          light.intensity,
-        )
-        this.map.tiles[p.x][p.y].lighting = AddColors(
-          this.map.tiles[p.x][p.y].lighting,
-          ConstMultiplyColor(light.color, attenuation),
-        )
+        let isLit = true
+
+        if (light.lightType === LightType.Spot) {
+          const lightAngle = angle(lightLocation, light.target!, p)
+          if (lightAngle > 0.66 || lightAngle < -0.66) {
+            isLit = false
+          }
+        }
+
+        if (isLit) {
+          const attenuation = this.attenuationForLocation(
+            lightLocation,
+            p,
+            light.intensity,
+          )
+          this.map.tiles[p.x][p.y].lighting = AddColors(
+            this.map.tiles[p.x][p.y].lighting,
+            ConstMultiplyColor(light.color, attenuation),
+          )
+        }
       })
     }
   }
