@@ -1,6 +1,6 @@
 export type Tile = {
-  fg: string
-  bg: string
+  fg: string | null
+  bg: string | null
   char: string
 
   lighting: string

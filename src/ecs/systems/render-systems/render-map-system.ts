@@ -55,8 +55,14 @@ export class RenderMapSystem implements RenderSystem, UpdateSystem {
         const tile = col[y]
 
         if (tile.seen) {
-          const fg = MixColors(tile.fg, tile.lighting)
-          const bg = MixColors(tile.bg, tile.lighting)
+          const fg =
+            tile.fg !== null
+              ? MixColors(tile.fg, tile.lighting)
+              : null
+          const bg =
+            tile.bg !== null
+              ? MixColors(tile.bg, tile.lighting)
+              : null
           display.draw(x + xOffset, y + yOffset, tile.char, fg, bg)
         }
       }
