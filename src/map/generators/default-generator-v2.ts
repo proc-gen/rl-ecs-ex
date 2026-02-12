@@ -18,7 +18,6 @@ import { RNG } from 'rot-js'
 import {
   BlockerComponent,
   DoorComponent,
-  InfoComponent,
   PositionComponent,
 } from '../../ecs/components'
 
@@ -178,12 +177,10 @@ export class DefaultGeneratorV2 implements Generator {
         door,
         PositionComponent,
         DoorComponent,
-        InfoComponent,
         BlockerComponent,
       )
       PositionComponent.values[door] = { ...a }
       DoorComponent.values[door] = { open: false }
-      InfoComponent.values[door] = { name: 'Door' }
       this.map.addEntityAtLocation(door, PositionComponent.values[door])
     })
   }

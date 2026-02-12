@@ -1,4 +1,4 @@
-import { type EntityId, type World } from 'bitecs'
+import { hasComponent, type EntityId, type World } from 'bitecs'
 import type { RenderSystem } from './render-system'
 import type { Display } from 'rot-js'
 import {
@@ -251,8 +251,8 @@ export class RenderHudSystem implements RenderSystem, InputController {
           this.map.getEntitiesAtLocation(offsetLocation)
         if (entitiesAtLocation.length > 0) {
           entitiesAtLocation.forEach((entity) => {
-            const info = InfoComponent.values[entity]
-            if (info.name !== 'Door') {
+            if (hasComponent(this.world, entity, InfoComponent)) {
+              const info = InfoComponent.values[entity]
               atLocation.push(info.name)
             }
           })
