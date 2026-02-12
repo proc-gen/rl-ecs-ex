@@ -38,7 +38,7 @@ export const OrderedGlyphs = [
 export const FLOOR_TILE: Tile = {
   walkable: true,
   transparent: true,
-  char: ' ',
+  char: '',
   fg: null,
   bg: Colors.MediumGrey,
   seen: false,

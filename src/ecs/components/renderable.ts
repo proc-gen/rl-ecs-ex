@@ -8,4 +8,5 @@ export type Renderable = {
   fg: string | null
   bg: string | null
   char: string
+  alwaysShow?: boolean
 }

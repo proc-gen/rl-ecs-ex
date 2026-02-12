@@ -1,7 +1,7 @@
 import { type Map } from '../map'
 import { type Position } from '../ecs/components'
 import { type Vector2 } from '../types'
-import { FOV } from 'rot-js'
+import { Color, FOV } from 'rot-js'
 
 export const processFOV = (map: Map, position: Position, range: number) => {
   const fovPositions: Vector2[] = []
@@ -23,7 +23,11 @@ export const processPlayerFOV = (
   playerFOV.length = 0
   const fovPositions = processFOV(map, position, 99)
   fovPositions.forEach((p) => {
-    map.tiles[p.x][p.y].seen = true
+    const rgb = Color.fromString(map.tiles[p.x][p.y].lighting)
+    const lightLevel = (rgb[0] + rgb[1] + rgb[2]) / 3.0
+    if (lightLevel > 0.33) {
+      map.tiles[p.x][p.y].seen = true
+    }
     playerFOV.push({ ...p })
   })
 }

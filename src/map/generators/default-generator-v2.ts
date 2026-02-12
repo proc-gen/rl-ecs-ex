@@ -12,14 +12,15 @@ import {
 } from './generator'
 import type { Vector2, WeightMap } from '../../types'
 import { getRandomNumber } from '../../utils/random'
-import { createEnemy, createItem } from '../../ecs/templates'
+import { createEnemy, createItem, createLight } from '../../ecs/templates'
 import { distance, equal } from '../../utils/vector-2-funcs'
-import { RNG } from 'rot-js'
+import { Color, RNG } from 'rot-js'
 import {
   BlockerComponent,
   DoorComponent,
   PositionComponent,
 } from '../../ecs/components'
+import { LightType } from '../../constants/light-type'
 
 export class DefaultGeneratorV2 implements Generator {
   world: World
@@ -152,6 +153,7 @@ export class DefaultGeneratorV2 implements Generator {
     const itemWeights = this.getItemWeights()
 
     this.rooms.forEach((a) => {
+      this.placeLightForRoom(a)
       monstersLeft -= this.placeEnemiesForRoom(
         a,
         monstersLeft,
@@ -219,6 +221,23 @@ export class DefaultGeneratorV2 implements Generator {
     }
 
     return weights
+  }
+
+  placeLightForRoom(
+    a: Room
+  ){
+    const position = {
+          x: getRandomNumber(a.x + 1, a.x + a.width - 2),
+          y: getRandomNumber(a.y + 1, a.y + a.height - 2),
+        }
+
+    const color = Color.toHex([
+      getRandomNumber(0,255), getRandomNumber(0,255), getRandomNumber(0,255)
+    ])
+
+    const intensity = getRandomNumber(1,5)
+
+    createLight(this.world, position, LightType.Positional, color, intensity)
   }
 
   placeEnemiesForRoom(

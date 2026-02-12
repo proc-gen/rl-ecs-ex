@@ -1,11 +1,19 @@
-import { type EntityId, type World } from 'bitecs'
+import { query, type EntityId, type World } from 'bitecs'
 import { type RenderSystem } from './'
 import { Display } from 'rot-js'
 import { Map } from '../../../map'
 import type { Vector2 } from '../../../types'
 import { Colors } from '../../../constants/colors'
-import { ConstMultiplyColor, MixColors } from '../../../utils/color-funcs'
-import { PositionComponent, type Position } from '../../components'
+import {
+  AddColors,
+  ConstMultiplyColor,
+  MixColors,
+} from '../../../utils/color-funcs'
+import {
+  LightComponent,
+  PositionComponent,
+  type Position,
+} from '../../components'
 import { DisplayValues } from '../../../constants/display-values'
 import type { UpdateSystem } from '../update-systems'
 import { distance } from '../../../utils/vector-2-funcs'
@@ -34,14 +42,42 @@ export class RenderMapSystem implements RenderSystem, UpdateSystem {
     }
 
     const playerLocation = PositionComponent.values[this.player]
-    const playerLightFOV = processFOV(this.map, PositionComponent.values[this.player], 8)
-    playerLightFOV.forEach(p => {
+    const playerLightFOV = processFOV(
+      this.map,
+      PositionComponent.values[this.player],
+      8,
+    )
+    playerLightFOV.forEach((p) => {
       const attenuation = this.attenuationForLocation(playerLocation, p, 3)
-      this.map.tiles[p.x][p.y].lighting = ConstMultiplyColor(Colors.White, attenuation)
+      this.map.tiles[p.x][p.y].lighting = AddColors(
+        this.map.tiles[p.x][p.y].lighting,
+        ConstMultiplyColor(Colors.LightGrey, attenuation),
+      )
     })
+
+    for (const eid of query(world, [LightComponent])) {
+      const lightLocation = PositionComponent.values[eid]
+      const light = LightComponent.values[eid]
+      const lightFOV = processFOV(this.map, lightLocation, light.intensity * 5)
+      lightFOV.forEach((p) => {
+        const attenuation = this.attenuationForLocation(
+          lightLocation,
+          p,
+          light.intensity,
+        )
+        this.map.tiles[p.x][p.y].lighting = AddColors(
+          this.map.tiles[p.x][p.y].lighting,
+          ConstMultiplyColor(light.color, attenuation),
+        )
+      })
+    }
   }
 
-  attenuationForLocation(lightSource: Vector2, location: Vector2, intensity: number){
+  attenuationForLocation(
+    lightSource: Vector2,
+    location: Vector2,
+    intensity: number,
+  ) {
     const d = distance(lightSource, location)
     return Math.max(Math.min(intensity / d, 1.0), 0.0)
   }
@@ -55,14 +91,8 @@ export class RenderMapSystem implements RenderSystem, UpdateSystem {
         const tile = col[y]
 
         if (tile.seen) {
-          const fg =
-            tile.fg !== null
-              ? MixColors(tile.fg, tile.lighting)
-              : null
-          const bg =
-            tile.bg !== null
-              ? MixColors(tile.bg, tile.lighting)
-              : null
+          const fg = tile.fg !== null ? MixColors(tile.fg, tile.lighting) : null
+          const bg = tile.bg !== null ? MixColors(tile.bg, tile.lighting) : null
           display.draw(x + xOffset, y + yOffset, tile.char, fg, bg)
         }
       }

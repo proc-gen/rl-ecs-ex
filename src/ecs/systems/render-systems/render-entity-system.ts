@@ -39,10 +39,11 @@ export class RenderEntitySystem implements RenderSystem {
         const tile = this.map.tiles[position.x][position.y]
 
         if (
-          !hasComponent(this.world, eid, DeadComponent) &&
-          this.playerFOV.find(
-            (a) => a.x === position.x && a.y === position.y,
-          ) !== undefined
+          (tile.seen && tile.char.length === 0 && renderable.alwaysShow) ||
+          (!hasComponent(this.world, eid, DeadComponent) &&
+            this.playerFOV.find(
+              (a) => a.x === position.x && a.y === position.y,
+            ) !== undefined)
         ) {
           const fg =
             renderable.fg !== null
