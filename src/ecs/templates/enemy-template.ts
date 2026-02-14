@@ -13,7 +13,7 @@ import {
   RenderLayerBlockerComponent,
   EquipmentComponent,
 } from '../components'
-import { Colors } from '../../constants/colors'
+import { Colors } from '../../constants'
 
 export const createEnemy = (
   world: World,

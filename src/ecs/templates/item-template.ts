@@ -6,9 +6,6 @@ import {
   type World,
 } from 'bitecs'
 import type { Vector2 } from '../../types'
-import { Colors } from '../../constants/colors'
-import { ItemType } from '../../constants/item-type'
-import { ConsumableType } from '../../constants/consumable-type'
 import {
   ArmorComponent,
   ConfusionComponent,
@@ -19,14 +16,25 @@ import {
   ItemComponent,
   OwnerComponent,
   PositionComponent,
+  RangedWeaponComponent,
   RenderableComponent,
   RenderLayerItemComponent,
   SpellComponent,
   TargetingComponent,
   WeaponComponent,
 } from '../components'
-import { TargetingType } from '../../constants/targeting-type'
-import { EquipmentType } from '../../constants/equipment-type'
+import {
+  TargetingTypes,
+  type TargetingType,
+  EquipmentTypes,
+  ConsumableTypes,
+  ItemTypes,
+  Colors,
+  AttackTypes,
+  type AttackType,
+  AmmunitionTypes,
+  type AmmunitionType,
+} from '../../constants'
 
 export const createItem = (
   world: World,
@@ -67,9 +75,9 @@ export const createItem = (
     OwnerComponent.values[item] = { owner }
   }
 
-  if (itemStats.itemType === ItemType.Consumable) {
+  if (itemStats.itemType === ItemTypes.Consumable) {
     createConsumableComponents(world, item, name)
-  } else if (itemStats.itemType === ItemType.Equipment) {
+  } else if (itemStats.itemType === ItemTypes.Equipment) {
     createEquipmentComponents(world, item, name, owner)
   }
 
@@ -88,10 +96,10 @@ const createConsumableComponents = (
 
   addComponent(world, item, ConsumableComponent)
 
-  if (consumableStats.consumableType === ConsumableType.Heal) {
+  if (consumableStats.consumableType === ConsumableTypes.Heal) {
     addComponent(world, item, HealComponent)
     HealComponent.values[item] = { amount: consumableStats.damage * -1 }
-  } else if (consumableStats.consumableType === ConsumableType.Spell) {
+  } else if (consumableStats.consumableType === ConsumableTypes.Spell) {
     addComponent(world, item, SpellComponent)
     SpellComponent.values[item] = {
       range: consumableStats.range,
@@ -107,7 +115,7 @@ const createEquipmentComponents = (
   name: string,
   owner: EntityId | undefined,
 ) => {
-  const eqipmentStats = eqipmentStatLookup(name)
+  const eqipmentStats = equipmentStatLookup(name)
   if (eqipmentStats === undefined) {
     return
   }
@@ -116,12 +124,29 @@ const createEquipmentComponents = (
   EquippableComponent.values[item] = {
     equipped: owner !== undefined,
   }
-  if (eqipmentStats.equipmentType === EquipmentType.Armor) {
+  if (eqipmentStats.equipmentType === EquipmentTypes.Armor) {
     addComponent(world, item, ArmorComponent)
     ArmorComponent.values[item] = { defense: eqipmentStats.amount }
-  } else if (eqipmentStats.equipmentType === EquipmentType.Weapon) {
+  } else if (eqipmentStats.equipmentType === EquipmentTypes.Weapon) {
     addComponent(world, item, WeaponComponent)
-    WeaponComponent.values[item] = { attack: eqipmentStats.amount }
+    const attackType = weaponAttackTypeLookup(name)!
+    WeaponComponent.values[item] = {
+      attack: eqipmentStats.amount,
+      attackType: attackType as AttackType,
+    }
+
+    if(attackType === AttackTypes.Ranged){
+      const rangedStats = rangedWeaponStatLookup(name)
+      if(rangedStats !== undefined){
+        addComponent(world, item, RangedWeaponComponent)
+        RangedWeaponComponent.values[item] = {
+          range: rangedStats.range,
+          ammunitionType: rangedStats.ammunitionType as AmmunitionType,
+          currentAmmunition: rangedStats.currentAmmunition,
+          maxAmmunition: rangedStats.maxAmmunition,
+        }
+      }
+    }
   }
 }
 
@@ -130,13 +155,13 @@ const createEffectComponents = (world: World, item: EntityId, name: string) => {
     addComponents(world, item, ConfusionComponent, TargetingComponent)
     ConfusionComponent.values[item] = { turnsLeft: 10 }
     TargetingComponent.values[item] = {
-      targetingType: TargetingType.SingleTargetEntity,
+      targetingType: TargetingTypes.SingleTargetEntity as TargetingType,
       position: { x: 0, y: 0 },
     }
   } else if (name === 'Fireball Scroll') {
     addComponent(world, item, TargetingComponent)
     TargetingComponent.values[item] = {
-      targetingType: TargetingType.SingleTargetPosition,
+      targetingType: TargetingTypes.SingleTargetPosition as TargetingType,
       position: { x: 0, y: 0 },
     }
 
@@ -148,56 +173,70 @@ const itemStatLookup = (name: string) => {
   if (name === 'Health Potion') {
     return {
       char: '¡',
-      itemType: ItemType.Consumable,
+      itemType: ItemTypes.Consumable,
       fg: Colors.HealthBar,
       bg: null,
     }
   } else if (name === 'Lightning Scroll') {
     return {
       char: '~',
-      itemType: ItemType.Consumable,
+      itemType: ItemTypes.Consumable,
       fg: Colors.LightningScroll,
       bg: null,
     }
   } else if (name === 'Confusion Scroll') {
     return {
       char: '~',
-      itemType: ItemType.Consumable,
+      itemType: ItemTypes.Consumable,
       fg: Colors.ConfusionScroll,
       bg: null,
     }
   } else if (name === 'Fireball Scroll') {
     return {
       char: '~',
-      itemType: ItemType.Consumable,
+      itemType: ItemTypes.Consumable,
       fg: Colors.FireballScroll,
       bg: null,
     }
   } else if (name === 'Dagger') {
     return {
       char: '/',
-      itemType: ItemType.Equipment,
+      itemType: ItemTypes.Equipment,
       fg: Colors.WeaponPickup,
       bg: null,
     }
   } else if (name === 'Sword') {
     return {
       char: '/',
-      itemType: ItemType.Equipment,
+      itemType: ItemTypes.Equipment,
+      fg: Colors.WeaponPickup,
+      bg: null,
+    }
+  }else if (name === 'Sling') {
+    return {
+      char: 'δ',
+      itemType: ItemTypes.Equipment,
+      fg: Colors.WeaponPickup,
+      bg: null,
+    }
+  } else if (name === 'Bow') {
+    return {
+      char: ')',
+      itemType: ItemTypes.Equipment,
       fg: Colors.WeaponPickup,
       bg: null,
     }
   } else if (name === 'Leather Armor') {
     return {
       char: '[',
-      itemType: ItemType.Equipment,
+      itemType: ItemTypes.Equipment,
       fg: Colors.ArmorPickup,
       bg: null,
     }
   } else if (name === 'Chain Mail') {
     return {
       char: '[',
-      itemType: ItemType.Equipment,
+      itemType: ItemTypes.Equipment,
       fg: Colors.ArmorPickup,
       bg: null,
     }
@@ -209,7 +248,7 @@ const itemStatLookup = (name: string) => {
 const consumableStatLookup = (name: string) => {
   if (name === 'Health Potion') {
     return {
-      consumableType: ConsumableType.Heal,
+      consumableType: ConsumableTypes.Heal,
       damage: -4,
       amount: 1,
       range: 0,
@@ -217,7 +256,7 @@ const consumableStatLookup = (name: string) => {
     }
   } else if (name === 'Lightning Scroll') {
     return {
-      consumableType: ConsumableType.Spell,
+      consumableType: ConsumableTypes.Spell,
       amount: 1,
       damage: 20,
       range: 5,
@@ -225,7 +264,7 @@ const consumableStatLookup = (name: string) => {
     }
   } else if (name === 'Confusion Scroll') {
     return {
-      consumableType: ConsumableType.Spell,
+      consumableType: ConsumableTypes.Spell,
       amount: 1,
       damage: 0,
       range: 8,
@@ -233,7 +272,7 @@ const consumableStatLookup = (name: string) => {
     }
   } else if (name === 'Fireball Scroll') {
     return {
-      consumableType: ConsumableType.Spell,
+      consumableType: ConsumableTypes.Spell,
       amount: 1,
       damage: 12,
       range: 8,
@@ -244,26 +283,68 @@ const consumableStatLookup = (name: string) => {
   return undefined
 }
 
-const eqipmentStatLookup = (name: string) => {
+const equipmentStatLookup = (name: string) => {
   if (name === 'Dagger') {
     return {
-      equipmentType: EquipmentType.Weapon,
+      equipmentType: EquipmentTypes.Weapon,
       amount: 2,
     }
   } else if (name === 'Sword') {
     return {
-      equipmentType: EquipmentType.Weapon,
+      equipmentType: EquipmentTypes.Weapon,
       amount: 4,
+    }
+  } else if (name === 'Sling') {
+    return {
+      equipmentType: EquipmentTypes.Weapon,
+      amount: 1,
+    }
+  } else if (name === 'Bow') {
+    return {
+      equipmentType: EquipmentTypes.Weapon,
+      amount: 3,
     }
   } else if (name === 'Leather Armor') {
     return {
-      equipmentType: EquipmentType.Armor,
+      equipmentType: EquipmentTypes.Armor,
       amount: 1,
     }
   } else if (name === 'Chain Mail') {
     return {
-      equipmentType: EquipmentType.Armor,
+      equipmentType: EquipmentTypes.Armor,
       amount: 3,
+    }
+  }
+
+  return undefined
+}
+
+const weaponAttackTypeLookup = (name: string) => {
+  switch (name) {
+    case 'Dagger':
+    case 'Sword':
+      return AttackTypes.Melee
+    case 'Sling':
+    case 'Bow':
+      return AttackTypes.Ranged
+  }
+  return AttackTypes.Melee
+}
+
+const rangedWeaponStatLookup = (name: string) => {
+  if(name === 'Sling'){
+    return {
+      range: 3,
+      ammunitionType: AmmunitionTypes.Stone,
+      currentAmmunition: 1,
+      maxAmmunition: 1,
+    }
+  } else if(name === 'Bow'){
+    return {
+      range: 5,
+      ammunitionType: AmmunitionTypes.Arrow,
+      currentAmmunition: 1,
+      maxAmmunition: 1,
     }
   }
 

@@ -7,12 +7,12 @@ import {
   RenderLayerGroundComponent,
 } from '../components'
 import { AddColors } from '../../utils/color-funcs'
-import { Colors } from '../../constants/colors'
+import { type LightType, Colors } from '../../constants'
 
 export const createLight = (
   world: World,
   position: Vector2,
-  lightType: string,
+  lightType: LightType,
   color: string,
   intensity: number,
   target: Vector2 | undefined = undefined,

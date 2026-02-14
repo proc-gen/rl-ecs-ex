@@ -39,7 +39,14 @@ import {
   type WantCauseSpellEffect,
   WantCauseSpellEffectComponent,
 } from './want-cause-spell-effect'
-import { type Weapon, WeaponComponent } from './weapon'
+import {
+  type Weapon,
+  WeaponComponent,
+  type MeleeWeapon,
+  MeleeWeaponComponent,
+  type RangedWeapon,
+  RangedWeaponComponent,
+} from './weapon'
 
 import {
   WorldComponents,
@@ -63,7 +70,7 @@ export {
   ConsumableComponent,
   type Dead,
   DeadComponent,
-  type Door, 
+  type Door,
   DoorComponent,
   type Enemy,
   EnemyComponent,
@@ -79,14 +86,18 @@ export {
   InfoComponent,
   type Item,
   ItemComponent,
-  type Light, 
+  type Light,
   LightComponent,
+  type MeleeWeapon,
+  MeleeWeaponComponent,
   type Owner,
   OwnerComponent,
   type Player,
   PlayerComponent,
   type Position,
   PositionComponent,
+  type RangedWeapon,
+  RangedWeaponComponent,
   type Remove,
   RemoveComponent,
   type Renderable,

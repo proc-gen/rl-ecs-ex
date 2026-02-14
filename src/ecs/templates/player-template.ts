@@ -13,7 +13,7 @@ import {
   RenderLayerBlockerComponent,
   StatsComponent,
 } from '../components'
-import { Colors } from '../../constants/colors'
+import { Colors } from '../../constants'
 
 export const createPlayer = (world: World, startPosition: Vector2) => {
   const player = addEntity(world)
