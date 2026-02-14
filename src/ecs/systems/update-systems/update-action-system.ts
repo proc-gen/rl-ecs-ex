@@ -164,7 +164,7 @@ export class UpdateActionSystem implements UpdateSystem {
     action: Action,
     position: Position,
   ) {
-    const item = action.useItem!
+    const useItem = action.useItem!
     if (
       action.itemActionType === ItemActionTypes.Use ||
       action.itemActionType === ItemActionTypes.Attack
@@ -173,7 +173,7 @@ export class UpdateActionSystem implements UpdateSystem {
       addComponent(world, item, WantUseItemComponent)
       WantUseItemComponent.values[item] = {
         owner: entity,
-        item,
+        item: useItem,
         itemActionType: action.itemActionType,
       }
       this.resetAction(action, true)
@@ -196,10 +196,10 @@ export class UpdateActionSystem implements UpdateSystem {
           ) {
             dropped = true
 
-            removeComponent(world, item, OwnerComponent)
-            addComponent(world, item, PositionComponent)
-            PositionComponent.values[item] = { ...sortedFov[i] }
-            this.map.addEntityAtLocation(item, sortedFov[i])
+            removeComponent(world, useItem, OwnerComponent)
+            addComponent(world, useItem, PositionComponent)
+            PositionComponent.values[useItem] = { ...sortedFov[i] }
+            this.map.addEntityAtLocation(useItem, sortedFov[i])
           }
         }
         i++
@@ -207,11 +207,11 @@ export class UpdateActionSystem implements UpdateSystem {
 
       this.resetAction(action, true)
     } else if (action.itemActionType === ItemActionTypes.Reload) {
-      if (hasComponent(world, item, RangedWeaponComponent)) {
-        RangedWeaponComponent.values[item].currentAmmunition =
-          RangedWeaponComponent.values[item].maxAmmunition
+      if (hasComponent(world, useItem, RangedWeaponComponent)) {
+        RangedWeaponComponent.values[useItem].currentAmmunition =
+          RangedWeaponComponent.values[useItem].maxAmmunition
         const info = InfoComponent.values[entity]
-        const itemInfo = InfoComponent.values[item]
+        const itemInfo = InfoComponent.values[useItem]
         this.log.addMessage(`${info.name} reloaded their ${itemInfo.name}`)
         this.resetAction(action, true)
       } else {

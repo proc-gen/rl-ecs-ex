@@ -22,8 +22,9 @@ import {
   TargetingTypes,
   ItemActionTypes,
   type ItemActionType,
+  DisplayValues,
 } from '../constants'
-import { equal } from '../utils/vector-2-funcs'
+import { add, equal, ZeroVector } from '../utils/vector-2-funcs'
 import { processFOV } from '../utils/fov-funcs'
 import type { MessageLog } from '../utils/message-log'
 import { MixColors } from '../utils/color-funcs'
@@ -67,7 +68,7 @@ export class TargetingWindow implements InputController, RenderWindow {
     this.player = player
     this.playerFOV = playerFOV
     this.targetingEntity = -1
-    this.targetPosition = { x: 0, y: 0 }
+    this.targetPosition = { ...ZeroVector }
     this.targetRange = -1
     this.targetRadius = 0
     this.targetFOV = []
@@ -81,6 +82,19 @@ export class TargetingWindow implements InputController, RenderWindow {
 
   setActive(value: boolean): void {
     this.active = value
+
+    if (this.active) {
+      const playerPosition = { ...PositionComponent.values[this.player] }
+      const xOffset = DisplayValues.HalfWidth - playerPosition.x
+      const yOffset = DisplayValues.HalfHeight - playerPosition.y
+
+      const offsetLocation = add(playerPosition, {
+        x: xOffset,
+        y: yOffset,
+      })
+
+      this.targetPosition = { ...offsetLocation }
+    }
   }
 
   setTargetingEntity(targetingEntity: EntityId) {
@@ -313,19 +327,26 @@ export class TargetingWindow implements InputController, RenderWindow {
       }
     }
 
+    const playerPosition = { ...PositionComponent.values[this.player] }
+    const xOffset = DisplayValues.HalfWidth - playerPosition.x
+    const yOffset = DisplayValues.HalfHeight - playerPosition.y
+
+    const offsetLocation = add(this.targetPosition, {
+      x: xOffset,
+      y: yOffset,
+    })
+
     if (this.splashFOV.length > 0) {
       const splashColor = MixColors(color, Colors.Ambient)
       this.splashFOV.forEach((p) => {
-        display.drawOver(p.x, p.y, '', null, splashColor)
+        const newP = add(p, {
+          x: xOffset,
+          y: yOffset,
+        })
+        display.drawOver(newP.x, newP.y, '', null, splashColor)
       })
     }
 
-    display.drawOver(
-      this.targetPosition.x,
-      this.targetPosition.y,
-      '',
-      null,
-      color,
-    )
+    display.drawOver(offsetLocation.x, offsetLocation.y, '', null, color)
   }
 }

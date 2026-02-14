@@ -103,7 +103,10 @@ export class InventoryWindow implements InputController, RenderWindow {
 
   useItem(inputInfo: HandleInputInfo) {
     const entity = this.playerItems[this.itemIndex]
-    if (hasComponent(this.world, entity, TargetingComponent)) {
+    if (
+      hasComponent(this.world, entity, TargetingComponent) &&
+      !hasComponent(this.world, entity, EquippableComponent)
+    ) {
       inputInfo.needTargeting = entity
     } else {
       this.setPlayerAction(entity, ItemActionTypes.Use as ItemActionType)
