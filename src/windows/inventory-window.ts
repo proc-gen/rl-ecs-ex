@@ -150,7 +150,13 @@ export class InventoryWindow implements InputController, RenderWindow {
 
       while (i < 15 && i < this.playerItems.length) {
         const itemInfo = InfoComponent.values[this.playerItems[i]]
-        const message = `${i === this.itemIndex ? `-> ` : `   `}${itemInfo.name}`
+        let additionalInfo = ''
+        if (
+          hasComponent(this.world, this.playerItems[i], AmmunitionComponent)
+        ) {
+          additionalInfo = `(${AmmunitionComponent.values[this.playerItems[i]].projectileCount})`
+        }
+        const message = `${i === this.itemIndex ? `-> ` : `   `}${itemInfo.name}${additionalInfo}`
         renderSingleLineTextOver(
           display,
           renderPos,

@@ -1,11 +1,13 @@
-import { hasComponent, type EntityId, type World } from 'bitecs'
+import { entityExists, hasComponent, type EntityId, type World } from 'bitecs'
 import type { RenderSystem } from './render-system'
 import type { Display } from 'rot-js'
 import {
+  EquipmentComponent,
   HealthComponent,
   InfoComponent,
   PlayerComponent,
   PositionComponent,
+  RangedWeaponComponent,
   type Position,
 } from '../../components'
 import {
@@ -153,6 +155,8 @@ export class RenderHudSystem implements RenderSystem, InputController {
       Colors.White,
       null,
     )
+
+    this.renderWeaponInfo(display)
   }
 
   renderHealthBar(display: Display) {
@@ -203,6 +207,27 @@ export class RenderHudSystem implements RenderSystem, InputController {
     const text = `Level: ${stats.currentLevel}`
 
     renderSingleLineTextOver(display, { x: 1, y: 46 }, text, Colors.White, null)
+  }
+
+  renderWeaponInfo(display: Display) {
+    let weaponName = 'Fist'
+    const equipment = EquipmentComponent.values[this.player]
+    if (entityExists(this.world, equipment.weapon)) {
+      const weaponInfo = InfoComponent.values[equipment.weapon]
+      weaponName = weaponInfo.name
+      if (hasComponent(this.world, equipment.weapon, RangedWeaponComponent)) {
+        const rangedWeapon = RangedWeaponComponent.values[equipment.weapon]
+        weaponName += ` (${rangedWeapon.currentAmmunition}/${rangedWeapon.maxAmmunition})`
+      }
+    }
+
+    renderSingleLineTextOver(
+      display,
+      { x: 1, y: 48 },
+      `Weapon: ${weaponName}`,
+      Colors.White,
+      null,
+    )
   }
 
   renderMessageLog(display: Display) {

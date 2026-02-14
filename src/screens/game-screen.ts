@@ -71,6 +71,7 @@ export class GameScreen extends Screen {
   renderHudSystem: RenderHudSystem
   renderMapSystem: RenderMapSystem
   updateSystems: UpdateSystem[]
+  removeSystem: UpdateRemoveSystem
   playerTurn: boolean
 
   constructor(
@@ -102,8 +103,9 @@ export class GameScreen extends Screen {
 
     this.postProcessMap()
 
+    this.removeSystem = new UpdateRemoveSystem(this.map)
     this.updateSystems = [
-      new UpdateRemoveSystem(this.map),
+      this.removeSystem,
       new UpdateAiActionSystem(this.map, this.player, this.playerFOV),
       new UpdateActionSystem(this.log, this.map, this.playerFOV),
       new UpdateWantUseItemSystem(this.log, this.map),
@@ -287,6 +289,10 @@ export class GameScreen extends Screen {
       this.actors.push(this.actors.shift()!)
       this.currentActor = this.actors[0]
     }
+    if(this.actors.length === 1){
+      this.removeSystem.update(this.world, -1)
+    }
+
     this.playerTurn = this.currentActor === this.player
   }
 
