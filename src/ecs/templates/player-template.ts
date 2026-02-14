@@ -13,7 +13,7 @@ import {
   RenderLayerBlockerComponent,
   StatsComponent,
 } from '../components'
-import { Colors } from '../../constants/colors'
+import { Colors } from '../../constants'
 
 export const createPlayer = (world: World, startPosition: Vector2) => {
   const player = addEntity(world)
@@ -60,6 +60,8 @@ export const createPlayer = (world: World, startPosition: Vector2) => {
   StatsComponent.values[player] = {
     strength: 3,
     currentStrength: 3,
+    rangedPower: 0,
+    currentRangedPower: 0,
     defense: 1,
     currentDefense: 1,
     xpGiven: 0,

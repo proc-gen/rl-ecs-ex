@@ -6,7 +6,7 @@ import {
   RenderableComponent,
   RenderLayerGroundComponent,
 } from '../components'
-import { Colors } from '../../constants/colors'
+import { Colors } from '../../constants'
 
 export const createCorpse = (world: World, position: Vector2, name: string) => {
   const corpse = addEntity(world)

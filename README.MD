@@ -35,7 +35,8 @@ This readme was created as part of the `refactor-1` branch to fix some inconsist
 
 - ~~Doors and Pretty Walls~~
 - ~~Lighting~~
-- Ranged Weapons with ammunition
+- ~~Ranged Weapons with ammunition~~
+- "Animations"
 - Ranged enemies + revamped ai
 
 ## Errata
@@ -49,6 +50,10 @@ Prior to branch `part-new-15`, adjacent rooms may generate without a dividing wa
 Introduced in branch `refactor-1` and fixed in `part-new-16`, the inspect tile feature was not updated to use the player position offset used to keep the player in the center of the screen.
 
 Also needing fixed was the inspect feature when looking at doors and was introduced in `part-new-15`. Doors were not implemented with their own `InfoComponent`, and inspect required that every entity had that component attached. Inspect now properly skips over entities that don't have an `InfoComponent`, and the inspect information for doors is determined by the tile information.
+
+### Using and item when everything is already dead
+
+This bug has probably been around since the inventory was implemented and finally fixed in `part-new-17`. If a consumable item is used after everything is dead, the `UpdateRemoveSystem` won't run before the player's next turn. Without really digging to remember why that system runs first in the update cycle instead of last, it's now called individually in `changeCurrentActor()` if there's only one entity left in the actor array.
 
 ## Post-Tutorial Branch Summaries
 
@@ -97,3 +102,13 @@ Point lights and spot lights have both been implemented. In both cases, there's 
 Lights can also "cast shadows", to a certain degree. Because the same FOV function is used to determine everywhere a light can touch, updates were made so that if it hits an entity with a `BlockerComponent` attached, it blocks the light from moving past it. This means both the player and enemies can effectively "turn off" lights by walking over them.
 
 Unrelated to lighting, rendering has been entirely decoupled from the rest of the update process. It will automatically run at ~20 times per second. I'd originally planned on including fluctuating lighting intensity that would've been updated separately from the normal turn taking process, but I decided that wasn't important for now and could be handled later.
+
+### Part New 17 - Ranged Weapons and Ammunition
+
+Finally, you don't need a scroll to cause some damage from afar. Slings and Bows have been added, taking ammunition of Stones and Arrows respectively.
+
+These weapons required a revamp of the item action types to allow for more than just Use and Drop. It would be possible to determine the various actions based on if the weapon was loaded or not, but the new action types make it easier to read and understand. Also, just a lot more stronger typing in general with using `keyof typeof` to establish types based on most things already in the constants directory.
+
+To make it a little more interesting, ammunition is required to use ranged weapons. The weapons will always be loaded when initially picked up.
+
+The original plan was to include animated projectiles moving to their target, but that's been pushed off because this branch was getting a little large already. That will be part of the next branch and should include animations for all the spells as well. This does put off ranged opponents and a rework of their AI, but all in due time.

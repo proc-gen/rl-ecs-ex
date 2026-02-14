@@ -3,7 +3,7 @@ import { type RenderSystem } from './'
 import { Display } from 'rot-js'
 import { Map } from '../../../map'
 import type { Vector2 } from '../../../types'
-import { Colors } from '../../../constants/colors'
+import { Colors, LightTypes, DisplayValues } from '../../../constants'
 import {
   AddColors,
   ConstMultiplyColor,
@@ -14,11 +14,9 @@ import {
   PositionComponent,
   type Position,
 } from '../../components'
-import { DisplayValues } from '../../../constants/display-values'
 import type { UpdateSystem } from '../update-systems'
 import { angle, distance } from '../../../utils/vector-2-funcs'
 import { processFOV, processLightFOV } from '../../../utils/fov-funcs'
-import { LightType } from '../../../constants/light-type'
 
 export class RenderMapSystem implements RenderSystem, UpdateSystem {
   map: Map
@@ -63,7 +61,7 @@ export class RenderMapSystem implements RenderSystem, UpdateSystem {
       lightFOV.forEach((p) => {
         let isLit = true
 
-        if (light.lightType === LightType.Spot) {
+        if (light.lightType === LightTypes.Spot) {
           const lightAngle = angle(lightLocation, light.target!, p)
           if (lightAngle > 0.66 || lightAngle < -0.66) {
             isLit = false

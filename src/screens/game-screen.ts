@@ -11,6 +11,7 @@ import {
 import {
   ActionComponent,
   DeadComponent,
+  EquipmentComponent,
   OwnerComponent,
   PlayerComponent,
   PositionComponent,
@@ -48,6 +49,7 @@ import { Screen } from './screen'
 import type { ScreenManager } from '../screen-manager'
 import { MainMenuScreen } from './main-menu-screen'
 import { deserializeWorld, serializeWorld } from '../serialization'
+import { ItemActionTypes, type ItemActionType } from '../constants'
 
 export class GameScreen extends Screen {
   public static readonly MAP_WIDTH = 80
@@ -69,6 +71,7 @@ export class GameScreen extends Screen {
   renderHudSystem: RenderHudSystem
   renderMapSystem: RenderMapSystem
   updateSystems: UpdateSystem[]
+  removeSystem: UpdateRemoveSystem
   playerTurn: boolean
 
   constructor(
@@ -100,8 +103,9 @@ export class GameScreen extends Screen {
 
     this.postProcessMap()
 
+    this.removeSystem = new UpdateRemoveSystem(this.map)
     this.updateSystems = [
-      new UpdateRemoveSystem(this.map),
+      this.removeSystem,
       new UpdateAiActionSystem(this.map, this.player, this.playerFOV),
       new UpdateActionSystem(this.log, this.map, this.playerFOV),
       new UpdateWantUseItemSystem(this.log, this.map),
@@ -285,6 +289,10 @@ export class GameScreen extends Screen {
       this.actors.push(this.actors.shift()!)
       this.currentActor = this.actors[0]
     }
+    if(this.actors.length === 1){
+      this.removeSystem.update(this.world, -1)
+    }
+
     this.playerTurn = this.currentActor === this.player
   }
 
@@ -334,6 +342,20 @@ export class GameScreen extends Screen {
           case 'e':
           case 'g':
             this.setPlayerAction(0, 0, true)
+            break
+          case 'r':
+            this.setPlayerAction(
+              0,
+              0,
+              false,
+              ItemActionTypes.Reload as ItemActionType,
+            )
+            break
+          case 't':
+            this.targetingWindow.setActive(true)
+            this.targetingWindow.setTargetingEntity(
+              EquipmentComponent.values[this.player].weapon,
+            )
             break
           case '.':
           case 'q':
@@ -446,11 +468,18 @@ export class GameScreen extends Screen {
     xOffset: number,
     yOffset: number,
     pickUpItem: boolean = false,
+    itemActionType: ItemActionType | undefined = undefined,
   ) {
     const action = ActionComponent.values[this.player]
     action.xOffset = xOffset
     action.yOffset = yOffset
     action.pickUpItem = pickUpItem
+    action.itemActionType = pickUpItem
+      ? (ItemActionTypes.PickUp as ItemActionType)
+      : itemActionType
+    if (itemActionType === ItemActionTypes.Reload) {
+      action.useItem = EquipmentComponent.values[this.player].weapon
+    }
     action.processed = false
 
     this.update()

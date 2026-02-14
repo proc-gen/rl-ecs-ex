@@ -29,6 +29,7 @@ export const Colors = {
 
   WeaponPickup: '#00bfff',
   ArmorPickup: '#8b4513',
+  AmmunitionPickup: '#009f9f',
 }
 
 export const HexColors = {
@@ -60,4 +61,5 @@ export const HexColors = {
 
   WeaponPickup: Color.fromString(Colors.WeaponPickup),
   ArmorPickup: Color.fromString(Colors.ArmorPickup),
+  AmmunitionPickup: Color.fromString(Colors.AmmunitionPickup),
 }

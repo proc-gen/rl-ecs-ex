@@ -9,6 +9,7 @@ import type { InputController } from '../interfaces/input-controller'
 import type { RenderWindow } from '.'
 import {
   ActionComponent,
+  AmmunitionComponent,
   EquipmentComponent,
   EquippableComponent,
   InfoComponent,
@@ -18,8 +19,7 @@ import {
   StatsComponent,
   TargetingComponent,
 } from '../ecs/components'
-import { ItemActionType } from '../constants/item-action-type'
-import { Colors } from '../constants/colors'
+import { ItemActionTypes, Colors, type ItemActionType } from '../constants'
 
 export class InventoryWindow implements InputController, RenderWindow {
   active: boolean
@@ -88,7 +88,7 @@ export class InventoryWindow implements InputController, RenderWindow {
       case 'q':
         this.setPlayerAction(
           this.playerItems[this.itemIndex],
-          ItemActionType.Drop,
+          ItemActionTypes.Drop as ItemActionType,
         )
         this.active = false
         inputInfo.needUpdate = true
@@ -104,12 +104,17 @@ export class InventoryWindow implements InputController, RenderWindow {
 
   useItem(inputInfo: HandleInputInfo) {
     const entity = this.playerItems[this.itemIndex]
-    if (hasComponent(this.world, entity, TargetingComponent)) {
-      inputInfo.needTargeting = entity
-    } else {
-      this.setPlayerAction(entity, ItemActionType.Use)
-      this.active = false
-      inputInfo.needUpdate = true
+    if (!hasComponent(this.world, entity, AmmunitionComponent)) {
+      if (
+        hasComponent(this.world, entity, TargetingComponent) &&
+        !hasComponent(this.world, entity, EquippableComponent)
+      ) {
+        inputInfo.needTargeting = entity
+      } else {
+        this.setPlayerAction(entity, ItemActionTypes.Use as ItemActionType)
+        this.active = false
+        inputInfo.needUpdate = true
+      }
     }
   }
 
@@ -145,7 +150,13 @@ export class InventoryWindow implements InputController, RenderWindow {
 
       while (i < 15 && i < this.playerItems.length) {
         const itemInfo = InfoComponent.values[this.playerItems[i]]
-        const message = `${i === this.itemIndex ? `-> ` : `   `}${itemInfo.name}`
+        let additionalInfo = ''
+        if (
+          hasComponent(this.world, this.playerItems[i], AmmunitionComponent)
+        ) {
+          additionalInfo = `(${AmmunitionComponent.values[this.playerItems[i]].projectileCount})`
+        }
+        const message = `${i === this.itemIndex ? `-> ` : `   `}${itemInfo.name}${additionalInfo}`
         renderSingleLineTextOver(
           display,
           renderPos,
@@ -243,7 +254,7 @@ export class InventoryWindow implements InputController, RenderWindow {
 
   setPlayerAction(
     useItem: EntityId | undefined = undefined,
-    itemActionType: string,
+    itemActionType: ItemActionType,
   ) {
     const action = ActionComponent.values[this.player]
     action.xOffset = 0

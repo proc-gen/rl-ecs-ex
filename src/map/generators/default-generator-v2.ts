@@ -1,6 +1,6 @@
 import { addComponents, addEntity, type World } from 'bitecs'
 
-import { FLOOR_TILE, STAIRS_DOWN_TILE } from '../../constants/tiles'
+import { FLOOR_TILE, STAIRS_DOWN_TILE, LightTypes, type LightType } from '../../constants'
 import type { Map } from '../map'
 import { Room, type Sector } from '../containers'
 import {
@@ -20,7 +20,6 @@ import {
   DoorComponent,
   PositionComponent,
 } from '../../ecs/components'
-import { LightType } from '../../constants/light-type'
 
 export class DefaultGeneratorV2 implements Generator {
   world: World
@@ -206,6 +205,8 @@ export class DefaultGeneratorV2 implements Generator {
       'Health Potion': 35,
       Dagger: 10,
       'Leather Armor': 10,
+      Sling: 10,
+      Stones: 15,
     }
 
     if (this.map.level >= 2) {
@@ -214,6 +215,8 @@ export class DefaultGeneratorV2 implements Generator {
     if (this.map.level >= 4) {
       weights['Lightning Scroll'] = 25
       weights['Sword'] = 5
+      weights['Bow'] = 5
+      weights['Arrows'] = 15
     }
     if (this.map.level >= 6) {
       weights['Fireball Scroll'] = 25
@@ -249,11 +252,11 @@ export class DefaultGeneratorV2 implements Generator {
       const intensity = getRandomNumber(1, 3)
       const lightType =
         getRandomNumber(0, 100) > 50
-          ? LightType.Point
-          : LightType.Spot
+          ? LightTypes.Point
+          : LightTypes.Spot
       const target =
-        lightType === LightType.Spot ? a.center() : undefined
-      createLight(this.world, p, lightType, color, intensity, target)
+        lightType === LightTypes.Spot ? a.center() : undefined
+      createLight(this.world, p, lightType as LightType, color, intensity, target)
     })
   }
 

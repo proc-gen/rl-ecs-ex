@@ -2,6 +2,7 @@ import { type Component } from './component'
 
 import { type Action, ActionComponent } from './action'
 import { type Alive, AliveComponent } from './alive'
+import { type Ammunition, AmmunitionComponent } from './ammunition'
 import { type Armor, ArmorComponent } from './armor'
 import { type Blocker, BlockerComponent } from './blocker'
 import { type Confusion, ConfusionComponent } from './confusion'
@@ -39,7 +40,14 @@ import {
   type WantCauseSpellEffect,
   WantCauseSpellEffectComponent,
 } from './want-cause-spell-effect'
-import { type Weapon, WeaponComponent } from './weapon'
+import {
+  type Weapon,
+  WeaponComponent,
+  type MeleeWeapon,
+  MeleeWeaponComponent,
+  type RangedWeapon,
+  RangedWeaponComponent,
+} from './weapon'
 
 import {
   WorldComponents,
@@ -53,6 +61,8 @@ export {
   ActionComponent,
   type Alive,
   AliveComponent,
+  type Ammunition,
+  AmmunitionComponent,
   type Armor,
   ArmorComponent,
   type Blocker,
@@ -63,7 +73,7 @@ export {
   ConsumableComponent,
   type Dead,
   DeadComponent,
-  type Door, 
+  type Door,
   DoorComponent,
   type Enemy,
   EnemyComponent,
@@ -79,14 +89,18 @@ export {
   InfoComponent,
   type Item,
   ItemComponent,
-  type Light, 
+  type Light,
   LightComponent,
+  type MeleeWeapon,
+  MeleeWeaponComponent,
   type Owner,
   OwnerComponent,
   type Player,
   PlayerComponent,
   type Position,
   PositionComponent,
+  type RangedWeapon,
+  RangedWeaponComponent,
   type Remove,
   RemoveComponent,
   type Renderable,

@@ -2,6 +2,7 @@ import {
   addComponent,
   addEntity,
   hasComponent,
+  query,
   removeComponent,
   type EntityId,
   type World,
@@ -22,15 +23,21 @@ import {
   ConfusionComponent,
   HealthComponent,
   DoorComponent,
+  RangedWeaponComponent,
+  AmmunitionComponent,
+  RemoveComponent,
 } from '../../components'
 import { Map } from '../../../map'
 import type { Vector2 } from '../../../types'
 import type { MessageLog } from '../../../utils/message-log'
-import { ItemActionType } from '../../../constants/item-action-type'
 import { distance } from '../../../utils/vector-2-funcs'
-import { AttackType } from '../../../constants/attack-type'
 import { processFOV, processPlayerFOV } from '../../../utils/fov-funcs'
-import { OPEN_DOOR_TILE } from '../../../constants/tiles'
+import {
+  OPEN_DOOR_TILE,
+  AttackTypes,
+  ItemActionTypes,
+  type AttackType,
+} from '../../../constants'
 
 export class UpdateActionSystem implements UpdateSystem {
   map: Map
@@ -54,114 +61,11 @@ export class UpdateActionSystem implements UpdateSystem {
       }
 
       if (action.useItem !== undefined) {
-        if (action.itemActionType === ItemActionType.Use) {
-          const item = addEntity(world)
-          addComponent(world, item, WantUseItemComponent)
-          WantUseItemComponent.values[item] = {
-            owner: entity,
-            item: action.useItem,
-          }
-          this.resetAction(action, true)
-        } else if (action.itemActionType === ItemActionType.Drop) {
-          const fov = hasComponent(world, entity, PlayerComponent)
-            ? this.playerFOV
-            : processFOV(this.map, position, 8)
-          const sortedFov = fov.toSorted((a, b) => {
-            return distance(a, position) - distance(b, position)
-          })
-
-          let dropped = false
-          let i = 0
-          do {
-            if (this.map.isWalkable(sortedFov[i].x, sortedFov[i].y)) {
-              const entities = this.map.getEntitiesAtLocation(sortedFov[i])
-              if (
-                entities.length === 0 ||
-                !entities.find((a) => hasComponent(world, a, ItemComponent))
-              ) {
-                dropped = true
-
-                removeComponent(world, action.useItem, OwnerComponent)
-                addComponent(world, action.useItem, PositionComponent)
-                PositionComponent.values[action.useItem] = { ...sortedFov[i] }
-                this.map.addEntityAtLocation(action.useItem, sortedFov[i])
-              }
-            }
-            i++
-          } while (!dropped && i < sortedFov.length)
-
-          this.resetAction(action, true)
-        } else {
-          this.log.addMessage('Invalid action for an item')
-          this.resetAction(action, false)
-        }
-      } else if (position.x === newPosition.x && position.y === newPosition.y) {
-        const info = InfoComponent.values[entity]
-        if (action.pickUpItem) {
-          const entities = this.map.getEntitiesAtLocation(position)
-          if (
-            entities.length === 0 ||
-            entities.find((a) => hasComponent(world, a, ItemComponent)) ===
-              undefined
-          ) {
-            this.log.addMessage('There is no item to pick up')
-            this.resetAction(action, false)
-          } else {
-            const item = entities.find((a) =>
-              hasComponent(world, a, ItemComponent),
-            )!
-            removeComponent(world, item, PositionComponent)
-            addComponent(world, item, OwnerComponent)
-            OwnerComponent.values[item] = { owner: entity }
-            const itemInfo = InfoComponent.values[item]
-            this.log.addMessage(`${info.name} picks up ${itemInfo.name}`)
-            this.resetAction(action, true)
-          }
-        } else {
-          this.log.addMessage(`${info.name} does nothing.`)
-          this.resetAction(action, true)
-        }
+        this.handleTryUseItem(world, entity, action, position)
+      } else if (action.itemActionType === ItemActionTypes.PickUp) {
+        this.handleTryPickUpItem(world, entity, action, position)
       } else if (this.map.isWalkable(newPosition.x, newPosition.y)) {
-        const entities = this.map.getEntitiesAtLocation(newPosition)
-
-        if (
-          entities.length === 0 ||
-          entities.find((a) => hasComponent(world, a, BlockerComponent)) ===
-            undefined
-        ) {
-          this.handleMove(world, entity, position, newPosition)
-          this.resetAction(action, true)
-        } else if (entities.length > 0) {
-          const blocker = entities.find((a) =>
-            hasComponent(world, a, BlockerComponent),
-          )
-          if (blocker !== undefined) {
-            if (hasComponent(world, blocker, HealthComponent)) {
-              const attack = addEntity(world)
-              addComponent(world, attack, WantAttackComponent)
-
-              WantAttackComponent.values[attack] = {
-                attackType: AttackType.Melee,
-                attacker: entity,
-                defender: blocker,
-              }
-            } else if (hasComponent(world, blocker, DoorComponent)) {
-              if (hasComponent(world, entity, PlayerComponent)) {
-                DoorComponent.values[blocker].open = true
-                removeComponent(world, blocker, BlockerComponent)
-                const doorPosition = PositionComponent.values[blocker]
-                this.map.tiles[doorPosition.x][doorPosition.y] = {
-                  ...OPEN_DOOR_TILE,
-                  seen: true,
-                }
-                processPlayerFOV(this.map, position, this.playerFOV)
-                const info = InfoComponent.values[entity]
-                this.log.addMessage(`${info.name} opens the door`)
-              }
-            }
-            this.resetAction(action, true)
-          }
-        }
+        this.handleTryMove(world, entity, action, position, newPosition)
       } else {
         if (hasComponent(world, entity, ConfusionComponent)) {
           const info = InfoComponent.values[entity]
@@ -172,6 +76,194 @@ export class UpdateActionSystem implements UpdateSystem {
           this.resetAction(action, false)
         }
       }
+    }
+  }
+
+  handleTryMove(
+    world: World,
+    entity: EntityId,
+    action: Action,
+    position: Position,
+    newPosition: Position,
+  ) {
+    const entities = this.map.getEntitiesAtLocation(newPosition)
+
+    if (
+      entities.length === 0 ||
+      entities.find((a) => hasComponent(world, a, BlockerComponent)) ===
+        undefined
+    ) {
+      this.handleMove(world, entity, position, newPosition)
+      this.resetAction(action, true)
+    } else if (entities.length > 0) {
+      const blocker = entities.find((a) =>
+        hasComponent(world, a, BlockerComponent),
+      )
+      if (blocker !== undefined) {
+        if (hasComponent(world, blocker, HealthComponent)) {
+          const attack = addEntity(world)
+          addComponent(world, attack, WantAttackComponent)
+
+          WantAttackComponent.values[attack] = {
+            attackType: AttackTypes.Melee as AttackType,
+            attacker: entity,
+            defender: blocker,
+          }
+        } else if (hasComponent(world, blocker, DoorComponent)) {
+          if (hasComponent(world, entity, PlayerComponent)) {
+            DoorComponent.values[blocker].open = true
+            removeComponent(world, blocker, BlockerComponent)
+            const doorPosition = PositionComponent.values[blocker]
+            this.map.tiles[doorPosition.x][doorPosition.y] = {
+              ...OPEN_DOOR_TILE,
+              seen: true,
+            }
+            processPlayerFOV(this.map, position, this.playerFOV)
+            const info = InfoComponent.values[entity]
+            this.log.addMessage(`${info.name} opens the door`)
+          }
+        }
+        this.resetAction(action, true)
+      }
+    }
+  }
+
+  handleTryPickUpItem(
+    world: World,
+    entity: EntityId,
+    action: Action,
+    position: Position,
+  ) {
+    const info = InfoComponent.values[entity]
+    if (action.pickUpItem) {
+      const entities = this.map.getEntitiesAtLocation(position)
+      if (
+        entities.length === 0 ||
+        entities.find((a) => hasComponent(world, a, ItemComponent)) ===
+          undefined
+      ) {
+        this.log.addMessage('There is no item to pick up')
+        this.resetAction(action, false)
+      } else {
+        const item = entities.find((a) =>
+          hasComponent(world, a, ItemComponent),
+        )!
+        removeComponent(world, item, PositionComponent)
+        addComponent(world, item, OwnerComponent)
+        OwnerComponent.values[item] = { owner: entity }
+        const itemInfo = InfoComponent.values[item]
+        this.log.addMessage(`${info.name} picks up ${itemInfo.name}`)
+        this.resetAction(action, true)
+      }
+    } else {
+      this.log.addMessage(`${info.name} does nothing.`)
+      this.resetAction(action, true)
+    }
+  }
+
+  handleTryUseItem(
+    world: World,
+    entity: EntityId,
+    action: Action,
+    position: Position,
+  ) {
+    const useItem = action.useItem!
+    if (
+      action.itemActionType === ItemActionTypes.Use ||
+      action.itemActionType === ItemActionTypes.Attack
+    ) {
+      const item = addEntity(world)
+      addComponent(world, item, WantUseItemComponent)
+      WantUseItemComponent.values[item] = {
+        owner: entity,
+        item: useItem,
+        itemActionType: action.itemActionType,
+      }
+      this.resetAction(action, true)
+    } else if (action.itemActionType === ItemActionTypes.Drop) {
+      const fov = hasComponent(world, entity, PlayerComponent)
+        ? this.playerFOV
+        : processFOV(this.map, position, 8)
+      const sortedFov = fov.toSorted((a, b) => {
+        return distance(a, position) - distance(b, position)
+      })
+
+      let dropped = false
+      let i = 0
+      do {
+        if (this.map.isWalkable(sortedFov[i].x, sortedFov[i].y)) {
+          const entities = this.map.getEntitiesAtLocation(sortedFov[i])
+          if (
+            entities.length === 0 ||
+            !entities.find((a) => hasComponent(world, a, ItemComponent))
+          ) {
+            dropped = true
+
+            removeComponent(world, useItem, OwnerComponent)
+            addComponent(world, useItem, PositionComponent)
+            PositionComponent.values[useItem] = { ...sortedFov[i] }
+            this.map.addEntityAtLocation(useItem, sortedFov[i])
+          }
+        }
+        i++
+      } while (!dropped && i < sortedFov.length)
+
+      this.resetAction(action, true)
+    } else if (action.itemActionType === ItemActionTypes.Reload) {
+      if (hasComponent(world, useItem, RangedWeaponComponent)) {
+        const rangedWeapon = RangedWeaponComponent.values[useItem]
+
+        const ammunitionEntities = []
+        for (const eid of query(world, [OwnerComponent, AmmunitionComponent])) {
+          if (
+            OwnerComponent.values[eid].owner === entity &&
+            AmmunitionComponent.values[eid].ammunitionType ===
+              rangedWeapon.ammunitionType
+          ) {
+            ammunitionEntities.push(eid)
+          }
+        }
+
+        if (ammunitionEntities.length === 0) {
+          this.log.addMessage('No ammunition available for reloading')
+          this.resetAction(action, false)
+        } else {
+          let ammunitionAdded = 0
+          let i = 0
+          do {
+            const ammoComponent =
+              AmmunitionComponent.values[ammunitionEntities[i]]
+            const amountAdded = Math.min(
+              rangedWeapon.maxAmmunition - ammunitionAdded,
+              ammoComponent.projectileCount,
+            )
+            ammoComponent.projectileCount -= amountAdded
+            ammunitionAdded += amountAdded
+
+            if (ammoComponent.projectileCount === 0) {
+              addComponent(world, ammunitionEntities[i], RemoveComponent)
+            }
+
+            i++
+          } while (
+            i < ammunitionEntities.length &&
+            ammunitionAdded < rangedWeapon.maxAmmunition
+          )
+
+          RangedWeaponComponent.values[useItem].currentAmmunition +=
+            ammunitionAdded
+          const info = InfoComponent.values[entity]
+          const itemInfo = InfoComponent.values[useItem]
+          this.log.addMessage(`${info.name} reloaded their ${itemInfo.name}`)
+          this.resetAction(action, true)
+        }
+      } else {
+        this.log.addMessage("Can't reload this weapon")
+        this.resetAction(action, false)
+      }
+    } else {
+      this.log.addMessage('Invalid action for an item')
+      this.resetAction(action, false)
     }
   }
 

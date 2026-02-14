@@ -13,7 +13,7 @@ import {
   RenderLayerBlockerComponent,
   EquipmentComponent,
 } from '../components'
-import { Colors } from '../../constants/colors'
+import { Colors } from '../../constants'
 
 export const createEnemy = (
   world: World,
@@ -65,6 +65,8 @@ export const createEnemy = (
   StatsComponent.values[enemy] = {
     strength: enemyStats.strength,
     currentStrength: enemyStats.strength,
+    rangedPower: 0,
+    currentRangedPower: 0,
     defense: enemyStats.defense,
     currentDefense: enemyStats.defense,
     xpGiven: enemyStats.xpGiven,
