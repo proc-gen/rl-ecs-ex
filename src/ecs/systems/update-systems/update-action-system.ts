@@ -26,11 +26,9 @@ import {
 import { Map } from '../../../map'
 import type { Vector2 } from '../../../types'
 import type { MessageLog } from '../../../utils/message-log'
-import { ItemActionType } from '../../../constants/item-action-type'
 import { distance } from '../../../utils/vector-2-funcs'
-import { AttackType } from '../../../constants/attack-type'
 import { processFOV, processPlayerFOV } from '../../../utils/fov-funcs'
-import { OPEN_DOOR_TILE } from '../../../constants/tiles'
+import { OPEN_DOOR_TILE, AttackTypes, ItemActionTypes, type AttackType } from '../../../constants'
 
 export class UpdateActionSystem implements UpdateSystem {
   map: Map
@@ -54,7 +52,7 @@ export class UpdateActionSystem implements UpdateSystem {
       }
 
       if (action.useItem !== undefined) {
-        if (action.itemActionType === ItemActionType.Use) {
+        if (action.itemActionType === ItemActionTypes.Use) {
           const item = addEntity(world)
           addComponent(world, item, WantUseItemComponent)
           WantUseItemComponent.values[item] = {
@@ -62,7 +60,7 @@ export class UpdateActionSystem implements UpdateSystem {
             item: action.useItem,
           }
           this.resetAction(action, true)
-        } else if (action.itemActionType === ItemActionType.Drop) {
+        } else if (action.itemActionType === ItemActionTypes.Drop) {
           const fov = hasComponent(world, entity, PlayerComponent)
             ? this.playerFOV
             : processFOV(this.map, position, 8)
@@ -141,7 +139,7 @@ export class UpdateActionSystem implements UpdateSystem {
               addComponent(world, attack, WantAttackComponent)
 
               WantAttackComponent.values[attack] = {
-                attackType: AttackType.Melee,
+                attackType: AttackTypes.Melee as AttackType,
                 attacker: entity,
                 defender: blocker,
               }

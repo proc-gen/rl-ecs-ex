@@ -135,15 +135,16 @@ const createEquipmentComponents = (
       attackType: attackType as AttackType,
     }
 
-    if(attackType === AttackTypes.Ranged){
+    if (attackType === AttackTypes.Ranged) {
       const rangedStats = rangedWeaponStatLookup(name)
-      if(rangedStats !== undefined){
+      if (rangedStats !== undefined) {
         addComponent(world, item, RangedWeaponComponent)
         RangedWeaponComponent.values[item] = {
           range: rangedStats.range,
           ammunitionType: rangedStats.ammunitionType as AmmunitionType,
           currentAmmunition: rangedStats.currentAmmunition,
           maxAmmunition: rangedStats.maxAmmunition,
+          targetingType: rangedStats.targetingType as TargetingType,
         }
       }
     }
@@ -212,7 +213,7 @@ const itemStatLookup = (name: string) => {
       fg: Colors.WeaponPickup,
       bg: null,
     }
-  }else if (name === 'Sling') {
+  } else if (name === 'Sling') {
     return {
       char: 'δ',
       itemType: ItemTypes.Equipment,
@@ -332,19 +333,21 @@ const weaponAttackTypeLookup = (name: string) => {
 }
 
 const rangedWeaponStatLookup = (name: string) => {
-  if(name === 'Sling'){
+  if (name === 'Sling') {
     return {
       range: 3,
       ammunitionType: AmmunitionTypes.Stone,
       currentAmmunition: 1,
       maxAmmunition: 1,
+      targetingType: TargetingTypes.SingleTargetEntity,
     }
-  } else if(name === 'Bow'){
+  } else if (name === 'Bow') {
     return {
       range: 5,
       ammunitionType: AmmunitionTypes.Arrow,
       currentAmmunition: 1,
       maxAmmunition: 1,
+      targetingType: TargetingTypes.SingleTargetEntity,
     }
   }
 

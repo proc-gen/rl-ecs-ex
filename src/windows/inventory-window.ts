@@ -18,8 +18,7 @@ import {
   StatsComponent,
   TargetingComponent,
 } from '../ecs/components'
-import { ItemActionType } from '../constants/item-action-type'
-import { Colors } from '../constants/colors'
+import { ItemActionTypes, Colors, type ItemActionType } from '../constants'
 
 export class InventoryWindow implements InputController, RenderWindow {
   active: boolean
@@ -88,7 +87,7 @@ export class InventoryWindow implements InputController, RenderWindow {
       case 'q':
         this.setPlayerAction(
           this.playerItems[this.itemIndex],
-          ItemActionType.Drop,
+          ItemActionTypes.Drop as ItemActionType,
         )
         this.active = false
         inputInfo.needUpdate = true
@@ -107,7 +106,7 @@ export class InventoryWindow implements InputController, RenderWindow {
     if (hasComponent(this.world, entity, TargetingComponent)) {
       inputInfo.needTargeting = entity
     } else {
-      this.setPlayerAction(entity, ItemActionType.Use)
+      this.setPlayerAction(entity, ItemActionTypes.Use as ItemActionType)
       this.active = false
       inputInfo.needUpdate = true
     }
@@ -243,7 +242,7 @@ export class InventoryWindow implements InputController, RenderWindow {
 
   setPlayerAction(
     useItem: EntityId | undefined = undefined,
-    itemActionType: string,
+    itemActionType: ItemActionType,
   ) {
     const action = ActionComponent.values[this.player]
     action.xOffset = 0

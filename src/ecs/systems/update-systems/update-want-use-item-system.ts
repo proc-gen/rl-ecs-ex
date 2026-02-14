@@ -34,11 +34,9 @@ import {
 } from '../../components'
 import type { Map } from '../../../map'
 import { distance } from '../../../utils/vector-2-funcs'
-import { AttackType } from '../../../constants/attack-type'
+import { AttackTypes, TargetingTypes, EquipmentTypes, type AttackType } from '../../../constants'
 import { processFOV } from '../../../utils/fov-funcs'
-import { TargetingType } from '../../../constants/targeting-type'
 import type { Vector2 } from '../../../types'
-import { EquipmentType } from '../../../constants/equipment-type'
 
 export class UpdateWantUseItemSystem implements UpdateSystem {
   log: MessageLog
@@ -93,12 +91,12 @@ export class UpdateWantUseItemSystem implements UpdateSystem {
   useEquippableItem(world: World, useItem: WantUseItem) {
     const equipment = EquipmentComponent.values[useItem.owner]
     const ownerInfo = InfoComponent.values[useItem.owner]
-    let equipmentType = EquipmentType.Armor
+    let equipmentType = EquipmentTypes.Armor
     if (hasComponent(world, useItem.item, WeaponComponent)) {
-      equipmentType = EquipmentType.Weapon
+      equipmentType = EquipmentTypes.Weapon
     }
 
-    if (equipmentType === EquipmentType.Armor) {
+    if (equipmentType === EquipmentTypes.Armor) {
       this.setEquippedForItem(equipment.armor, false, ownerInfo)
       equipment.armor = useItem.item
       this.setEquippedForItem(equipment.armor, true, ownerInfo)
@@ -160,10 +158,10 @@ export class UpdateWantUseItemSystem implements UpdateSystem {
       this.processRandomTargetSpell(world, useItem, spell)
     } else if (hasComponent(world, useItem.item, TargetingComponent)) {
       const targeting = TargetingComponent.values[useItem.item]
-      if (targeting.targetingType === TargetingType.SingleTargetEntity) {
+      if (targeting.targetingType === TargetingTypes.SingleTargetEntity) {
         this.processSingleTargetEntitySpell(world, useItem, spell, targeting)
       } else if (
-        targeting.targetingType === TargetingType.SingleTargetPosition
+        targeting.targetingType === TargetingTypes.SingleTargetPosition
       ) {
         this.processSingleTargetPositionSpell(world, useItem, spell, targeting)
       }
@@ -290,7 +288,7 @@ export class UpdateWantUseItemSystem implements UpdateSystem {
     const attack = addEntity(world)
     addComponent(world, attack, WantAttackComponent)
     WantAttackComponent.values[attack] = {
-      attackType: AttackType.Spell,
+      attackType: AttackTypes.Spell as AttackType,
       attacker: useItem.owner,
       defender: targetEntity,
       spell: useItem.item,

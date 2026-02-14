@@ -16,12 +16,10 @@ import {
   SpellComponent,
   TargetingComponent,
 } from '../ecs/components'
-import { Colors } from '../constants/colors'
+import { Colors, TargetingTypes, ItemActionTypes, type ItemActionType } from '../constants'
 import { equal } from '../utils/vector-2-funcs'
 import { processFOV } from '../utils/fov-funcs'
-import { TargetingType } from '../constants/targeting-type'
 import type { MessageLog } from '../utils/message-log'
-import { ItemActionType } from '../constants/item-action-type'
 import { MixColors } from '../utils/color-funcs'
 
 export class TargetingWindow implements InputController, RenderWindow {
@@ -150,7 +148,7 @@ export class TargetingWindow implements InputController, RenderWindow {
       action.yOffset = 0
       action.pickUpItem = false
       action.useItem = this.targetingEntity
-      action.itemActionType = ItemActionType.Use
+      action.itemActionType = ItemActionTypes.Use as ItemActionType
       action.processed = false
       inputInfo.needUpdate = true
     } else {
@@ -196,9 +194,9 @@ export class TargetingWindow implements InputController, RenderWindow {
     let allowable = false
 
     if (this.isTargetInRange()) {
-      if (this.targetingType === TargetingType.SingleTargetPosition) {
+      if (this.targetingType === TargetingTypes.SingleTargetPosition) {
         allowable = true
-      } else if (this.targetingType === TargetingType.SingleTargetEntity) {
+      } else if (this.targetingType === TargetingTypes.SingleTargetEntity) {
         const entitiesAtLocation = this.map.getEntitiesAtLocation(
           this.targetPosition,
         )

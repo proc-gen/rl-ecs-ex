@@ -23,7 +23,7 @@ import {
   type WantAttack,
 } from '../../components'
 import { MessageLog } from '../../../utils/message-log'
-import { AttackType } from '../../../constants/attack-type'
+import { AttackTypes } from '../../../constants'
 
 export class UpdateWantAttackSystem implements UpdateSystem {
   log: MessageLog
@@ -42,14 +42,14 @@ export class UpdateWantAttackSystem implements UpdateSystem {
       const healthBlocker = HealthComponent.values[attack.defender]
 
       let processedAttack = { damage: 0, message: '' }
-      if (attack.attackType === AttackType.Melee) {
+      if (attack.attackType === AttackTypes.Melee) {
         processedAttack = this.processMeleeAttack(
           statsAttacker,
           statsBlocker,
           infoActor,
           infoBlocker,
         )
-      } else if (attack.attackType === AttackType.Spell) {
+      } else if (attack.attackType === AttackTypes.Spell) {
         processedAttack = this.processSpellAttack(
           attack,
           statsAttacker,

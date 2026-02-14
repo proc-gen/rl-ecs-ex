@@ -1,4 +1,4 @@
-import type { AmmunitionType, AttackType } from '../../constants'
+import type { AmmunitionType, AttackType, TargetingType } from '../../constants'
 import type { Component } from './component'
 
 export const WeaponComponent: Component<Weapon> = {
@@ -27,4 +27,5 @@ export type RangedWeapon = {
   ammunitionType: AmmunitionType
   currentAmmunition: number
   maxAmmunition: number
+  targetingType: TargetingType
 }
