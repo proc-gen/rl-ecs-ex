@@ -2,6 +2,7 @@ import { type Component } from './component'
 
 import { type Action, ActionComponent } from './action'
 import { type Alive, AliveComponent } from './alive'
+import { type Ammunition, AmmunitionComponent } from './ammunition'
 import { type Armor, ArmorComponent } from './armor'
 import { type Blocker, BlockerComponent } from './blocker'
 import { type Confusion, ConfusionComponent } from './confusion'
@@ -60,6 +61,8 @@ export {
   ActionComponent,
   type Alive,
   AliveComponent,
+  type Ammunition,
+  AmmunitionComponent,
   type Armor,
   ArmorComponent,
   type Blocker,

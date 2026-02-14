@@ -471,6 +471,9 @@ export class GameScreen extends Screen {
     action.itemActionType = pickUpItem
       ? (ItemActionTypes.PickUp as ItemActionType)
       : itemActionType
+    if (itemActionType === ItemActionTypes.Reload) {
+      action.useItem = EquipmentComponent.values[this.player].weapon
+    }
     action.processed = false
 
     this.update()

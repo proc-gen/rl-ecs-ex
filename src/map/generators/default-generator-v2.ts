@@ -206,6 +206,7 @@ export class DefaultGeneratorV2 implements Generator {
       Dagger: 10,
       'Leather Armor': 10,
       Sling: 10,
+      Stones: 15,
     }
 
     if (this.map.level >= 2) {
@@ -215,6 +216,7 @@ export class DefaultGeneratorV2 implements Generator {
       weights['Lightning Scroll'] = 25
       weights['Sword'] = 5
       weights['Bow'] = 5
+      weights['Arrows'] = 15
     }
     if (this.map.level >= 6) {
       weights['Fireball Scroll'] = 25

@@ -9,6 +9,7 @@ import type { InputController } from '../interfaces/input-controller'
 import type { RenderWindow } from '.'
 import {
   ActionComponent,
+  AmmunitionComponent,
   EquipmentComponent,
   EquippableComponent,
   InfoComponent,
@@ -103,15 +104,17 @@ export class InventoryWindow implements InputController, RenderWindow {
 
   useItem(inputInfo: HandleInputInfo) {
     const entity = this.playerItems[this.itemIndex]
-    if (
-      hasComponent(this.world, entity, TargetingComponent) &&
-      !hasComponent(this.world, entity, EquippableComponent)
-    ) {
-      inputInfo.needTargeting = entity
-    } else {
-      this.setPlayerAction(entity, ItemActionTypes.Use as ItemActionType)
-      this.active = false
-      inputInfo.needUpdate = true
+    if (!hasComponent(this.world, entity, AmmunitionComponent)) {
+      if (
+        hasComponent(this.world, entity, TargetingComponent) &&
+        !hasComponent(this.world, entity, EquippableComponent)
+      ) {
+        inputInfo.needTargeting = entity
+      } else {
+        this.setPlayerAction(entity, ItemActionTypes.Use as ItemActionType)
+        this.active = false
+        inputInfo.needUpdate = true
+      }
     }
   }
 

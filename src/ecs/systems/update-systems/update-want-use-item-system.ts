@@ -391,7 +391,9 @@ export class UpdateWantUseItemSystem implements UpdateSystem {
     if (message.length > 0) {
       this.log.addMessage(message)
     }
-    addComponent(world, item, RemoveComponent)
+    if(hasComponent(world, item, ConsumableComponent)){
+      addComponent(world, item, RemoveComponent)
+    }
   }
 
   actionError(owner: EntityId, error: string) {

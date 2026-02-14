@@ -7,6 +7,7 @@ import {
 } from 'bitecs'
 import type { Vector2 } from '../../types'
 import {
+  AmmunitionComponent,
   ArmorComponent,
   ConfusionComponent,
   ConsumableComponent,
@@ -80,6 +81,8 @@ export const createItem = (
     createConsumableComponents(world, item, name)
   } else if (itemStats.itemType === ItemTypes.Equipment) {
     createEquipmentComponents(world, item, name, owner)
+  } else if(itemStats.itemType === ItemTypes.Ammunition) {
+    createAmmunitionComponents(world, item, name)
   }
 
   createEffectComponents(world, item, name)
@@ -106,6 +109,23 @@ const createConsumableComponents = (
       range: consumableStats.range,
       damage: consumableStats.damage,
       spellName: consumableStats.spellName,
+    }
+  }
+}
+
+const createAmmunitionComponents = (world: World, item: EntityId, name: string) => {
+  let ammunitionType: AmmunitionType | undefined = undefined
+  if(name === "Arrows"){
+    ammunitionType = AmmunitionTypes.Arrow as AmmunitionType
+  } else if(name === "Stones"){
+    ammunitionType = AmmunitionTypes.Stone as AmmunitionType
+  }
+
+  if(ammunitionType !== undefined){
+    addComponent(world, item, AmmunitionComponent)
+    AmmunitionComponent.values[item] = {
+      projectileCount: 20,
+      ammunitionType 
     }
   }
 }
@@ -231,6 +251,20 @@ const itemStatLookup = (name: string) => {
       fg: Colors.WeaponPickup,
       bg: null,
     }
+  } else if (name === 'Stones') {
+    return {
+      char: ':',
+      itemType: ItemTypes.Ammunition,
+      fg: Colors.AmmunitionPickup,
+      bg: null,
+    }
+  } else if (name === 'Arrows') {
+    return {
+      char: '¥',
+      itemType: ItemTypes.Ammunition,
+      fg: Colors.AmmunitionPickup,
+      bg: null,
+    }
   } else if (name === 'Leather Armor') {
     return {
       char: '[',
@@ -339,7 +373,7 @@ const weaponAttackTypeLookup = (name: string) => {
 const rangedWeaponStatLookup = (name: string) => {
   if (name === 'Sling') {
     return {
-      range: 3,
+      range: 4,
       ammunitionType: AmmunitionTypes.Stone,
       currentAmmunition: 1,
       maxAmmunition: 1,
@@ -347,7 +381,7 @@ const rangedWeaponStatLookup = (name: string) => {
     }
   } else if (name === 'Bow') {
     return {
-      range: 5,
+      range: 6,
       ammunitionType: AmmunitionTypes.Arrow,
       currentAmmunition: 1,
       maxAmmunition: 1,

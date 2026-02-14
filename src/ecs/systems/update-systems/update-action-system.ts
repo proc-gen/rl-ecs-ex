@@ -2,6 +2,7 @@ import {
   addComponent,
   addEntity,
   hasComponent,
+  query,
   removeComponent,
   type EntityId,
   type World,
@@ -23,6 +24,8 @@ import {
   HealthComponent,
   DoorComponent,
   RangedWeaponComponent,
+  AmmunitionComponent,
+  RemoveComponent,
 } from '../../components'
 import { Map } from '../../../map'
 import type { Vector2 } from '../../../types'
@@ -208,12 +211,52 @@ export class UpdateActionSystem implements UpdateSystem {
       this.resetAction(action, true)
     } else if (action.itemActionType === ItemActionTypes.Reload) {
       if (hasComponent(world, useItem, RangedWeaponComponent)) {
-        RangedWeaponComponent.values[useItem].currentAmmunition =
-          RangedWeaponComponent.values[useItem].maxAmmunition
-        const info = InfoComponent.values[entity]
-        const itemInfo = InfoComponent.values[useItem]
-        this.log.addMessage(`${info.name} reloaded their ${itemInfo.name}`)
-        this.resetAction(action, true)
+        const rangedWeapon = RangedWeaponComponent.values[useItem]
+
+        const ammunitionEntities = []
+        for (const eid of query(world, [OwnerComponent, AmmunitionComponent])) {
+          if (
+            OwnerComponent.values[eid].owner === entity &&
+            AmmunitionComponent.values[eid].ammunitionType ===
+              rangedWeapon.ammunitionType
+          ) {
+            ammunitionEntities.push(eid)
+          }
+        }
+
+        if (ammunitionEntities.length === 0) {
+          this.log.addMessage('No ammunition available for reloading')
+          this.resetAction(action, false)
+        } else {
+          let ammunitionAdded = 0
+          let i = 0
+          do {
+            const ammoComponent =
+              AmmunitionComponent.values[ammunitionEntities[i]]
+            const amountAdded = Math.min(
+              rangedWeapon.maxAmmunition - ammunitionAdded,
+              ammoComponent.projectileCount,
+            )
+            ammoComponent.projectileCount -= amountAdded
+            ammunitionAdded += amountAdded
+
+            if (ammoComponent.projectileCount === 0) {
+              addComponent(world, ammunitionEntities[i], RemoveComponent)
+            }
+
+            i++
+          } while (
+            i < ammunitionEntities.length &&
+            ammunitionAdded < rangedWeapon.maxAmmunition
+          )
+
+          RangedWeaponComponent.values[useItem].currentAmmunition +=
+            ammunitionAdded
+          const info = InfoComponent.values[entity]
+          const itemInfo = InfoComponent.values[useItem]
+          this.log.addMessage(`${info.name} reloaded their ${itemInfo.name}`)
+          this.resetAction(action, true)
+        }
       } else {
         this.log.addMessage("Can't reload this weapon")
         this.resetAction(action, false)
