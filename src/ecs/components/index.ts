@@ -15,6 +15,7 @@ import { type Heal, HealComponent } from './heal'
 import { type Health, HealthComponent } from './health'
 import { type Info, InfoComponent } from './info'
 import { type Item, ItemComponent } from './item'
+import { type Light, LightComponent } from './light'
 import { type Owner, OwnerComponent } from './owner'
 import { type Player, PlayerComponent } from './player'
 import { type Position, PositionComponent } from './position'
@@ -78,6 +79,8 @@ export {
   InfoComponent,
   type Item,
   ItemComponent,
+  type Light, 
+  LightComponent,
   type Owner,
   OwnerComponent,
   type Player,

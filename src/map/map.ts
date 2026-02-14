@@ -66,6 +66,23 @@ export class Map {
     return false
   }
 
+  lightPassesThroughForShadow(x: number, y: number) {
+    if (this.isInBounds(x, y)) {
+      const entities = this.getEntitiesAtLocation({ x, y })
+      if (entities.length === 0) {
+        return this.tiles[x][y].transparent
+      } else {
+        return (
+          entities.find((a) =>
+            hasComponent(this.world, a, BlockerComponent),
+          ) === undefined
+        )
+      }
+    }
+
+    return false
+  }
+
   addEntityAtLocation(entity: EntityId, position: Vector2) {
     let entityLocation = this.entityLocations.find(
       (a) => a.position.x === position.x && a.position.y === position.y,
@@ -152,7 +169,7 @@ export class Map {
       ) {
         return true
       }
-    }else if(this.tiles[x][y].name.includes('Door') && this.ignoreDoors){
+    } else if (this.tiles[x][y].name.includes('Door') && this.ignoreDoors) {
       return true
     }
 

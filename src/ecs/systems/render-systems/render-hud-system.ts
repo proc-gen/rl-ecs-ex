@@ -1,4 +1,4 @@
-import { type EntityId, type World } from 'bitecs'
+import { hasComponent, type EntityId, type World } from 'bitecs'
 import type { RenderSystem } from './render-system'
 import type { Display } from 'rot-js'
 import {
@@ -18,7 +18,8 @@ import type { MessageLog } from '../../../utils/message-log'
 import type { InputController } from '../../../interfaces/input-controller'
 import type { HandleInputInfo, Vector2 } from '../../../types'
 import type { Map } from '../../../map'
-import { equal } from '../../../utils/vector-2-funcs'
+import { add, equal } from '../../../utils/vector-2-funcs'
+import { DisplayValues } from '../../../constants/display-values'
 
 export class RenderHudSystem implements RenderSystem, InputController {
   world: World
@@ -52,38 +53,42 @@ export class RenderHudSystem implements RenderSystem, InputController {
   setActive(value: boolean): void {
     this.active = value
     if (this.active) {
-      this.inspectLocation = { ...PositionComponent.values[this.player] }
+      const playerPosition = { ...PositionComponent.values[this.player] }
+      const xOffset = DisplayValues.HalfWidth - playerPosition.x
+      const yOffset = DisplayValues.HalfHeight - playerPosition.y
+
+      const offsetLocation = add(playerPosition, {
+        x: xOffset,
+        y: yOffset,
+      })
+
+      this.inspectLocation = { ...offsetLocation }
     }
   }
 
   handleKeyboardInput(event: KeyboardEvent): HandleInputInfo {
-    const inputInfo = { needRender: false, needUpdate: false }
+    const inputInfo = { needUpdate: false }
     if (this.active) {
       switch (event.key) {
         case 'ArrowUp':
         case 'w':
           this.setInspectLocation(0, -1)
-          inputInfo.needRender = true
           break
         case 'ArrowDown':
         case 's':
           this.setInspectLocation(0, 1)
-          inputInfo.needRender = true
           break
         case 'ArrowLeft':
         case 'a':
           this.setInspectLocation(-1, 0)
-          inputInfo.needRender = true
           break
         case 'ArrowRight':
         case 'd':
           this.setInspectLocation(1, 0)
-          inputInfo.needRender = true
           break
         case 'Escape':
         case 'Delete':
           this.active = false
-          inputInfo.needRender = true
           break
       }
     }
@@ -104,7 +109,7 @@ export class RenderHudSystem implements RenderSystem, InputController {
   }
 
   handleMouseInput(_event: MouseEvent, position: Vector2): HandleInputInfo {
-    const inputInfo = { needRender: false, needUpdate: false }
+    const inputInfo = { needUpdate: false }
     if (this.active) {
       if (
         this.map.isInBounds(position.x, position.y) &&
@@ -113,14 +118,13 @@ export class RenderHudSystem implements RenderSystem, InputController {
       ) {
         this.inspectLocation.x = position.x
         this.inspectLocation.y = position.y
-        inputInfo.needRender = true
       }
     }
 
     return inputInfo
   }
 
-  render(display: Display, _playerPosition: Position) {
+  render(display: Display, playerPosition: Position) {
     renderBox(
       display,
       { x: 0, y: 45 },
@@ -132,7 +136,7 @@ export class RenderHudSystem implements RenderSystem, InputController {
     this.renderStats(display)
 
     if (this.active) {
-      this.renderInspection(display)
+      this.renderInspection(display, playerPosition)
     } else {
       this.renderMessageLog(display)
     }
@@ -218,7 +222,15 @@ export class RenderHudSystem implements RenderSystem, InputController {
     }
   }
 
-  renderInspection(display: Display) {
+  renderInspection(display: Display, playerPosition: Vector2) {
+    const xOffset = DisplayValues.HalfWidth - playerPosition.x
+    const yOffset = DisplayValues.HalfHeight - playerPosition.y
+
+    const offsetLocation = add(this.inspectLocation, {
+      x: -xOffset,
+      y: -yOffset,
+    })
+
     display.drawOver(
       this.inspectLocation.x,
       this.inspectLocation.y,
@@ -226,25 +238,23 @@ export class RenderHudSystem implements RenderSystem, InputController {
       null,
       Colors.InspectLocation,
     )
-    const atLocation = [
-      `Inspecting (${this.inspectLocation.x}, ${this.inspectLocation.y})`,
-    ]
+    const atLocation = [`Inspecting (${offsetLocation.x}, ${offsetLocation.y})`]
 
-    if (this.map.tiles[this.inspectLocation.x][this.inspectLocation.y].seen) {
-      atLocation.push(
-        this.map.tiles[this.inspectLocation.x][this.inspectLocation.y].name,
-      )
+    if (
+      this.map.isInBounds(offsetLocation.x, offsetLocation.y) &&
+      this.map.tiles[offsetLocation.x][offsetLocation.y].seen
+    ) {
+      atLocation.push(this.map.tiles[offsetLocation.x][offsetLocation.y].name)
 
-      if (
-        this.playerFOV.find((a) => equal(a, this.inspectLocation)) !== undefined
-      ) {
-        const entitiesAtLocation = this.map.getEntitiesAtLocation(
-          this.inspectLocation,
-        )
+      if (this.playerFOV.find((a) => equal(a, offsetLocation)) !== undefined) {
+        const entitiesAtLocation =
+          this.map.getEntitiesAtLocation(offsetLocation)
         if (entitiesAtLocation.length > 0) {
           entitiesAtLocation.forEach((entity) => {
-            const info = InfoComponent.values[entity]
-            atLocation.push(info.name)
+            if (hasComponent(this.world, entity, InfoComponent)) {
+              const info = InfoComponent.values[entity]
+              atLocation.push(info.name)
+            }
           })
         }
       }

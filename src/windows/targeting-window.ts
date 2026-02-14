@@ -98,27 +98,23 @@ export class TargetingWindow implements InputController, RenderWindow {
   }
 
   handleKeyboardInput(event: KeyboardEvent): HandleInputInfo {
-    const inputInfo = { needRender: false, needUpdate: false }
+    const inputInfo = { needUpdate: false }
     switch (event.key) {
       case 'ArrowUp':
       case 'w':
         this.setTargetPosition(0, -1)
-        inputInfo.needRender = true
         break
       case 'ArrowDown':
       case 's':
         this.setTargetPosition(0, 1)
-        inputInfo.needRender = true
         break
       case 'ArrowLeft':
       case 'a':
         this.setTargetPosition(-1, 0)
-        inputInfo.needRender = true
         break
       case 'ArrowRight':
       case 'd':
         this.setTargetPosition(1, 0)
-        inputInfo.needRender = true
         break
       case 'Enter':
       case 'e':
@@ -127,7 +123,6 @@ export class TargetingWindow implements InputController, RenderWindow {
       case 'Escape':
       case 'End':
         this.active = false
-        inputInfo.needRender = true
         break
     }
     return inputInfo
@@ -160,12 +155,11 @@ export class TargetingWindow implements InputController, RenderWindow {
       inputInfo.needUpdate = true
     } else {
       this.log.addMessage('Invalid target selected')
-      inputInfo.needRender = true
     }
   }
 
   handleMouseInput(_event: MouseEvent, position: Vector2): HandleInputInfo {
-    const inputInfo = { needRender: false, needUpdate: false }
+    const inputInfo = { needUpdate: false }
     if (
       this.map.isInBounds(position.x, position.y) &&
       (this.targetPosition.x !== position.x ||
@@ -173,7 +167,6 @@ export class TargetingWindow implements InputController, RenderWindow {
     ) {
       this.targetPosition = { ...position }
       this.updateSplashFOV()
-      inputInfo.needRender = true
     }
 
     return inputInfo

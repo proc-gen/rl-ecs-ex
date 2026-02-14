@@ -3,14 +3,15 @@ import { Color } from 'rot-js'
 export const Colors = {
   White: '#ffffff',
   Black: '#000000',
-  Ambient: '#555555',
+  Ambient: '#333333',
   LightGrey: '#999999',
+  MediumGrey: '#666666',
   DarkGrey: '#444444',
   VeryDarkGrey: '#222222',
   DarkRed: '#660000',
 
   Stairs: '#009fff',
-  Door: '#ab6533',
+  Door: '#cb8553',
 
   HealthBar: '#aa0000',
   ExperienceBar: '#aaaa00',
@@ -19,8 +20,8 @@ export const Colors = {
   ErrorLocation: '#ee0000',
 
   Player: '#ffee00',
-  Orc: '#3f7f3f',
-  Troll: '#007f00',
+  Orc: '#7fbf7f',
+  Troll: '#00af00',
 
   LightningScroll: '#aaaa00',
   ConfusionScroll: '#cf3fff',
@@ -35,6 +36,7 @@ export const HexColors = {
   Black: Color.fromString(Colors.Black),
   Ambient: Color.fromString(Colors.Ambient),
   LightGrey: Color.fromString(Colors.LightGrey),
+  MediumGrey: Color.fromString(Colors.MediumGrey),
   DarkGrey: Color.fromString(Colors.DarkGrey),
   VeryDarkGrey: Color.fromString(Colors.VeryDarkGrey),
   DarkRed: Color.fromString(Colors.DarkRed),

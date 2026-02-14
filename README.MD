@@ -33,7 +33,8 @@ This readme was created as part of the `refactor-1` branch to fix some inconsist
 
 ## Next Up
 
-- Lighting
+- ~~Doors and Pretty Walls~~
+- ~~Lighting~~
 - Ranged Weapons with ammunition
 - Ranged enemies + revamped ai
 
@@ -42,6 +43,12 @@ This readme was created as part of the `refactor-1` branch to fix some inconsist
 ### Copying Rooms to Map
 
 Prior to branch `part-new-15`, adjacent rooms may generate without a dividing wall, allowing for monster and item count per "room" to be broken.
+
+### Inspect Tile
+
+Introduced in branch `refactor-1` and fixed in `part-new-16`, the inspect tile feature was not updated to use the player position offset used to keep the player in the center of the screen.
+
+Also needing fixed was the inspect feature when looking at doors and was introduced in `part-new-15`. Doors were not implemented with their own `InfoComponent`, and inspect required that every entity had that component attached. Inspect now properly skips over entities that don't have an `InfoComponent`, and the inspect information for doors is determined by the tile information.
 
 ## Post-Tutorial Branch Summaries
 
@@ -57,20 +64,36 @@ And lastly, I made some files that didn't conform to kebab-casing. This has been
 
 Obviously the main thing here is the addition of doors. They are placed at the end of hallways that have a single opening into a room with three open cells on the other side.
 
-Ex. (X instead of # for wall)  
-X.X  
-X.X  
-. . .  
+Ex.  
+<pre>
+#.#
+#.#
+...
+</pre>
 
 Doors are represented as `+` when closed and `\` when open. They can be opened by bumping into them.
 
 Also changed are the wall characters. I'd previously used bit-set walls and liked the look of them, so I brought that in here. It doesn't look as good with the square spacing for the cells, so experiment with setting `forceSquareRatio: false`. This could be remedied by using an image for the tiles instead of characters, though that is a topic for another day.
 
-Ex.  
+Ex.
+<pre>  
 ╔══════════╗  
-║############║  
-║####Hello####║  
-║############║  
+║          ║  
+║          ║  
+║          ║  
 ╚══════════╝  
+</pre>
 
 To reduce the number of odd hallways that get produced, a new generator was made that connects a room to the closest room if a connection hasn't already been made. This no longer guarantees that all rooms end up connected, so that required that a path could be found from the player start position to the stairs down to the next level. Enemies and items are also spawned after a successful map has been generated now, because otherwise they were getting created for each try of making a map.
+
+### Part New 16 - Lighting
+
+While simply brightening up the area in the player's immediate field of view works, using lighting equations adds a new level of depth to the visual.
+
+Player FOV is now effectively infinite at 99 tiles. To combat automatically adding every tile as seen, it needs to be in the both be in the FOV and have a minimum lighting level. This makes it possible to see the door at the end of a long hallway and miss seeing a door off to the side halfway down.
+
+Point lights and spot lights have both been implemented. In both cases, there's a source location, an intensity level, and a color. Spot lights also have a target location to know which direction they're pointed. The angle is hard-coded for the size of the cone. Light intensity dropoff is simply calculated by `lightIntensity / distanceToSource` and is clamped to be in the range of `0.0-1.0`. Additionally, the player is a moving point light.
+
+Lights can also "cast shadows", to a certain degree. Because the same FOV function is used to determine everywhere a light can touch, updates were made so that if it hits an entity with a `BlockerComponent` attached, it blocks the light from moving past it. This means both the player and enemies can effectively "turn off" lights by walking over them.
+
+Unrelated to lighting, rendering has been entirely decoupled from the rest of the update process. It will automatically run at ~20 times per second. I'd originally planned on including fluctuating lighting intensity that would've been updated separately from the normal turn taking process, but I decided that wasn't important for now and could be handled later.

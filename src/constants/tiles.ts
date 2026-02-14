@@ -38,11 +38,12 @@ export const OrderedGlyphs = [
 export const FLOOR_TILE: Tile = {
   walkable: true,
   transparent: true,
-  char: '.',
-  fg: Colors.White,
-  bg: Colors.Black,
+  char: '',
+  fg: null,
+  bg: Colors.MediumGrey,
   seen: false,
   name: 'Floor',
+  lighting: Colors.Ambient,
 }
 
 export const STAIRS_DOWN_TILE: Tile = {
@@ -50,9 +51,10 @@ export const STAIRS_DOWN_TILE: Tile = {
   transparent: true,
   char: '▼',
   fg: Colors.Stairs,
-  bg: Colors.Black,
+  bg: Colors.MediumGrey,
   seen: false,
   name: 'Stairs Down',
+  lighting: Colors.Ambient,
 }
 
 export const WALL_TILE: Tile = {
@@ -60,9 +62,10 @@ export const WALL_TILE: Tile = {
   transparent: false,
   char: '#',
   fg: Colors.White,
-  bg: Colors.Black,
+  bg: Colors.MediumGrey,
   seen: false,
   name: 'Wall',
+  lighting: Colors.Ambient,
 }
 
 export const CLOSED_DOOR_TILE: Tile = {
@@ -70,9 +73,10 @@ export const CLOSED_DOOR_TILE: Tile = {
   transparent: false,
   char: '+',
   fg: Colors.Door,
-  bg: Colors.Black,
+  bg: Colors.MediumGrey,
   seen: false,
   name: 'Door Closed',
+  lighting: Colors.Ambient,
 }
 
 export const OPEN_DOOR_TILE: Tile = {
@@ -80,7 +84,8 @@ export const OPEN_DOOR_TILE: Tile = {
   transparent: true,
   char: '\\',
   fg: Colors.Door,
-  bg: Colors.Black,
+  bg: Colors.MediumGrey,
   seen: false,
   name: 'Door Open',
+  lighting: Colors.Ambient,
 }

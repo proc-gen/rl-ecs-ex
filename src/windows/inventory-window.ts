@@ -68,19 +68,17 @@ export class InventoryWindow implements InputController, RenderWindow {
   }
 
   handleKeyboardInput(event: KeyboardEvent): HandleInputInfo {
-    const inputInfo = { needRender: false, needUpdate: false }
+    const inputInfo = { needUpdate: false }
     switch (event.key) {
       case 'ArrowUp':
       case 'w':
         this.itemIndex = Math.floor(Math.max(0, this.itemIndex - 1))
-        inputInfo.needRender = true
         break
       case 'ArrowDown':
       case 's':
         this.itemIndex = Math.floor(
           Math.min(this.playerItems.length - 1, this.itemIndex + 1),
         )
-        inputInfo.needRender = true
         break
       case 'Enter':
       case 'e':
@@ -98,7 +96,6 @@ export class InventoryWindow implements InputController, RenderWindow {
       case 'Escape':
       case 'End':
         this.active = false
-        inputInfo.needRender = true
         break
     }
 
@@ -117,7 +114,7 @@ export class InventoryWindow implements InputController, RenderWindow {
   }
 
   handleMouseInput(_event: MouseEvent, _position: Vector2): HandleInputInfo {
-    return { needRender: false, needUpdate: false }
+    return { needUpdate: false }
   }
 
   render(display: Display) {
