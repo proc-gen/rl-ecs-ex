@@ -1,4 +1,4 @@
-import { hasComponent, type EntityId, type World } from 'bitecs'
+import { entityExists, hasComponent, type EntityId, type World } from 'bitecs'
 import type { RenderWindow } from './render-window'
 import type { Map } from '../map'
 import type { InputController } from '../interfaces/input-controller'
@@ -13,10 +13,16 @@ import {
   HealthComponent,
   InfoComponent,
   PositionComponent,
+  RangedWeaponComponent,
   SpellComponent,
   TargetingComponent,
 } from '../ecs/components'
-import { Colors, TargetingTypes, ItemActionTypes, type ItemActionType } from '../constants'
+import {
+  Colors,
+  TargetingTypes,
+  ItemActionTypes,
+  type ItemActionType,
+} from '../constants'
 import { equal } from '../utils/vector-2-funcs'
 import { processFOV } from '../utils/fov-funcs'
 import type { MessageLog } from '../utils/message-log'
@@ -78,20 +84,39 @@ export class TargetingWindow implements InputController, RenderWindow {
   }
 
   setTargetingEntity(targetingEntity: EntityId) {
-    this.targetingEntity = targetingEntity
-    this.targetPosition = { ...PositionComponent.values[this.player] }
-    this.targetingType =
-      TargetingComponent.values[this.targetingEntity].targetingType
-    if (hasComponent(this.world, this.targetingEntity, SpellComponent)) {
-      this.targetRange = SpellComponent.values[this.targetingEntity].range
-      this.targetRadius =
-        SpellComponent.values[this.targetingEntity].radius ?? 0
+    if (entityExists(this.world, targetingEntity)) {
+      this.targetingEntity = targetingEntity
+      this.targetPosition = { ...PositionComponent.values[this.player] }
+      this.targetingType =
+        TargetingComponent.values[this.targetingEntity].targetingType
+      if (hasComponent(this.world, this.targetingEntity, SpellComponent)) {
+        this.targetRange = SpellComponent.values[this.targetingEntity].range
+        this.targetRadius =
+          SpellComponent.values[this.targetingEntity].radius ?? 0
+      } else if (
+        hasComponent(this.world, this.targetingEntity, RangedWeaponComponent)
+      ) {
+        const rangedWeapon = RangedWeaponComponent.values[this.targetingEntity]
+        this.targetRange = rangedWeapon.range
+        this.targetRadius = 0
+
+        if (rangedWeapon.currentAmmunition === 0) {
+          this.log.addMessage('You need to reload your weapon before attacking')
+          this.setActive(false)
+        }
+      }
+
       this.targetFOV = processFOV(
         this.map,
         PositionComponent.values[this.player],
         this.targetRange,
       )
       this.updateSplashFOV()
+    } else {
+      this.log.addMessage(
+        'You need to equip a ranged weapon for a ranged attack',
+      )
+      this.setActive(false)
     }
   }
 
@@ -140,7 +165,10 @@ export class TargetingWindow implements InputController, RenderWindow {
   }
 
   useItem(inputInfo: HandleInputInfo) {
-    if (this.isTargetAllowable()) {
+    const targetAllowed = this.isTargetAllowable()
+    const itemUsable = this.isItemUsable()
+
+    if (targetAllowed && itemUsable) {
       TargetingComponent.values[this.targetingEntity].position =
         this.targetPosition
       const action = ActionComponent.values[this.player]
@@ -148,10 +176,15 @@ export class TargetingWindow implements InputController, RenderWindow {
       action.yOffset = 0
       action.pickUpItem = false
       action.useItem = this.targetingEntity
-      action.itemActionType = ItemActionTypes.Use as ItemActionType
+      action.itemActionType = ItemActionTypes.Attack as ItemActionType
       action.processed = false
       inputInfo.needUpdate = true
-    } else {
+    }
+
+    if (!itemUsable) {
+      this.log.addMessage('Weapon is not loaded')
+      this.setActive(false)
+    } else if (!targetAllowed) {
       this.log.addMessage('Invalid target selected')
     }
   }
@@ -188,6 +221,15 @@ export class TargetingWindow implements InputController, RenderWindow {
     return (
       this.targetFOV.find((a) => equal(a, this.targetPosition)) !== undefined
     )
+  }
+
+  isItemUsable() {
+    let usable = true
+    if (hasComponent(this.world, this.targetingEntity, RangedWeaponComponent)) {
+      usable =
+        RangedWeaponComponent.values[this.targetingEntity].currentAmmunition > 0
+    }
+    return usable
   }
 
   isTargetAllowable() {

@@ -19,6 +19,7 @@ import {
   InfoComponent,
   OwnerComponent,
   PositionComponent,
+  RangedWeaponComponent,
   RemoveComponent,
   SpellComponent,
   StatsComponent,
@@ -27,6 +28,7 @@ import {
   WantCauseSpellEffectComponent,
   WantUseItemComponent,
   WeaponComponent,
+  type Equipment,
   type Info,
   type Spell,
   type Targeting,
@@ -34,7 +36,12 @@ import {
 } from '../../components'
 import type { Map } from '../../../map'
 import { distance } from '../../../utils/vector-2-funcs'
-import { AttackTypes, TargetingTypes, EquipmentTypes, type AttackType } from '../../../constants'
+import {
+  AttackTypes,
+  TargetingTypes,
+  EquipmentTypes,
+  type AttackType,
+} from '../../../constants'
 import { processFOV } from '../../../utils/fov-funcs'
 import type { Vector2 } from '../../../types'
 
@@ -90,6 +97,31 @@ export class UpdateWantUseItemSystem implements UpdateSystem {
 
   useEquippableItem(world: World, useItem: WantUseItem) {
     const equipment = EquipmentComponent.values[useItem.owner]
+
+    if (equipment.weapon !== useItem.item) {
+      this.equipItem(world, useItem, equipment)
+    } else {
+      this.attackWithEquippedWeapon(world, useItem)
+    }
+  }
+
+  attackWithEquippedWeapon(world: World, useItem: WantUseItem) {
+    if (hasComponent(world, useItem.item, RangedWeaponComponent)) {
+      const weapon = WeaponComponent.values[useItem.item]
+      const targeting = TargetingComponent.values[useItem.item]
+      this.processSingleTargetEntityAttack(
+        world,
+        useItem,
+        targeting,
+        weapon.attackType,
+        weapon.attack,
+      )
+    } else {
+      this.actionError(useItem.owner, `Invalid weapon used`)
+    }
+  }
+
+  equipItem(world: World, useItem: WantUseItem, equipment: Equipment) {
     const ownerInfo = InfoComponent.values[useItem.owner]
     let equipmentType = EquipmentTypes.Armor
     if (hasComponent(world, useItem.item, WeaponComponent)) {
@@ -108,7 +140,13 @@ export class UpdateWantUseItemSystem implements UpdateSystem {
 
     const stats = StatsComponent.values[useItem.owner]
     const weaponMod =
-      equipment.weapon !== -1
+      equipment.weapon !== -1 &&
+      WeaponComponent.values[equipment.weapon].attackType === AttackTypes.Melee
+        ? WeaponComponent.values[equipment.weapon].attack
+        : 0
+    const rangedWeaponMod =
+      equipment.weapon !== -1 &&
+      WeaponComponent.values[equipment.weapon].attackType === AttackTypes.Ranged
         ? WeaponComponent.values[equipment.weapon].attack
         : 0
     const armorMod =
@@ -117,6 +155,7 @@ export class UpdateWantUseItemSystem implements UpdateSystem {
         : 0
     stats.currentDefense = stats.defense + armorMod
     stats.currentStrength = stats.strength + weaponMod
+    stats.currentRangedPower = stats.rangedPower + rangedWeaponMod
   }
 
   setEquippedForItem(item: EntityId, equipped: boolean, ownerInfo: Info) {
@@ -194,7 +233,12 @@ export class UpdateWantUseItemSystem implements UpdateSystem {
 
     if (targetEntity !== undefined) {
       if (spell.damage > 0) {
-        this.processWantAttack(world, useItem, targetEntity)
+        this.processWantAttack(
+          world,
+          useItem,
+          targetEntity,
+          AttackTypes.Spell as AttackType,
+        )
       }
       if (this.hasSpellEffect(spell.spellName)) {
         this.processWantSpellEffect(world, useItem, targetEntity)
@@ -211,11 +255,31 @@ export class UpdateWantUseItemSystem implements UpdateSystem {
     spell: Spell,
     targeting: Targeting,
   ) {
+    this.processSingleTargetEntityAttack(
+      world,
+      useItem,
+      targeting,
+      AttackTypes.Spell as AttackType,
+      spell.damage,
+      spell.radius ?? 0,
+      spell.spellName,
+    )
+  }
+
+  processSingleTargetEntityAttack(
+    world: World,
+    useItem: WantUseItem,
+    targeting: Targeting,
+    attackType: AttackType,
+    baseDamage: number,
+    radius: number = 0,
+    spellName: string = '',
+  ) {
     let targets: Vector2[] = [targeting.position]
     const targetEntities: EntityId[] = []
 
-    if (spell.radius !== undefined) {
-      targets = processFOV(this.map, targeting.position, spell.radius)
+    if (radius > 0) {
+      targets = processFOV(this.map, targeting.position, radius)
     }
 
     targets.forEach((t) => {
@@ -230,10 +294,10 @@ export class UpdateWantUseItemSystem implements UpdateSystem {
 
     if (targetEntities.length > 0) {
       targetEntities.forEach((e) => {
-        if (spell.damage > 0) {
-          this.processWantAttack(world, useItem, e)
+        if (baseDamage > 0) {
+          this.processWantAttack(world, useItem, e, attackType)
         }
-        if (this.hasSpellEffect(spell.spellName)) {
+        if (this.hasSpellEffect(spellName)) {
           this.processWantSpellEffect(world, useItem, e)
         }
       })
@@ -268,7 +332,12 @@ export class UpdateWantUseItemSystem implements UpdateSystem {
     if (targetEntities.length > 0) {
       targetEntities.forEach((e) => {
         if (spell.damage > 0) {
-          this.processWantAttack(world, useItem, e)
+          this.processWantAttack(
+            world,
+            useItem,
+            e,
+            AttackTypes.Spell as AttackType,
+          )
         }
         if (this.hasSpellEffect(spell.spellName)) {
           this.processWantSpellEffect(world, useItem, e)
@@ -284,14 +353,15 @@ export class UpdateWantUseItemSystem implements UpdateSystem {
     world: World,
     useItem: WantUseItem,
     targetEntity: EntityId,
+    attackType: AttackType,
   ) {
     const attack = addEntity(world)
     addComponent(world, attack, WantAttackComponent)
     WantAttackComponent.values[attack] = {
-      attackType: AttackTypes.Spell as AttackType,
+      attackType,
       attacker: useItem.owner,
       defender: targetEntity,
-      spell: useItem.item,
+      itemUsed: useItem.item,
     }
   }
 

@@ -11,6 +11,7 @@ import {
 import {
   ActionComponent,
   DeadComponent,
+  EquipmentComponent,
   OwnerComponent,
   PlayerComponent,
   PositionComponent,
@@ -48,6 +49,7 @@ import { Screen } from './screen'
 import type { ScreenManager } from '../screen-manager'
 import { MainMenuScreen } from './main-menu-screen'
 import { deserializeWorld, serializeWorld } from '../serialization'
+import { ItemActionTypes, type ItemActionType } from '../constants'
 
 export class GameScreen extends Screen {
   public static readonly MAP_WIDTH = 80
@@ -335,6 +337,20 @@ export class GameScreen extends Screen {
           case 'g':
             this.setPlayerAction(0, 0, true)
             break
+          case 'r':
+            this.setPlayerAction(
+              0,
+              0,
+              false,
+              ItemActionTypes.Reload as ItemActionType,
+            )
+            break
+          case 't':
+            this.targetingWindow.setActive(true)
+            this.targetingWindow.setTargetingEntity(
+              EquipmentComponent.values[this.player].weapon,
+            )
+            break
           case '.':
           case 'q':
             this.renderHudSystem.setActive(true)
@@ -446,11 +462,15 @@ export class GameScreen extends Screen {
     xOffset: number,
     yOffset: number,
     pickUpItem: boolean = false,
+    itemActionType: ItemActionType | undefined = undefined,
   ) {
     const action = ActionComponent.values[this.player]
     action.xOffset = xOffset
     action.yOffset = yOffset
     action.pickUpItem = pickUpItem
+    action.itemActionType = pickUpItem
+      ? (ItemActionTypes.PickUp as ItemActionType)
+      : itemActionType
     action.processed = false
 
     this.update()

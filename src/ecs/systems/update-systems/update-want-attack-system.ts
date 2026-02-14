@@ -14,6 +14,7 @@ import {
   HealthComponent,
   InfoComponent,
   PlayerComponent,
+  RangedWeaponComponent,
   RemoveComponent,
   SpellComponent,
   StatsComponent,
@@ -23,7 +24,7 @@ import {
   type WantAttack,
 } from '../../components'
 import { MessageLog } from '../../../utils/message-log'
-import { AttackTypes } from '../../../constants'
+import { AmmunitionTypes, AttackTypes } from '../../../constants'
 
 export class UpdateWantAttackSystem implements UpdateSystem {
   log: MessageLog
@@ -51,6 +52,14 @@ export class UpdateWantAttackSystem implements UpdateSystem {
         )
       } else if (attack.attackType === AttackTypes.Spell) {
         processedAttack = this.processSpellAttack(
+          attack,
+          statsAttacker,
+          statsBlocker,
+          infoActor,
+          infoBlocker,
+        )
+      } else if(attack.attackType === AttackTypes.Ranged) {
+        processedAttack = this.processRangedAttack(
           attack,
           statsAttacker,
           statsBlocker,
@@ -109,6 +118,34 @@ export class UpdateWantAttackSystem implements UpdateSystem {
     return { damage, message }
   }
 
+  processRangedAttack(
+    attack: WantAttack,
+    statsAttacker: Stats,
+    statsBlocker: Stats,
+    infoActor: Info,
+    infoBlocker: Info,
+  ) {
+    const damage = statsAttacker.currentRangedPower
+    const rangedWeapon = RangedWeaponComponent.values[attack.itemUsed!]
+    rangedWeapon.currentAmmunition -= 1
+    
+    let attackVerb = ''
+    if(rangedWeapon.ammunitionType === AmmunitionTypes.Arrow){
+      attackVerb = 'shoots'
+    }else if(rangedWeapon.ammunitionType === AmmunitionTypes.Stone){
+      attackVerb = 'lobs a stone at'
+    }
+    const attackDescription = `${infoActor.name} ${attackVerb} ${infoBlocker.name}`
+    let message = ''
+    if(damage > 0){
+      message = `${attackDescription} for ${damage} health.`
+    }else {
+      message = `${attackDescription} but couldn't hit the target.`
+    }
+
+    return { damage, message }
+  }
+
   processSpellAttack(
     attack: WantAttack,
     statsAttacker: Stats,
@@ -116,7 +153,7 @@ export class UpdateWantAttackSystem implements UpdateSystem {
     infoActor: Info,
     infoBlocker: Info,
   ) {
-    const spell = SpellComponent.values[attack.spell!]
+    const spell = SpellComponent.values[attack.itemUsed!]
     const damage = spell.damage
     let message = ''
 

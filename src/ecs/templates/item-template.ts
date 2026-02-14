@@ -35,6 +35,7 @@ import {
   AmmunitionTypes,
   type AmmunitionType,
 } from '../../constants'
+import { ZeroVector } from '../../utils/vector-2-funcs'
 
 export const createItem = (
   world: World,
@@ -138,13 +139,16 @@ const createEquipmentComponents = (
     if (attackType === AttackTypes.Ranged) {
       const rangedStats = rangedWeaponStatLookup(name)
       if (rangedStats !== undefined) {
-        addComponent(world, item, RangedWeaponComponent)
+        addComponents(world, item, RangedWeaponComponent, TargetingComponent)
         RangedWeaponComponent.values[item] = {
           range: rangedStats.range,
           ammunitionType: rangedStats.ammunitionType as AmmunitionType,
           currentAmmunition: rangedStats.currentAmmunition,
           maxAmmunition: rangedStats.maxAmmunition,
+        }
+        TargetingComponent.values[item] = {
           targetingType: rangedStats.targetingType as TargetingType,
+          position: { ...ZeroVector },
         }
       }
     }
@@ -157,13 +161,13 @@ const createEffectComponents = (world: World, item: EntityId, name: string) => {
     ConfusionComponent.values[item] = { turnsLeft: 10 }
     TargetingComponent.values[item] = {
       targetingType: TargetingTypes.SingleTargetEntity as TargetingType,
-      position: { x: 0, y: 0 },
+      position: { ...ZeroVector },
     }
   } else if (name === 'Fireball Scroll') {
     addComponent(world, item, TargetingComponent)
     TargetingComponent.values[item] = {
       targetingType: TargetingTypes.SingleTargetPosition as TargetingType,
-      position: { x: 0, y: 0 },
+      position: { ...ZeroVector },
     }
 
     SpellComponent.values[item].radius = 3
