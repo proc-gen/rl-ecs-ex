@@ -57,7 +57,10 @@ export class RenderMapSystem implements RenderSystem, UpdateSystem {
     for (const eid of query(world, [LightComponent])) {
       const lightLocation = PositionComponent.values[eid]
       const light = LightComponent.values[eid]
-      const lightFOV = processLightFOV(this.map, lightLocation, light.intensity * 5)
+      const lightFOV = light.blockable
+        ? processLightFOV(this.map, lightLocation, light.intensity * 5)
+        : processFOV(this.map, lightLocation, light.intensity * 5)
+
       lightFOV.forEach((p) => {
         let isLit = true
 

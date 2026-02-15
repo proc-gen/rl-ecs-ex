@@ -18,8 +18,15 @@ export const RenderLayerBlockerComponent: Component<RenderLayerBlocker> = {
 
 export type RenderLayerBlocker = {}
 
+export const RenderLayerAboveComponent: Component<RenderLayerAbove> = {
+  values: [] as RenderLayerAbove[],
+}
+
+export type RenderLayerAbove = {}
+
 export const RenderOrder = [
   RenderLayerGroundComponent,
   RenderLayerItemComponent,
   RenderLayerBlockerComponent,
+  RenderLayerAboveComponent,
 ]

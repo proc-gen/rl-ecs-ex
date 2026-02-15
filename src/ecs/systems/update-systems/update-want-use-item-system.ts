@@ -44,6 +44,7 @@ import {
 } from '../../../constants'
 import { processFOV } from '../../../utils/fov-funcs'
 import type { Vector2 } from '../../../types'
+import { createAnimation } from '../../templates'
 
 export class UpdateWantUseItemSystem implements UpdateSystem {
   log: MessageLog
@@ -183,6 +184,9 @@ export class UpdateWantUseItemSystem implements UpdateSystem {
       health.current += healAmount
       const infoOwner = InfoComponent.values[useItem.owner]
       const infoItem = InfoComponent.values[useItem.item]
+
+      createAnimation(world, this.map, useItem.item, PositionComponent.values[useItem.owner])
+
       this.actionSuccess(
         world,
         useItem.item,

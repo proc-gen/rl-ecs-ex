@@ -1,0 +1,13 @@
+import type { AnimationType } from '../../constants'
+import type { Component } from './component'
+
+export const AnimationComponent: Component<Animation> = {
+  values: [] as Animation[],
+}
+
+export type Animation = {
+    animationType: AnimationType
+    animationRate: number
+    animationTimeLeft: number
+    animationTotalTime: number
+}

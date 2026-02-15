@@ -3,6 +3,7 @@ import { type Component } from './component'
 import { type Action, ActionComponent } from './action'
 import { type Alive, AliveComponent } from './alive'
 import { type Ammunition, AmmunitionComponent } from './ammunition'
+import { type Animation, AnimationComponent } from './animation'
 import { type Armor, ArmorComponent } from './armor'
 import { type Blocker, BlockerComponent } from './blocker'
 import { type Confusion, ConfusionComponent } from './confusion'
@@ -26,9 +27,11 @@ import {
   type RenderLayerGround,
   type RenderLayerItem,
   type RenderLayerBlocker,
+  type RenderLayerAbove,
   RenderLayerGroundComponent,
   RenderLayerItemComponent,
   RenderLayerBlockerComponent,
+  RenderLayerAboveComponent,
   RenderOrder,
 } from './render-layer'
 import { type Spell, SpellComponent } from './spell'
@@ -63,6 +66,8 @@ export {
   AliveComponent,
   type Ammunition,
   AmmunitionComponent,
+  type Animation,
+  AnimationComponent,
   type Armor,
   ArmorComponent,
   type Blocker,
@@ -108,9 +113,11 @@ export {
   type RenderLayerGround,
   type RenderLayerItem,
   type RenderLayerBlocker,
+  type RenderLayerAbove,
   RenderLayerGroundComponent,
   RenderLayerItemComponent,
   RenderLayerBlockerComponent,
+  RenderLayerAboveComponent,
   RenderOrder,
   type Spell,
   SpellComponent,
