@@ -30,7 +30,7 @@ import {
 import { Map } from '../../../map'
 import type { Vector2 } from '../../../types'
 import type { MessageLog } from '../../../utils/message-log'
-import { distance } from '../../../utils/vector-2-funcs'
+import { distance, equal } from '../../../utils/vector-2-funcs'
 import { processFOV, processPlayerFOV } from '../../../utils/fov-funcs'
 import {
   OPEN_DOOR_TILE,
@@ -65,12 +65,19 @@ export class UpdateActionSystem implements UpdateSystem {
         this.handleTryUseItem(world, entity, action, position)
       } else if (action.itemActionType === ItemActionTypes.PickUp) {
         this.handleTryPickUpItem(world, entity, action, position)
-      } else if (this.map.isWalkable(newPosition.x, newPosition.y)) {
+      } else if (
+        !equal(position, newPosition) &&
+        this.map.isWalkable(newPosition.x, newPosition.y)
+      ) {
         this.handleTryMove(world, entity, action, position, newPosition)
       } else {
         if (hasComponent(world, entity, ConfusionComponent)) {
           const info = InfoComponent.values[entity]
           this.log.addMessage(`The ${info.name} tries running into a wall`)
+          this.resetAction(action, true)
+        } else if (equal(position, newPosition)) {
+          const info = InfoComponent.values[entity]
+          this.log.addMessage(`${info.name} does nothing.`)
           this.resetAction(action, true)
         } else {
           this.log.addMessage('That direction is blocked')
@@ -110,7 +117,15 @@ export class UpdateActionSystem implements UpdateSystem {
             attacker: entity,
             defender: blocker,
           }
-          createAnimation(world, this.map, entity, position, 'Melee', undefined, newPosition)
+          createAnimation(
+            world,
+            this.map,
+            entity,
+            position,
+            'Melee',
+            undefined,
+            newPosition,
+          )
         } else if (hasComponent(world, blocker, DoorComponent)) {
           if (hasComponent(world, entity, PlayerComponent)) {
             DoorComponent.values[blocker].open = true
@@ -157,9 +172,6 @@ export class UpdateActionSystem implements UpdateSystem {
         this.log.addMessage(`${info.name} picks up ${itemInfo.name}`)
         this.resetAction(action, true)
       }
-    } else {
-      this.log.addMessage(`${info.name} does nothing.`)
-      this.resetAction(action, true)
     }
   }
 
