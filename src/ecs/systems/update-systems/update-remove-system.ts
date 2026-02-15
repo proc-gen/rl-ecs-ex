@@ -1,5 +1,6 @@
 import {
   hasComponent,
+  Not,
   query,
   removeEntity,
   type EntityId,
@@ -7,6 +8,7 @@ import {
 } from 'bitecs'
 import type { UpdateSystem } from './update-system'
 import {
+  AnimationComponent,
   DeadComponent,
   InfoComponent,
   PositionComponent,
@@ -23,7 +25,7 @@ export class UpdateRemoveSystem implements UpdateSystem {
   }
 
   update(world: World, _entity: EntityId) {
-    for (const eid of query(world, [RemoveComponent])) {
+    for (const eid of query(world, [RemoveComponent, Not(AnimationComponent)])) {
       if (hasComponent(world, eid, DeadComponent)) {
         const position = PositionComponent.values[eid]
         const corpse = createCorpse(

@@ -10,6 +10,7 @@ import {
 } from 'bitecs'
 import {
   ActionComponent,
+  AnimationComponent,
   DeadComponent,
   EquipmentComponent,
   OwnerComponent,
@@ -32,6 +33,8 @@ import {
   UpdateWantUseItemSystem,
   UpdateTurnsLeftSystem,
   UpdateWantCauseSpellEffectSystem,
+  UpdateAnimationSystem,
+  UpdateRemoveAnimationSystem,
 } from '../ecs/systems/update-systems'
 import { Map } from '../map'
 import { DefaultGeneratorV2 } from '../map/generators'
@@ -71,6 +74,7 @@ export class GameScreen extends Screen {
   renderHudSystem: RenderHudSystem
   renderMapSystem: RenderMapSystem
   updateSystems: UpdateSystem[]
+  renderUpdateSystems: UpdateSystem[]
   removeSystem: UpdateRemoveSystem
   playerTurn: boolean
 
@@ -133,6 +137,11 @@ export class GameScreen extends Screen {
       this.renderMapSystem,
       new RenderEntitySystem(this.world, this.map, this.playerFOV),
       this.renderHudSystem,
+    ]
+
+    this.renderUpdateSystems = [
+      new UpdateAnimationSystem(),
+      new UpdateRemoveAnimationSystem(),
     ]
 
     this.historyViewer = new MessageHistoryWindow(this.log)
@@ -241,6 +250,10 @@ export class GameScreen extends Screen {
   render() {
     this.display.clear()
 
+    this.renderUpdateSystems.forEach((rus) => {
+      rus.update(this.world, -1)
+    })
+
     const playerPosition = PositionComponent.values[this.player]
     this.renderMapSystem.update(this.world, -1)
     this.renderSystems.forEach((rs) => {
@@ -259,41 +272,48 @@ export class GameScreen extends Screen {
   }
 
   update() {
-    do {
-      this.updateSystems.forEach((us) => {
-        us.update(this.world, this.currentActor)
-      })
+    this.updateSystems.forEach((us) => {
+      us.update(this.world, this.currentActor)
+    })
 
-      this.actors = this.actors.filter(
-        (a) =>
-          !hasComponent(this.world, a, DeadComponent) ||
-          !hasComponent(this.world, a, RemoveComponent),
-      )
-      if (!this.playerTurn) {
-        this.changeCurrentActor()
+    this.actors = this.actors.filter(
+      (a) =>
+        !hasComponent(this.world, a, DeadComponent) ||
+        !hasComponent(this.world, a, RemoveComponent),
+    )
+    if (!this.playerTurn) {
+      this.changeCurrentActor()
+    } else {
+      const playerStats = PlayerComponent.values[this.player]
+      if (playerStats.currentXp >= playerStats.experienceToNextLevel) {
+        this.levelUpWindow.setActive(true)
       } else {
-        const playerStats = PlayerComponent.values[this.player]
-        if (playerStats.currentXp >= playerStats.experienceToNextLevel) {
-          this.levelUpWindow.setActive(true)
-        } else {
-          this.changeCurrentActor()
-        }
+        this.changeCurrentActor()
       }
-    } while (!this.playerTurn)
+    }
   }
 
   changeCurrentActor() {
-    const action = ActionComponent.values[this.currentActor]
+    if (query(this.world, [AnimationComponent]).length > 0) {
+      setTimeout(() => {
+        this.changeCurrentActor()
+      }, 500)
+    } else {
+      const action = ActionComponent.values[this.currentActor]
 
-    if (action.actionSuccessful) {
-      this.actors.push(this.actors.shift()!)
-      this.currentActor = this.actors[0]
-    }
-    if(this.actors.length === 1){
-      this.removeSystem.update(this.world, -1)
-    }
+      if (action.actionSuccessful) {
+        this.actors.push(this.actors.shift()!)
+        this.currentActor = this.actors[0]
+      }
+      if (this.actors.length === 1) {
+        this.removeSystem.update(this.world, -1)
+      }
 
-    this.playerTurn = this.currentActor === this.player
+      this.playerTurn = this.currentActor === this.player
+      if (!this.playerTurn) {
+        this.update()
+      }
+    }
   }
 
   keyDown(event: KeyboardEvent) {

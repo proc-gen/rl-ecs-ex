@@ -24,8 +24,10 @@ const createHealthPotionAnimation = (world: World, position: Vector2) => {
     AnimationComponent.values[animateCharacter] = {
         animationRate: 50,
         animationType: AnimationTypes.FlashCharacter as AnimationType,
+        numFrames: 20,
+        framesProcessed: 0,
+        toNextFrame: 50,
         animationTimeLeft: 1000,
-        animationTotalTime: 1000,
     }
     RenderableComponent.values[animateCharacter] = {
         char: '¡',
@@ -41,12 +43,14 @@ const createHealthPotionAnimation = (world: World, position: Vector2) => {
     AnimationComponent.values[animateLight] = {
         animationRate: 50,
         animationType: AnimationTypes.FlashLight as AnimationType,
+        numFrames: 20,
+        framesProcessed: 0,
+        toNextFrame: 50,
         animationTimeLeft: 1000,
-        animationTotalTime: 1000,
     }
     LightComponent.values[animateLight] = {
         color: Colors.HealthBar,
-        intensity: 1,
+        intensity: 3,
         lightType: LightTypes.Point as LightType,
         blockable: false
     }

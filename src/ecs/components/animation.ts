@@ -8,6 +8,8 @@ export const AnimationComponent: Component<Animation> = {
 export type Animation = {
     animationType: AnimationType
     animationRate: number
+    numFrames: number
+    framesProcessed: number
+    toNextFrame: number
     animationTimeLeft: number
-    animationTotalTime: number
 }
