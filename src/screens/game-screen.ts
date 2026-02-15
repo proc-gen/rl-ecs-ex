@@ -141,7 +141,7 @@ export class GameScreen extends Screen {
 
     this.renderUpdateSystems = [
       new UpdateAnimationSystem(),
-      new UpdateRemoveAnimationSystem(),
+      new UpdateRemoveAnimationSystem(this.map),
     ]
 
     this.historyViewer = new MessageHistoryWindow(this.log)

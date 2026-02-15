@@ -61,7 +61,7 @@ export class RenderMapSystem implements RenderSystem, UpdateSystem {
         ? processLightFOV(this.map, lightLocation, light.intensity * 5)
         : processFOV(this.map, lightLocation, light.intensity * 5)
 
-      lightFOV.forEach((p) => {
+      lightFOV.filter(p => p !== undefined).forEach((p) => {
         let isLit = true
 
         if (light.lightType === LightTypes.Spot) {

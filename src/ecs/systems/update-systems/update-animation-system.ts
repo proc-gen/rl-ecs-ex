@@ -1,6 +1,6 @@
 import { addComponent, query, type EntityId, type World } from 'bitecs'
 import type { UpdateSystem } from './update-system'
-import { AnimationComponent, LightComponent, RemoveComponent, RenderableComponent, type Animation } from '../../components'
+import { AnimationComponent, LightComponent, PositionComponent, RemoveComponent, RenderableComponent, type Animation } from '../../components'
 import { AnimationTypes } from '../../../constants'
 import { ConstMultiplyColor } from '../../../utils/color-funcs'
 
@@ -31,6 +31,9 @@ export class UpdateAnimationSystem implements UpdateSystem {
                 case AnimationTypes.FlashLight:
                     this.processFlashLightAnimation(eid, animation)
                     break
+                case AnimationTypes.FollowPath:
+                    this.processFollowPathAnimation(eid, animation)
+                    break
             }
         }
     }
@@ -46,5 +49,12 @@ export class UpdateAnimationSystem implements UpdateSystem {
   processFlashLightAnimation(eid: EntityId, _animation: Animation) {
     const light = LightComponent.values[eid]
     light.intensity *= 0.9
+  }
+
+  processFollowPathAnimation(eid: EntityId, animation: Animation){
+    const position = PositionComponent.values[eid]
+    const nextPosition = animation.positions![Math.min(animation.framesProcessed, animation.positions!.length)]
+    position.x = nextPosition.x
+    position.y = nextPosition.y
   }
 }

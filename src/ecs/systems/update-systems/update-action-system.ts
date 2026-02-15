@@ -38,6 +38,7 @@ import {
   ItemActionTypes,
   type AttackType,
 } from '../../../constants'
+import { createAnimation } from '../../templates'
 
 export class UpdateActionSystem implements UpdateSystem {
   map: Map
@@ -109,6 +110,7 @@ export class UpdateActionSystem implements UpdateSystem {
             attacker: entity,
             defender: blocker,
           }
+          createAnimation(world, this.map, entity, position, 'Melee', undefined, newPosition)
         } else if (hasComponent(world, blocker, DoorComponent)) {
           if (hasComponent(world, entity, PlayerComponent)) {
             DoorComponent.values[blocker].open = true

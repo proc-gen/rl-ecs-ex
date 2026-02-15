@@ -185,7 +185,12 @@ export class UpdateWantUseItemSystem implements UpdateSystem {
       const infoOwner = InfoComponent.values[useItem.owner]
       const infoItem = InfoComponent.values[useItem.item]
 
-      createAnimation(world, this.map, useItem.item, PositionComponent.values[useItem.owner])
+      createAnimation(
+        world,
+        this.map,
+        useItem.item,
+        PositionComponent.values[useItem.owner],
+      )
 
       this.actionSuccess(
         world,
@@ -247,6 +252,15 @@ export class UpdateWantUseItemSystem implements UpdateSystem {
       if (this.hasSpellEffect(spell.spellName)) {
         this.processWantSpellEffect(world, useItem, targetEntity)
       }
+      createAnimation(
+        world,
+        this.map,
+        useItem.item,
+        PositionComponent.values[useItem.owner],
+        '',
+        undefined,
+        PositionComponent.values[targetEntity],
+      )
       this.actionSuccess(world, useItem.item, '')
     } else {
       this.actionError(useItem.owner, 'No one in targeting range')
@@ -305,6 +319,15 @@ export class UpdateWantUseItemSystem implements UpdateSystem {
           this.processWantSpellEffect(world, useItem, e)
         }
       })
+      createAnimation(
+        world,
+        this.map,
+        useItem.item,
+        PositionComponent.values[useItem.owner],
+        '',
+        undefined,
+        targeting.position,
+      )
       this.actionSuccess(world, useItem.item, '')
     } else {
       this.actionError(useItem.owner, 'Invalid target selected')
@@ -347,6 +370,15 @@ export class UpdateWantUseItemSystem implements UpdateSystem {
           this.processWantSpellEffect(world, useItem, e)
         }
       })
+      createAnimation(
+        world,
+        this.map,
+        useItem.item,
+        PositionComponent.values[useItem.owner],
+        '',
+        undefined,
+        targeting.position,
+      )
       this.actionSuccess(world, useItem.item, '')
     } else {
       this.actionError(useItem.owner, 'Invalid target selected')
@@ -395,7 +427,7 @@ export class UpdateWantUseItemSystem implements UpdateSystem {
     if (message.length > 0) {
       this.log.addMessage(message)
     }
-    if(hasComponent(world, item, ConsumableComponent)){
+    if (hasComponent(world, item, ConsumableComponent)) {
       addComponent(world, item, RemoveComponent)
     }
   }
