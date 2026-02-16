@@ -23,7 +23,7 @@ import {
   type AnimationType,
   type LightType,
 } from '../../constants'
-import { ZeroVector } from '../../utils/vector-2-funcs'
+import { getPointsInLine, ZeroVector } from '../../utils/vector-2-funcs'
 import { processFOV } from '../../utils/fov-funcs'
 
 export const createAnimation = (
@@ -183,7 +183,7 @@ const createProjectileAnimation = (
   char: string,
   color: string,
 ) => {
-  const path = map.getPath(position, positionEnd, true, true)
+  const path = getPointsInLine(position, positionEnd)
 
   const animateCharacter = addEntity(world)
   addComponents(
@@ -222,7 +222,7 @@ const createProjectileLightAnimation = (
   char: string,
   color: string,
 ) => {
-  const path = map.getPath(position, positionEnd, true, true)
+  const path = getPointsInLine(position, positionEnd)
 
   const animateCharacter = addEntity(world)
   addComponents(
