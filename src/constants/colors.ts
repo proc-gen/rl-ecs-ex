@@ -22,6 +22,7 @@ export const Colors = {
   Player: '#ffee00',
   Orc: '#7fbf7f',
   Troll: '#00af00',
+  Goblin: '#00cf3f',
 
   LightningScroll: '#aaaa00',
   ConfusionScroll: '#cf3fff',
@@ -54,6 +55,7 @@ export const HexColors = {
   Player: Color.fromString(Colors.Player),
   Orc: Color.fromString(Colors.Orc),
   Troll: Color.fromString(Colors.Troll),
+  Goblin: Color.fromString(Colors.Goblin),
 
   LightningScroll: Color.fromString(Colors.LightningScroll),
   ConfusionScroll: Color.fromString(Colors.ConfusionScroll),

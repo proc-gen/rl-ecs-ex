@@ -86,6 +86,8 @@ export const createItem = (
   }
 
   createEffectComponents(world, item, name)
+
+  return item
 }
 
 const createConsumableComponents = (

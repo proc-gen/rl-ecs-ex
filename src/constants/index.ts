@@ -1,3 +1,4 @@
+import { AiActionTypes, type AiActionType } from './ai-action-type'
 import { AmmunitionTypes, type AmmunitionType } from './ammunition-type'
 import { AnimationTypes, type AnimationType } from './animation-type'
 import { AttackTypes, type AttackType } from './attack-type'
@@ -20,9 +21,11 @@ import {
 } from './tiles'
 
 export {
+  AiActionTypes,
+  type AiActionType,
   AmmunitionTypes,
   type AmmunitionType,
-  AnimationTypes, 
+  AnimationTypes,
   type AnimationType,
   AttackTypes,
   type AttackType,

@@ -299,7 +299,7 @@ export class GameScreen extends Screen {
     if (query(this.world, [AnimationComponent]).length > 0) {
       setTimeout(() => {
         this.changeCurrentActor()
-      }, 500)
+      }, 50)
     } else {
       const action = ActionComponent.values[this.currentActor]
 
