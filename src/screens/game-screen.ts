@@ -229,7 +229,7 @@ export class GameScreen extends Screen {
   postProcessMap() {
     processPlayerFOV(
       this.map,
-      PositionComponent.values[this.player],
+      this.player,
       this.playerFOV,
     )
 

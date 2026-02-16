@@ -135,7 +135,7 @@ export class UpdateActionSystem implements UpdateSystem {
               ...OPEN_DOOR_TILE,
               seen: true,
             }
-            processPlayerFOV(this.map, position, this.playerFOV)
+            processPlayerFOV(this.map, entity, this.playerFOV)
             const info = InfoComponent.values[entity]
             this.log.addMessage(`${info.name} opens the door`)
           }
@@ -292,7 +292,7 @@ export class UpdateActionSystem implements UpdateSystem {
     position.y = newPosition.y
 
     if (hasComponent(world, eid, PlayerComponent)) {
-      processPlayerFOV(this.map, position, this.playerFOV)
+      processPlayerFOV(this.map, eid, this.playerFOV)
     }
   }
 

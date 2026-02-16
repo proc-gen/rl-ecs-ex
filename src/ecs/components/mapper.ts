@@ -37,6 +37,7 @@ import {
   RangedWeaponComponent,
   AmmunitionComponent,
   AnimationComponent,
+  FieldOfViewComponent,
 } from '.'
 
 export const WorldComponents: Component<any>[] = [
@@ -53,6 +54,7 @@ export const WorldComponents: Component<any>[] = [
   EnemyComponent,
   EquippableComponent,
   EquipmentComponent,
+  FieldOfViewComponent,
   HealComponent,
   HealthComponent,
   InfoComponent,
@@ -92,6 +94,7 @@ const WorldComponentNames: string[] = [
   'EnemyComponent',
   'EquippableComponent',
   'EquipmentComponent',
+  'FieldOfViewComponent',
   'HealComponent',
   'HealthComponent',
   'InfoComponent',

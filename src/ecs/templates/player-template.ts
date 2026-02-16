@@ -5,6 +5,7 @@ import {
   AliveComponent,
   BlockerComponent,
   EquipmentComponent,
+  FieldOfViewComponent,
   HealthComponent,
   InfoComponent,
   PlayerComponent,
@@ -32,6 +33,7 @@ export const createPlayer = (world: World, startPosition: Vector2) => {
     HealthComponent,
     StatsComponent,
     EquipmentComponent,
+    FieldOfViewComponent,
   )
   PlayerComponent.values[player] = {
     levelUpBase: 0,
@@ -69,6 +71,10 @@ export const createPlayer = (world: World, startPosition: Vector2) => {
   EquipmentComponent.values[player] = {
     armor: -1,
     weapon: -1,
+  }
+  FieldOfViewComponent.values[player] = {
+    baseFOV: 99,
+    currentFOV: 99,
   }
   return player
 }

@@ -13,6 +13,7 @@ import { type Door, DoorComponent } from './door'
 import { type Enemy, EnemyComponent } from './enemy'
 import { type Equippable, EquippableComponent } from './equippable'
 import { type Equipment, EquipmentComponent } from './equipment'
+import { type FieldOfView, FieldOfViewComponent } from './field-of-view'
 import { type Heal, HealComponent } from './heal'
 import { type Health, HealthComponent } from './health'
 import { type Info, InfoComponent } from './info'
@@ -86,6 +87,8 @@ export {
   EquippableComponent,
   type Equipment,
   EquipmentComponent,
+  type FieldOfView, 
+  FieldOfViewComponent,
   type Heal,
   HealComponent,
   type Health,
