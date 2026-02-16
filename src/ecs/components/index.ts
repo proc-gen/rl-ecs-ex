@@ -13,12 +13,14 @@ import { type Door, DoorComponent } from './door'
 import { type Enemy, EnemyComponent } from './enemy'
 import { type Equippable, EquippableComponent } from './equippable'
 import { type Equipment, EquipmentComponent } from './equipment'
+import { type FieldOfView, FieldOfViewComponent } from './field-of-view'
 import { type Heal, HealComponent } from './heal'
 import { type Health, HealthComponent } from './health'
 import { type Info, InfoComponent } from './info'
 import { type Item, ItemComponent } from './item'
 import { type Light, LightComponent } from './light'
 import { type Owner, OwnerComponent } from './owner'
+import { type Pathfinder, PathfinderComponent } from './pathfinder'
 import { type Player, PlayerComponent } from './player'
 import { type Position, PositionComponent } from './position'
 import { type Remove, RemoveComponent } from './remove'
@@ -86,6 +88,8 @@ export {
   EquippableComponent,
   type Equipment,
   EquipmentComponent,
+  type FieldOfView,
+  FieldOfViewComponent,
   type Heal,
   HealComponent,
   type Health,
@@ -100,6 +104,8 @@ export {
   MeleeWeaponComponent,
   type Owner,
   OwnerComponent,
+  type Pathfinder,
+  PathfinderComponent,
   type Player,
   PlayerComponent,
   type Position,

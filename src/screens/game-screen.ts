@@ -111,7 +111,7 @@ export class GameScreen extends Screen {
     this.removeSystem = new UpdateRemoveSystem(this.map)
     this.updateSystems = [
       this.removeSystem,
-      new UpdateAiActionSystem(this.map, this.player, this.playerFOV),
+      new UpdateAiActionSystem(this.map, this.player),
       new UpdateActionSystem(this.log, this.map, this.playerFOV),
       new UpdateWantUseItemSystem(this.log, this.map),
       new UpdateWantAttackSystem(this.log),
@@ -183,7 +183,7 @@ export class GameScreen extends Screen {
       this.level,
     )
     const maxRooms = 8 + Math.floor(this.level / 2)
-    const maxMonsters = 3 + Math.floor(this.level / 2)
+    const maxMonsters = 5 + Math.floor(this.level / 2)
     const maxItems = 2 + Math.floor(this.level / 4)
 
     const generator = new DefaultGeneratorV2(
@@ -227,11 +227,7 @@ export class GameScreen extends Screen {
   }
 
   postProcessMap() {
-    processPlayerFOV(
-      this.map,
-      PositionComponent.values[this.player],
-      this.playerFOV,
-    )
+    processPlayerFOV(this.map, this.player, this.playerFOV)
 
     this.actors.length = 0
     this.actors.push(this.player)
@@ -299,7 +295,7 @@ export class GameScreen extends Screen {
     if (query(this.world, [AnimationComponent]).length > 0) {
       setTimeout(() => {
         this.changeCurrentActor()
-      }, 500)
+      }, 50)
     } else {
       const action = ActionComponent.values[this.currentActor]
 
@@ -314,14 +310,14 @@ export class GameScreen extends Screen {
       this.playerTurn = this.currentActor === this.player
       if (!this.playerTurn) {
         this.update()
-      } else{
+      } else {
         this.processingMove = false
       }
     }
   }
 
   keyDown(event: KeyboardEvent) {
-    if (this.playerTurn && !this.processingMove) {
+    if (this.playerTurn) {
       if (hasComponent(this.world, this.player, DeadComponent)) {
         this.backToMainMenu(false)
       }
@@ -329,76 +325,78 @@ export class GameScreen extends Screen {
       if (this.levelUpWindow.active) {
         const inputInfo = this.levelUpWindow.handleKeyboardInput(event)
         this.handleInputInfo(inputInfo)
-      } else if (this.targetingWindow.active) {
-        const inputInfo = this.targetingWindow.handleKeyboardInput(event)
-        this.handleInputInfo(inputInfo)
-      } else if (this.inventoryWindow.active) {
-        const inputInfo = this.inventoryWindow.handleKeyboardInput(event)
-        this.handleInputInfo(inputInfo)
-      } else if (this.renderHudSystem.active) {
-        const inputInfo = this.renderHudSystem.handleKeyboardInput(event)
-        this.handleInputInfo(inputInfo)
-      } else if (this.historyViewer.active) {
-        const inputInfo = this.historyViewer.handleKeyboardInput(event)
-        this.handleInputInfo(inputInfo)
-      } else {
-        switch (event.key) {
-          case 'ArrowUp':
-          case 'w':
-            this.setPlayerAction(0, -1)
-            break
-          case 'ArrowDown':
-          case 's':
-            this.setPlayerAction(0, 1)
-            break
-          case 'ArrowLeft':
-          case 'a':
-            this.setPlayerAction(-1, 0)
-            break
-          case 'ArrowRight':
-          case 'd':
-            this.setPlayerAction(1, 0)
-            break
-          case ' ':
-          case 'Enter':
-            this.setPlayerAction(0, 0)
-            break
-          case 'e':
-          case 'g':
-            this.setPlayerAction(0, 0, true)
-            break
-          case 'r':
-            this.setPlayerAction(
-              0,
-              0,
-              false,
-              ItemActionTypes.Reload as ItemActionType,
-            )
-            break
-          case 't':
-            this.targetingWindow.setActive(true)
-            this.targetingWindow.setTargetingEntity(
-              EquipmentComponent.values[this.player].weapon,
-            )
-            break
-          case '.':
-          case 'q':
-            this.renderHudSystem.setActive(true)
-            break
-          case 'l':
-          case '`':
-            this.historyViewer.setActive(true)
-            break
-          case 'Tab':
-          case 'i':
-            this.inventoryWindow.setActive(true)
-            break
-          case 'v':
-            this.tryToDescend()
-            break
-          case 'Escape':
-            this.backToMainMenu(true)
-            break
+      } else if (!this.processingMove) {
+        if (this.targetingWindow.active) {
+          const inputInfo = this.targetingWindow.handleKeyboardInput(event)
+          this.handleInputInfo(inputInfo)
+        } else if (this.inventoryWindow.active) {
+          const inputInfo = this.inventoryWindow.handleKeyboardInput(event)
+          this.handleInputInfo(inputInfo)
+        } else if (this.renderHudSystem.active) {
+          const inputInfo = this.renderHudSystem.handleKeyboardInput(event)
+          this.handleInputInfo(inputInfo)
+        } else if (this.historyViewer.active) {
+          const inputInfo = this.historyViewer.handleKeyboardInput(event)
+          this.handleInputInfo(inputInfo)
+        } else {
+          switch (event.key) {
+            case 'ArrowUp':
+            case 'w':
+              this.setPlayerAction(0, -1)
+              break
+            case 'ArrowDown':
+            case 's':
+              this.setPlayerAction(0, 1)
+              break
+            case 'ArrowLeft':
+            case 'a':
+              this.setPlayerAction(-1, 0)
+              break
+            case 'ArrowRight':
+            case 'd':
+              this.setPlayerAction(1, 0)
+              break
+            case ' ':
+            case 'Enter':
+              this.setPlayerAction(0, 0)
+              break
+            case 'e':
+            case 'g':
+              this.setPlayerAction(0, 0, true)
+              break
+            case 'r':
+              this.setPlayerAction(
+                0,
+                0,
+                false,
+                ItemActionTypes.Reload as ItemActionType,
+              )
+              break
+            case 't':
+              this.targetingWindow.setActive(true)
+              this.targetingWindow.setTargetingEntity(
+                EquipmentComponent.values[this.player].weapon,
+              )
+              break
+            case '.':
+            case 'q':
+              this.renderHudSystem.setActive(true)
+              break
+            case 'l':
+            case '`':
+              this.historyViewer.setActive(true)
+              break
+            case 'Tab':
+            case 'i':
+              this.inventoryWindow.setActive(true)
+              break
+            case 'v':
+              this.tryToDescend()
+              break
+            case 'Escape':
+              this.backToMainMenu(true)
+              break
+          }
         }
       }
     }

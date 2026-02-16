@@ -4,9 +4,12 @@ import type { HandleInputInfo, Vector2 } from '../types'
 import type { RenderWindow } from './render-window'
 import type { MessageLog } from '../utils/message-log'
 import {
+  ArmorComponent,
+  EquipmentComponent,
   HealthComponent,
   PlayerComponent,
   StatsComponent,
+  WeaponComponent,
 } from '../ecs/components'
 import {
   renderSingleLineTextOver,
@@ -14,7 +17,7 @@ import {
 } from '../utils/render-funcs'
 import type { Display } from 'rot-js'
 import { add } from '../utils/vector-2-funcs'
-import { Colors } from '../constants/colors'
+import { Colors, AttackTypes } from '../constants'
 
 export class LevelUpWindow implements InputController, RenderWindow {
   active: boolean
@@ -29,9 +32,9 @@ export class LevelUpWindow implements InputController, RenderWindow {
 
   constructor(world: World, log: MessageLog, player: EntityId) {
     this.active = false
-    this.windowPosition = { x: 20, y: 10 }
-    this.windowDimension = { x: 40, y: 10 }
-    this.renderPosition = { x: 23, y: 12 }
+    this.windowPosition = { x: 14, y: 10 }
+    this.windowDimension = { x: 52, y: 10 }
+    this.renderPosition = { x: 17, y: 12 }
 
     this.world = world
     this.log = log
@@ -69,7 +72,7 @@ export class LevelUpWindow implements InputController, RenderWindow {
         break
       case 'ArrowDown':
       case 's':
-        this.selectedOption = Math.floor(Math.min(2, this.selectedOption + 1))
+        this.selectedOption = Math.floor(Math.min(3, this.selectedOption + 1))
         break
       case 'Enter':
       case 'e':
@@ -82,7 +85,7 @@ export class LevelUpWindow implements InputController, RenderWindow {
   }
 
   processLevelUp() {
-    const playerStats = StatsComponent.values[this.player]
+    const stats = StatsComponent.values[this.player]
     const playerHealth = HealthComponent.values[this.player]
 
     switch (this.selectedOption) {
@@ -92,14 +95,38 @@ export class LevelUpWindow implements InputController, RenderWindow {
         this.log.addMessage('Your health improves!')
         break
       case 1:
-        playerStats.strength++
+        stats.strength++
         this.log.addMessage('You feel stronger!')
         break
       case 2:
-        playerStats.defense++
+        stats.defense++
         this.log.addMessage('Your movements become swifter!')
         break
+      case 3:
+        stats.rangedPower++
+        this.log.addMessage('Your ranged attacks hit more accurately!')
+        break
     }
+
+    const equipment = EquipmentComponent.values[this.player]
+
+    const weaponMod =
+      equipment.weapon !== -1 &&
+      WeaponComponent.values[equipment.weapon].attackType === AttackTypes.Melee
+        ? WeaponComponent.values[equipment.weapon].attack
+        : 0
+    const rangedWeaponMod =
+      equipment.weapon !== -1 &&
+      WeaponComponent.values[equipment.weapon].attackType === AttackTypes.Ranged
+        ? WeaponComponent.values[equipment.weapon].attack
+        : 0
+    const armorMod =
+      equipment.armor !== -1
+        ? ArmorComponent.values[equipment.armor].defense
+        : 0
+    stats.currentDefense = stats.defense + armorMod
+    stats.currentStrength = stats.strength + weaponMod
+    stats.currentRangedPower = stats.rangedPower + rangedWeaponMod
   }
 
   handleMouseInput(_event: MouseEvent, _position: Vector2): HandleInputInfo {
@@ -141,7 +168,7 @@ export class LevelUpWindow implements InputController, RenderWindow {
     renderSingleLineTextOver(
       display,
       add(this.renderPosition, { x: 0, y: 4 }),
-      `${this.selectedOption === 1 ? '->' : '  '} Increase Strength (+1 damage)`,
+      `${this.selectedOption === 1 ? '->' : '  '} Increase Strength (+1 damage for melee)`,
       Colors.White,
       null,
     )
@@ -150,6 +177,14 @@ export class LevelUpWindow implements InputController, RenderWindow {
       display,
       add(this.renderPosition, { x: 0, y: 5 }),
       `${this.selectedOption === 2 ? '->' : '  '} Increase Defense (+1 defense)`,
+      Colors.White,
+      null,
+    )
+
+    renderSingleLineTextOver(
+      display,
+      add(this.renderPosition, { x: 0, y: 6 }),
+      `${this.selectedOption === 3 ? '->' : '  '} Increase Ranged Power (+1 damage for ranged)`,
       Colors.White,
       null,
     )

@@ -73,17 +73,23 @@ export class UpdateActionSystem implements UpdateSystem {
       } else {
         if (hasComponent(world, entity, ConfusionComponent)) {
           const info = InfoComponent.values[entity]
-          this.log.addMessage(`The ${info.name} tries running into a wall`)
+          this.addMessage(`The ${info.name} tries running into a wall`, position)
           this.resetAction(action, true)
         } else if (equal(position, newPosition)) {
           const info = InfoComponent.values[entity]
-          this.log.addMessage(`${info.name} does nothing.`)
+          this.addMessage(`${info.name} does nothing.`, position)
           this.resetAction(action, true)
         } else {
-          this.log.addMessage('That direction is blocked')
+          this.addMessage('That direction is blocked', position)
           this.resetAction(action, false)
         }
       }
+    }
+  }
+
+  addMessage(message: string, position: Vector2){
+    if(this.playerFOV.find(p => equal(p, position))){
+      this.log.addMessage(message)
     }
   }
 
@@ -135,9 +141,9 @@ export class UpdateActionSystem implements UpdateSystem {
               ...OPEN_DOOR_TILE,
               seen: true,
             }
-            processPlayerFOV(this.map, position, this.playerFOV)
+            processPlayerFOV(this.map, entity, this.playerFOV)
             const info = InfoComponent.values[entity]
-            this.log.addMessage(`${info.name} opens the door`)
+            this.addMessage(`${info.name} opens the door`, position)
           }
         }
         this.resetAction(action, true)
@@ -159,7 +165,7 @@ export class UpdateActionSystem implements UpdateSystem {
         entities.find((a) => hasComponent(world, a, ItemComponent)) ===
           undefined
       ) {
-        this.log.addMessage('There is no item to pick up')
+        this.addMessage('There is no item to pick up', position)
         this.resetAction(action, false)
       } else {
         const item = entities.find((a) =>
@@ -239,7 +245,7 @@ export class UpdateActionSystem implements UpdateSystem {
         }
 
         if (ammunitionEntities.length === 0) {
-          this.log.addMessage('No ammunition available for reloading')
+          this.addMessage('No ammunition available for reloading', position)
           this.resetAction(action, false)
         } else {
           let ammunitionAdded = 0
@@ -268,15 +274,15 @@ export class UpdateActionSystem implements UpdateSystem {
             ammunitionAdded
           const info = InfoComponent.values[entity]
           const itemInfo = InfoComponent.values[useItem]
-          this.log.addMessage(`${info.name} reloaded their ${itemInfo.name}`)
+          this.addMessage(`${info.name} reloaded their ${itemInfo.name}`, position)
           this.resetAction(action, true)
         }
       } else {
-        this.log.addMessage("Can't reload this weapon")
+        this.addMessage("Can't reload this weapon", position)
         this.resetAction(action, false)
       }
     } else {
-      this.log.addMessage('Invalid action for an item')
+      this.addMessage('Invalid action for an item', position)
       this.resetAction(action, false)
     }
   }
@@ -292,7 +298,7 @@ export class UpdateActionSystem implements UpdateSystem {
     position.y = newPosition.y
 
     if (hasComponent(world, eid, PlayerComponent)) {
-      processPlayerFOV(this.map, position, this.playerFOV)
+      processPlayerFOV(this.map, eid, this.playerFOV)
     }
   }
 

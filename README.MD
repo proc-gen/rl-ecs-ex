@@ -37,7 +37,8 @@ This readme was created as part of the `refactor-1` branch to fix some inconsist
 - ~~Lighting~~
 - ~~Ranged Weapons with ammunition~~
 - ~~"Animations"~~
-- Ranged enemies + revamped ai
+- ~~Ranged enemies + revamped ai~~
+- More map generation styles
 
 ## Errata
 
@@ -62,6 +63,12 @@ Turns out just checking if it's the player's turn wasn't enough. If you pressed 
 ### Standing still can hurt yourself?
 
 In the refactor of the `UpdateActionSystem` during `part-new-17`, the code to handle doing nothing for a turn wasn't entirely put in the right place. The only thing still working was running into a wall giving an action error that the player can't move there. This has been remedied in `part-new-18`. 
+
+### Level Up Window Shenanigans
+
+Two different issues here, the first of which is that in my haste to fix the multiple turns issue in `part-new-18`, I didn't kill enough enemies to check the level up window. This has been fixed in `part-new-19` and the game is no longer in a frozen state.
+
+The other issue was that although base stats were updated appropriately, the calculated stats using the combination of base stats and equipment stats were not getting calculated. Quite annoying when you don't deal as much damage as you'd expect or take more damage than intended. This has also been fixed in `part-new-19`.
 
 ## Post-Tutorial Branch Summaries
 
@@ -137,3 +144,13 @@ There are three main animation styles implemented:
 These can be used in combination with each other and can have a subsequent animation attached. For example, the fireball scroll has a lit projectile fly from the player to the target position using `Follow Path`, then triggers `Flash Light` for each position in the splash radius, and finally uses `Flash Character` for each entity with a health component that was hit by the blast. The other animations aren't nearly as complex, as this was just to demonstrate what the system is capable of.
 
 For all this to work properly, no turns can be taken while animations are active. Everything is done in 1-2 seconds, so there's no major wait times. The systems for updating animation states use the `UpdateSystem` interface, though they're kept separate from the main set of systems used for processing a turn.
+
+### Part New 19 - Ranged Enemies and Revamped AI
+
+One of the overall smaller updates in terms of overall number of lines changed, including the two errata that were fixed, but is probably the biggest change in terms of gameplay since the original tutorial itself.
+
+Firstly, enemies now have their own FOV and aren't dependent on being in the player's FOV to have a turn. To make them even more intelligent, they will remember the last place they saw the player and continue there even if the player is no longer visible.
+
+Several new enemies have been introduced to make the early game a little more palatable, but also to showcase the ranged AI abilities. Goblin Slingers start with a sling to lob stones at the player, and Troll Archers similarly get a bow. Both are a little squishier than their Goblin or Troll counterparts, but provide more XP because you have to close the distance in order to kill them.
+
+All of this could be extended to only allow the enemies to chase the player a certain distance away from their location, perhaps as a personality trait or something else. That, like many other things, is a topic for another day. Next up will be some major upgrades to the map generation.

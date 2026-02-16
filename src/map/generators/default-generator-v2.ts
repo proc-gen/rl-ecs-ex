@@ -187,14 +187,48 @@ export class DefaultGeneratorV2 implements Generator {
   }
 
   getEnemyWeights(): WeightMap {
-    const weights: WeightMap = { Orc: 80 }
+    const weights: WeightMap = { }
 
-    if (this.map.level >= 3 && this.map.level < 5) {
-      weights['Troll'] = 15
-    } else if (this.map.level >= 5 && this.map.level < 7) {
-      weights['Troll'] = 30
-    } else if (this.map.level >= 7) {
-      weights['Troll'] = 60
+    switch(this.map.level){
+      case 1:
+        weights['Goblin'] = 1
+        break
+      case 2:
+        weights['Goblin'] = 30
+        weights['Goblin Slinger'] = 5
+        break
+      case 3:
+        weights['Goblin'] = 10
+        weights['Goblin Slinger'] = 10
+        weights['Orc'] = 10
+        break
+      case 4:
+        weights['Orc'] = 30
+        weights['Goblin'] = 5
+        weights['Goblin Slinger'] = 10
+        weights['Troll'] = 5
+        break
+      case 5:
+        weights['Orc'] = 30
+        weights['Troll Archer'] = 2
+        weights['Troll'] = 10
+        break
+      case 5:
+        weights['Orc'] = 10
+        weights['Troll Archer'] = 5
+        weights['Troll'] = 30
+        break
+      case 6:
+        weights['Troll Archer'] = 20
+        weights['Troll'] = 30
+        break
+      default:
+        weights['Goblin'] = 10
+        weights['Goblin Slinger'] = 10
+        weights['Orc'] = 10
+        weights['Troll Archer'] = 10
+        weights['Troll'] = 10
+        break
     }
 
     return weights
