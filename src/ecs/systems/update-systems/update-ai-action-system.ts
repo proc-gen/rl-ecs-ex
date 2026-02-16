@@ -3,22 +3,21 @@ import type { UpdateSystem } from './update-system'
 import {
   ActionComponent,
   ConfusionComponent,
+  FieldOfViewComponent,
   PlayerComponent,
   PositionComponent,
 } from '../../components'
 import { Map } from '../../../map'
-import type { Vector2 } from '../../../types'
 import { getRandomNumber } from '../../../utils/random'
+import { processFOV } from '../../../utils/fov-funcs'
 
 export class UpdateAiActionSystem implements UpdateSystem {
   map: Map
   player: EntityId
-  playerFOV: Vector2[]
 
-  constructor(map: Map, player: EntityId, playerFOV: Vector2[]) {
+  constructor(map: Map, player: EntityId) {
     this.map = map
     this.player = player
-    this.playerFOV = playerFOV
   }
 
   update(world: World, entity: EntityId) {
@@ -27,8 +26,11 @@ export class UpdateAiActionSystem implements UpdateSystem {
       !hasComponent(world, entity, PlayerComponent)
     ) {
       const aiPosition = PositionComponent.values[entity]
+      const aiFOV = FieldOfViewComponent.values[entity]
+      const fov = processFOV(this.map, aiPosition, aiFOV.currentFOV)
+      
       if (
-        this.playerFOV.find(
+        fov.find(
           (a) => a.x === aiPosition.x && a.y === aiPosition.y,
         ) !== undefined
       ) {

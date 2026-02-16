@@ -12,6 +12,7 @@ import {
   StatsComponent,
   RenderLayerBlockerComponent,
   EquipmentComponent,
+  FieldOfViewComponent,
 } from '../components'
 import { Colors } from '../../constants'
 
@@ -41,6 +42,7 @@ export const createEnemy = (
     HealthComponent,
     StatsComponent,
     EquipmentComponent,
+    FieldOfViewComponent,
   )
   ActionComponent.values[enemy] = {
     processed: true,
@@ -75,6 +77,10 @@ export const createEnemy = (
     armor: -1,
     weapon: -1,
   }
+  FieldOfViewComponent.values[enemy] = {
+    baseFOV: enemyStats.fov,
+    currentFOV: enemyStats.fov,
+  }
   return enemy
 }
 
@@ -88,6 +94,7 @@ const enemyStatLookup = (name: string) => {
       strength: 3,
       defense: 0,
       xpGiven: 35,
+      fov: 8,
     }
   } else if (name === 'Troll') {
     return {
@@ -98,6 +105,7 @@ const enemyStatLookup = (name: string) => {
       strength: 4,
       defense: 1,
       xpGiven: 100,
+      fov: 10,
     }
   }
 

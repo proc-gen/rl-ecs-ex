@@ -111,7 +111,7 @@ export class GameScreen extends Screen {
     this.removeSystem = new UpdateRemoveSystem(this.map)
     this.updateSystems = [
       this.removeSystem,
-      new UpdateAiActionSystem(this.map, this.player, this.playerFOV),
+      new UpdateAiActionSystem(this.map, this.player),
       new UpdateActionSystem(this.log, this.map, this.playerFOV),
       new UpdateWantUseItemSystem(this.log, this.map),
       new UpdateWantAttackSystem(this.log),
