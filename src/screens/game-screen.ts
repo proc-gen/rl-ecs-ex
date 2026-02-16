@@ -77,6 +77,7 @@ export class GameScreen extends Screen {
   renderUpdateSystems: UpdateSystem[]
   removeSystem: UpdateRemoveSystem
   playerTurn: boolean
+  processingMove: boolean
 
   constructor(
     display: Display,
@@ -156,6 +157,7 @@ export class GameScreen extends Screen {
     this.levelUpWindow = new LevelUpWindow(this.world, this.log, this.player)
 
     this.playerTurn = true
+    this.processingMove = false
     this.currentActor = this.player
   }
 
@@ -312,12 +314,14 @@ export class GameScreen extends Screen {
       this.playerTurn = this.currentActor === this.player
       if (!this.playerTurn) {
         this.update()
+      } else{
+        this.processingMove = false
       }
     }
   }
 
   keyDown(event: KeyboardEvent) {
-    if (this.playerTurn) {
+    if (this.playerTurn && !this.processingMove) {
       if (hasComponent(this.world, this.player, DeadComponent)) {
         this.backToMainMenu(false)
       }
@@ -410,6 +414,7 @@ export class GameScreen extends Screen {
     } else {
       this.log.addMessage('The stairs are not here')
     }
+    this.processingMove = false
   }
 
   backToMainMenu(saveGame: boolean) {
@@ -490,6 +495,8 @@ export class GameScreen extends Screen {
     pickUpItem: boolean = false,
     itemActionType: ItemActionType | undefined = undefined,
   ) {
+    this.processingMove = true
+
     const action = ActionComponent.values[this.player]
     action.xOffset = xOffset
     action.yOffset = yOffset

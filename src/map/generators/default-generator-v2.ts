@@ -207,7 +207,6 @@ export class DefaultGeneratorV2 implements Generator {
       'Leather Armor': 10,
       Sling: 10,
       Stones: 15,
-      'Fireball Scroll': 999
     }
 
     if (this.map.level >= 2) {
