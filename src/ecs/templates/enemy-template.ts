@@ -13,6 +13,7 @@ import {
   RenderLayerBlockerComponent,
   EquipmentComponent,
   FieldOfViewComponent,
+  PathfinderComponent,
 } from '../components'
 import { Colors } from '../../constants'
 
@@ -43,6 +44,7 @@ export const createEnemy = (
     StatsComponent,
     EquipmentComponent,
     FieldOfViewComponent,
+    PathfinderComponent,
   )
   ActionComponent.values[enemy] = {
     processed: true,
@@ -80,6 +82,9 @@ export const createEnemy = (
   FieldOfViewComponent.values[enemy] = {
     baseFOV: enemyStats.fov,
     currentFOV: enemyStats.fov,
+  }
+  PathfinderComponent.values[enemy] = {
+    lastKnownTargetPosition: undefined
   }
   return enemy
 }

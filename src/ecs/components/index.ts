@@ -20,6 +20,7 @@ import { type Info, InfoComponent } from './info'
 import { type Item, ItemComponent } from './item'
 import { type Light, LightComponent } from './light'
 import { type Owner, OwnerComponent } from './owner'
+import { type Pathfinder, PathfinderComponent } from './pathfinder'
 import { type Player, PlayerComponent } from './player'
 import { type Position, PositionComponent } from './position'
 import { type Remove, RemoveComponent } from './remove'
@@ -87,7 +88,7 @@ export {
   EquippableComponent,
   type Equipment,
   EquipmentComponent,
-  type FieldOfView, 
+  type FieldOfView,
   FieldOfViewComponent,
   type Heal,
   HealComponent,
@@ -103,6 +104,8 @@ export {
   MeleeWeaponComponent,
   type Owner,
   OwnerComponent,
+  type Pathfinder,
+  PathfinderComponent,
   type Player,
   PlayerComponent,
   type Position,
