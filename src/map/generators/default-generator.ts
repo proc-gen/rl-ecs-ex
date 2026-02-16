@@ -232,4 +232,8 @@ export class DefaultGenerator implements Generator {
     const lastRoom = this.rooms[this.rooms.length - 1]
     return lastRoom.center()
   }
+
+  isValid(): boolean {
+    return true
+  }
 }

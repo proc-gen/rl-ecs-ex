@@ -37,7 +37,7 @@ import {
   UpdateRemoveAnimationSystem,
 } from '../ecs/systems/update-systems'
 import { Map } from '../map'
-import { DefaultGeneratorV2 } from '../map/generators'
+import { DefaultGeneratorV2, type Generator } from '../map/generators'
 import type { HandleInputInfo, Vector2 } from '../types'
 import { createPlayer } from '../ecs/templates'
 import { MessageLog } from '../utils/message-log'
@@ -182,19 +182,8 @@ export class GameScreen extends Screen {
       GameScreen.MAP_HEIGHT,
       this.level,
     )
-    const maxRooms = 8 + Math.floor(this.level / 2)
-    const maxMonsters = 5 + Math.floor(this.level / 2)
-    const maxItems = 2 + Math.floor(this.level / 4)
-
-    const generator = new DefaultGeneratorV2(
-      this.world,
-      map,
-      maxRooms,
-      5,
-      12,
-      maxMonsters,
-      maxItems,
-    )
+    
+    const generator = this.pickGenerator(map)
 
     let success = false
     do {
@@ -204,8 +193,7 @@ export class GameScreen extends Screen {
           generator.playerStartPosition(),
           generator.stairsLocation(),
           true,
-        ).length > 0 &&
-        generator.rooms.length > maxRooms / 2
+        ).length > 0 && generator.isValid()
       ) {
         success = true
       }
@@ -224,6 +212,24 @@ export class GameScreen extends Screen {
     }
 
     return map
+  }
+
+  pickGenerator(map: Map): Generator {
+    const maxRooms = 8 + Math.floor(this.level / 2)
+    const maxMonsters = 5 + Math.floor(this.level / 2)
+    const maxItems = 2 + Math.floor(this.level / 4)
+
+    const generator = new DefaultGeneratorV2(
+      this.world,
+      map,
+      maxRooms,
+      5,
+      12,
+      maxMonsters,
+      maxItems,
+    )
+
+    return generator
   }
 
   postProcessMap() {

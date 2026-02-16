@@ -12,6 +12,7 @@ export interface Generator {
   placeEntities(): void
   playerStartPosition(): Vector2
   stairsLocation(): Vector2
+  isValid(): boolean
 }
 
 export const clearMap = (map: Map) => {

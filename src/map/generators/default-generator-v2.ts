@@ -59,9 +59,15 @@ export class DefaultGeneratorV2 implements Generator {
   }
 
   generate(): void {
-    clearMap(this.map)
-
+    this.rooms.length = 0
     this.createRooms()
+
+    this.copyGeneratedToMap()
+  }
+
+  copyGeneratedToMap(){
+    clearMap(this.map)
+    this.tunnels.length = 0
     this.connectRooms()
 
     this.copyRoomsToMap()
@@ -147,6 +153,8 @@ export class DefaultGeneratorV2 implements Generator {
   }
 
   placeEntities() {
+    this.copyGeneratedToMap()
+
     let monstersLeft = this.maxMonsters
     let itemsLeft = this.maxItems
     const playerStart = this.playerStartPosition()
@@ -335,5 +343,25 @@ export class DefaultGeneratorV2 implements Generator {
   stairsLocation(): Vector2 {
     const lastRoom = this.rooms[this.rooms.length - 1]
     return lastRoom.center()
+  }
+
+  isValid(): boolean {
+    let valid = false
+
+    const start = this.rooms[0]
+    const goodRooms = [start]
+    for(let i = 1; i < this.rooms.length; i++){
+      const path = this.map.getPath(start.center(), this.rooms[i].center())
+      if(path.length > 0){
+        goodRooms.push(this.rooms[i])
+      }
+    }
+
+    if(goodRooms.length > this.rooms.length / 2){
+      valid = true
+      this.rooms = goodRooms
+    }
+
+    return valid
   }
 }
