@@ -11,6 +11,7 @@ export class Map {
   world: World
   pathStart: Vector2
   ignoreDoors: boolean
+  ignoreEntities: boolean
   tiles: Tile[][]
   entityLocations: {
     position: Vector2
@@ -31,6 +32,7 @@ export class Map {
     this.entityLocations = []
     this.pathStart = { x: 0, y: 0 }
     this.ignoreDoors = false
+    this.ignoreEntities = false
     if (tiles === undefined) {
       this.tiles = new Array(this.width)
       for (let x = 0; x < this.width; x++) {
@@ -131,13 +133,14 @@ export class Map {
     return []
   }
 
-  getPath(start: Vector2, end: Vector2, ignoreDoors: boolean = false) {
+  getPath(start: Vector2, end: Vector2, ignoreDoors: boolean = false, ignoreEntities: boolean = false) {
     const astar = new AStar(end.x, end.y, this.passableCallBack.bind(this), {
       topology: 4,
     })
     const path: Vector2[] = []
     this.pathStart = start
     this.ignoreDoors = ignoreDoors
+    this.ignoreEntities = ignoreEntities
     astar.compute(start.x, start.y, (x: number, y: number) => {
       if (x !== this.pathStart.x || y !== this.pathStart.y) {
         path.push({ x, y })
@@ -153,6 +156,10 @@ export class Map {
     }
 
     if (this.isWalkable(x, y)) {
+      if(this.ignoreEntities){
+        return true
+      }
+
       const entities = this.getEntitiesAtLocation({ x, y })
       if (
         entities.length === 0 ||

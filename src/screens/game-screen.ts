@@ -10,6 +10,7 @@ import {
 } from 'bitecs'
 import {
   ActionComponent,
+  AnimationComponent,
   DeadComponent,
   EquipmentComponent,
   OwnerComponent,
@@ -32,6 +33,8 @@ import {
   UpdateWantUseItemSystem,
   UpdateTurnsLeftSystem,
   UpdateWantCauseSpellEffectSystem,
+  UpdateAnimationSystem,
+  UpdateRemoveAnimationSystem,
 } from '../ecs/systems/update-systems'
 import { Map } from '../map'
 import { DefaultGeneratorV2 } from '../map/generators'
@@ -71,8 +74,10 @@ export class GameScreen extends Screen {
   renderHudSystem: RenderHudSystem
   renderMapSystem: RenderMapSystem
   updateSystems: UpdateSystem[]
+  renderUpdateSystems: UpdateSystem[]
   removeSystem: UpdateRemoveSystem
   playerTurn: boolean
+  processingMove: boolean
 
   constructor(
     display: Display,
@@ -135,6 +140,11 @@ export class GameScreen extends Screen {
       this.renderHudSystem,
     ]
 
+    this.renderUpdateSystems = [
+      new UpdateAnimationSystem(),
+      new UpdateRemoveAnimationSystem(this.map),
+    ]
+
     this.historyViewer = new MessageHistoryWindow(this.log)
     this.inventoryWindow = new InventoryWindow(this.world, this.player)
     this.targetingWindow = new TargetingWindow(
@@ -147,6 +157,7 @@ export class GameScreen extends Screen {
     this.levelUpWindow = new LevelUpWindow(this.world, this.log, this.player)
 
     this.playerTurn = true
+    this.processingMove = false
     this.currentActor = this.player
   }
 
@@ -241,6 +252,10 @@ export class GameScreen extends Screen {
   render() {
     this.display.clear()
 
+    this.renderUpdateSystems.forEach((rus) => {
+      rus.update(this.world, -1)
+    })
+
     const playerPosition = PositionComponent.values[this.player]
     this.renderMapSystem.update(this.world, -1)
     this.renderSystems.forEach((rs) => {
@@ -259,45 +274,54 @@ export class GameScreen extends Screen {
   }
 
   update() {
-    do {
-      this.updateSystems.forEach((us) => {
-        us.update(this.world, this.currentActor)
-      })
+    this.updateSystems.forEach((us) => {
+      us.update(this.world, this.currentActor)
+    })
 
-      this.actors = this.actors.filter(
-        (a) =>
-          !hasComponent(this.world, a, DeadComponent) ||
-          !hasComponent(this.world, a, RemoveComponent),
-      )
-      if (!this.playerTurn) {
-        this.changeCurrentActor()
+    this.actors = this.actors.filter(
+      (a) =>
+        !hasComponent(this.world, a, DeadComponent) ||
+        !hasComponent(this.world, a, RemoveComponent),
+    )
+    if (!this.playerTurn) {
+      this.changeCurrentActor()
+    } else {
+      const playerStats = PlayerComponent.values[this.player]
+      if (playerStats.currentXp >= playerStats.experienceToNextLevel) {
+        this.levelUpWindow.setActive(true)
       } else {
-        const playerStats = PlayerComponent.values[this.player]
-        if (playerStats.currentXp >= playerStats.experienceToNextLevel) {
-          this.levelUpWindow.setActive(true)
-        } else {
-          this.changeCurrentActor()
-        }
+        this.changeCurrentActor()
       }
-    } while (!this.playerTurn)
+    }
   }
 
   changeCurrentActor() {
-    const action = ActionComponent.values[this.currentActor]
+    if (query(this.world, [AnimationComponent]).length > 0) {
+      setTimeout(() => {
+        this.changeCurrentActor()
+      }, 500)
+    } else {
+      const action = ActionComponent.values[this.currentActor]
 
-    if (action.actionSuccessful) {
-      this.actors.push(this.actors.shift()!)
-      this.currentActor = this.actors[0]
-    }
-    if(this.actors.length === 1){
-      this.removeSystem.update(this.world, -1)
-    }
+      if (action.actionSuccessful) {
+        this.actors.push(this.actors.shift()!)
+        this.currentActor = this.actors[0]
+      }
+      if (this.actors.length === 1) {
+        this.removeSystem.update(this.world, -1)
+      }
 
-    this.playerTurn = this.currentActor === this.player
+      this.playerTurn = this.currentActor === this.player
+      if (!this.playerTurn) {
+        this.update()
+      } else{
+        this.processingMove = false
+      }
+    }
   }
 
   keyDown(event: KeyboardEvent) {
-    if (this.playerTurn) {
+    if (this.playerTurn && !this.processingMove) {
       if (hasComponent(this.world, this.player, DeadComponent)) {
         this.backToMainMenu(false)
       }
@@ -390,6 +414,7 @@ export class GameScreen extends Screen {
     } else {
       this.log.addMessage('The stairs are not here')
     }
+    this.processingMove = false
   }
 
   backToMainMenu(saveGame: boolean) {
@@ -470,6 +495,8 @@ export class GameScreen extends Screen {
     pickUpItem: boolean = false,
     itemActionType: ItemActionType | undefined = undefined,
   ) {
+    this.processingMove = true
+
     const action = ActionComponent.values[this.player]
     action.xOffset = xOffset
     action.yOffset = yOffset

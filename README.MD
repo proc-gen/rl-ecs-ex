@@ -36,7 +36,7 @@ This readme was created as part of the `refactor-1` branch to fix some inconsist
 - ~~Doors and Pretty Walls~~
 - ~~Lighting~~
 - ~~Ranged Weapons with ammunition~~
-- "Animations"
+- ~~"Animations"~~
 - Ranged enemies + revamped ai
 
 ## Errata
@@ -54,6 +54,14 @@ Also needing fixed was the inspect feature when looking at doors and was introdu
 ### Using and item when everything is already dead
 
 This bug has probably been around since the inventory was implemented and finally fixed in `part-new-17`. If a consumable item is used after everything is dead, the `UpdateRemoveSystem` won't run before the player's next turn. Without really digging to remember why that system runs first in the update cycle instead of last, it's now called individually in `changeCurrentActor()` if there's only one entity left in the actor array.
+
+### Player taking multiple turns at once
+
+Turns out just checking if it's the player's turn wasn't enough. If you pressed keys to take turns multiple times before the update loop finished, it was possible that they would all be processed before the computer got a turn. This became especially apparent with the addition of animations because even melee has a half second animation. This was fixed in `part-new-18` since the animations made it so obvious.
+
+### Standing still can hurt yourself?
+
+In the refactor of the `UpdateActionSystem` during `part-new-17`, the code to handle doing nothing for a turn wasn't entirely put in the right place. The only thing still working was running into a wall giving an action error that the player can't move there. This has been remedied in `part-new-18`. 
 
 ## Post-Tutorial Branch Summaries
 
@@ -112,3 +120,20 @@ These weapons required a revamp of the item action types to allow for more than 
 To make it a little more interesting, ammunition is required to use ranged weapons. The weapons will always be loaded when initially picked up.
 
 The original plan was to include animated projectiles moving to their target, but that's been pushed off because this branch was getting a little large already. That will be part of the next branch and should include animations for all the spells as well. This does put off ranged opponents and a rework of their AI, but all in due time.
+
+### Part New 18 - "Animations"
+
+This update may make it much more visible that things are happening, but I left the title in quotation marks because it's a different model than if you were working with tilesets in 2D or fancy shaders in 3D. ROT.js also has a limitation of integer coordinates for rendering, so projectile movement gets a little wonky too.
+
+There are three main animation styles implemented:
+
+- Flash Character
+  - Specified character starts with a color, then gets its color multiplied by 90% each animation frame
+- Flash Light
+  - Specified color is treated as a point light at a given location, then gets its color multiplied by 90% each animation frame
+- Follow Path
+  - A light and/or character is given beginning and end positions, then is moved to each position in the line per animation frame
+
+These can be used in combination with each other and can have a subsequent animation attached. For example, the fireball scroll has a lit projectile fly from the player to the target position using `Follow Path`, then triggers `Flash Light` for each position in the splash radius, and finally uses `Flash Character` for each entity with a health component that was hit by the blast. The other animations aren't nearly as complex, as this was just to demonstrate what the system is capable of.
+
+For all this to work properly, no turns can be taken while animations are active. Everything is done in 1-2 seconds, so there's no major wait times. The systems for updating animation states use the `UpdateSystem` interface, though they're kept separate from the main set of systems used for processing a turn.

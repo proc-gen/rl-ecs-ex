@@ -11,4 +11,5 @@ export type Light = {
     target?: Vector2
     color: string
     intensity: number
+    blockable: boolean
 }

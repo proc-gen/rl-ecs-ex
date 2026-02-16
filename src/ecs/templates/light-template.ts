@@ -33,6 +33,7 @@ export const createLight = (
     intensity,
     target,
     color,
+    blockable: true,
   }
   RenderableComponent.values[light] = {
     char: 'Θ',
