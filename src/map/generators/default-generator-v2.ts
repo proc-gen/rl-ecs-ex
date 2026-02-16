@@ -5,6 +5,8 @@ import type { Map } from '../map'
 import { Room, type Sector } from '../containers'
 import {
   clearMap,
+  getEnemyWeights,
+  getItemWeights,
   placeDoors,
   prettify,
   tunnel,
@@ -148,8 +150,8 @@ export class DefaultGeneratorV2 implements Generator {
     let monstersLeft = this.maxMonsters
     let itemsLeft = this.maxItems
     const playerStart = this.playerStartPosition()
-    const enemyWeights = this.getEnemyWeights()
-    const itemWeights = this.getItemWeights()
+    const enemyWeights = getEnemyWeights(this.map)
+    const itemWeights = getItemWeights(this.map)
 
     this.rooms.forEach((a) => {
       this.placeLightForRoom(a)
@@ -184,80 +186,6 @@ export class DefaultGeneratorV2 implements Generator {
       DoorComponent.values[door] = { open: false }
       this.map.addEntityAtLocation(door, PositionComponent.values[door])
     })
-  }
-
-  getEnemyWeights(): WeightMap {
-    const weights: WeightMap = { }
-
-    switch(this.map.level){
-      case 1:
-        weights['Goblin'] = 1
-        break
-      case 2:
-        weights['Goblin'] = 30
-        weights['Goblin Slinger'] = 5
-        break
-      case 3:
-        weights['Goblin'] = 10
-        weights['Goblin Slinger'] = 10
-        weights['Orc'] = 10
-        break
-      case 4:
-        weights['Orc'] = 30
-        weights['Goblin'] = 5
-        weights['Goblin Slinger'] = 10
-        weights['Troll'] = 5
-        break
-      case 5:
-        weights['Orc'] = 30
-        weights['Troll Archer'] = 2
-        weights['Troll'] = 10
-        break
-      case 5:
-        weights['Orc'] = 10
-        weights['Troll Archer'] = 5
-        weights['Troll'] = 30
-        break
-      case 6:
-        weights['Troll Archer'] = 20
-        weights['Troll'] = 30
-        break
-      default:
-        weights['Goblin'] = 10
-        weights['Goblin Slinger'] = 10
-        weights['Orc'] = 10
-        weights['Troll Archer'] = 10
-        weights['Troll'] = 10
-        break
-    }
-
-    return weights
-  }
-
-  getItemWeights(): WeightMap {
-    const weights: WeightMap = {
-      'Health Potion': 35,
-      Dagger: 10,
-      'Leather Armor': 10,
-      Sling: 10,
-      Stones: 15,
-    }
-
-    if (this.map.level >= 2) {
-      weights['Confusion Scroll'] = 10
-    }
-    if (this.map.level >= 4) {
-      weights['Lightning Scroll'] = 25
-      weights['Sword'] = 5
-      weights['Bow'] = 5
-      weights['Arrows'] = 15
-    }
-    if (this.map.level >= 6) {
-      weights['Fireball Scroll'] = 25
-      weights['Chain Mail'] = 15
-    }
-
-    return weights
   }
 
   placeLightForRoom(a: Room) {

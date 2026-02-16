@@ -3,7 +3,7 @@ import type { World } from 'bitecs'
 import { FLOOR_TILE, STAIRS_DOWN_TILE } from '../../constants/tiles'
 import type { Map } from '../map'
 import { Room, type Sector } from '../containers'
-import { clearMap, tunnel, type Generator } from './generator'
+import { clearMap, getEnemyWeights, getItemWeights, tunnel, type Generator } from './generator'
 import type { Vector2, WeightMap } from '../../types'
 import { getRandomNumber } from '../../utils/random'
 import { createEnemy, createItem } from '../../ecs/templates'
@@ -103,8 +103,8 @@ export class DefaultGenerator implements Generator {
     let monstersLeft = this.maxMonsters
     let itemsLeft = this.maxItems
     const playerStart = this.playerStartPosition()
-    const enemyWeights = this.getEnemyWeights()
-    const itemWeights = this.getItemWeights()
+    const enemyWeights = getEnemyWeights(this.map)
+    const itemWeights = getItemWeights(this.map)
 
     this.rooms.forEach((a) => {
       monstersLeft -= this.placeEnemiesForRoom(
@@ -120,42 +120,6 @@ export class DefaultGenerator implements Generator {
         itemWeights,
       )
     })
-  }
-
-  getEnemyWeights(): WeightMap {
-    const weights: WeightMap = { Orc: 80 }
-
-    if (this.map.level >= 3 && this.map.level < 5) {
-      weights['Troll'] = 15
-    } else if (this.map.level >= 5 && this.map.level < 7) {
-      weights['Troll'] = 30
-    } else if (this.map.level >= 7) {
-      weights['Troll'] = 60
-    }
-
-    return weights
-  }
-
-  getItemWeights(): WeightMap {
-    const weights: WeightMap = {
-      'Health Potion': 35,
-      Dagger: 10,
-      'Leather Armor': 10,
-    }
-
-    if (this.map.level >= 2) {
-      weights['Confusion Scroll'] = 10
-    }
-    if (this.map.level >= 4) {
-      weights['Lightning Scroll'] = 25
-      weights['Sword'] = 5
-    }
-    if (this.map.level >= 6) {
-      weights['Fireball Scroll'] = 25
-      weights['Chain Mail'] = 15
-    }
-
-    return weights
   }
 
   placeEnemiesForRoom(
@@ -259,8 +223,13 @@ export class DefaultGenerator implements Generator {
   }
 
   placeStairs() {
+    const position = this.stairsLocation()
+
+    this.map.tiles[position.x][position.y] = { ...STAIRS_DOWN_TILE }
+  }
+
+  stairsLocation(): Vector2 {
     const lastRoom = this.rooms[this.rooms.length - 1]
-    const center = lastRoom.center()
-    this.map.tiles[center.x][center.y] = { ...STAIRS_DOWN_TILE }
+    return lastRoom.center()
   }
 }
