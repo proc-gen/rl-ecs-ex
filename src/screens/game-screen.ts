@@ -37,7 +37,11 @@ import {
   UpdateRemoveAnimationSystem,
 } from '../ecs/systems/update-systems'
 import { Map } from '../map'
-import { DefaultGeneratorV2, type Generator } from '../map/generators'
+import {
+  DefaultGenerator,
+  DefaultGeneratorV2,
+  type Generator,
+} from '../map/generators'
 import type { HandleInputInfo, Vector2 } from '../types'
 import { createPlayer } from '../ecs/templates'
 import { MessageLog } from '../utils/message-log'
@@ -53,6 +57,7 @@ import type { ScreenManager } from '../screen-manager'
 import { MainMenuScreen } from './main-menu-screen'
 import { deserializeWorld, serializeWorld } from '../serialization'
 import { ItemActionTypes, type ItemActionType } from '../constants'
+import { getRandomNumber } from '../utils/random'
 
 export class GameScreen extends Screen {
   public static readonly MAP_WIDTH = 80
@@ -182,7 +187,7 @@ export class GameScreen extends Screen {
       GameScreen.MAP_HEIGHT,
       this.level,
     )
-    
+
     const generator = this.pickGenerator(map)
 
     let success = false
@@ -193,7 +198,8 @@ export class GameScreen extends Screen {
           generator.playerStartPosition(),
           generator.stairsLocation(),
           true,
-        ).length > 0 && generator.isValid()
+        ).length > 0 &&
+        generator.isValid()
       ) {
         success = true
       }
@@ -219,17 +225,29 @@ export class GameScreen extends Screen {
     const maxMonsters = 5 + Math.floor(this.level / 2)
     const maxItems = 2 + Math.floor(this.level / 4)
 
-    const generator = new DefaultGeneratorV2(
-      this.world,
-      map,
-      maxRooms,
-      5,
-      12,
-      maxMonsters,
-      maxItems,
-    )
+    const pick = getRandomNumber(0, 1)
 
-    return generator
+    if (pick === 0) {
+      return new DefaultGenerator(
+        this.world,
+        map,
+        maxRooms,
+        5,
+        12,
+        maxMonsters,
+        maxItems,
+      )
+    } else {
+      return new DefaultGeneratorV2(
+        this.world,
+        map,
+        maxRooms,
+        5,
+        12,
+        maxMonsters,
+        maxItems,
+      )
+    }
   }
 
   postProcessMap() {
