@@ -226,7 +226,7 @@ export class GameScreen extends Screen {
     const maxMonsters = 5 + Math.floor(this.level / 2)
     const maxItems = 2 + Math.floor(this.level / 4)
 
-    const pick = getRandomNumber(2, 2)
+    const pick = getRandomNumber(0, 2)
 
     if (pick === 0) {
       return new DefaultGenerator(
@@ -249,7 +249,10 @@ export class GameScreen extends Screen {
         maxItems,
       )
     } else {
-      return new MazeGenerator(this.world, map, maxMonsters, maxItems)
+      return new MazeGenerator(this.world, map, maxMonsters, maxItems, {
+        x: maxRooms * 2,
+        y: maxRooms * 2,
+      })
     }
   }
 
