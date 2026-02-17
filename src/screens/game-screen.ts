@@ -40,6 +40,7 @@ import { Map } from '../map'
 import {
   DefaultGenerator,
   DefaultGeneratorV2,
+  MazeGenerator,
   type Generator,
 } from '../map/generators'
 import type { HandleInputInfo, Vector2 } from '../types'
@@ -225,7 +226,7 @@ export class GameScreen extends Screen {
     const maxMonsters = 5 + Math.floor(this.level / 2)
     const maxItems = 2 + Math.floor(this.level / 4)
 
-    const pick = getRandomNumber(0, 1)
+    const pick = getRandomNumber(2, 2)
 
     if (pick === 0) {
       return new DefaultGenerator(
@@ -237,7 +238,7 @@ export class GameScreen extends Screen {
         maxMonsters,
         maxItems,
       )
-    } else {
+    } else if (pick === 1) {
       return new DefaultGeneratorV2(
         this.world,
         map,
@@ -247,6 +248,8 @@ export class GameScreen extends Screen {
         maxMonsters,
         maxItems,
       )
+    } else {
+      return new MazeGenerator(this.world, map, maxMonsters, maxItems)
     }
   }
 
