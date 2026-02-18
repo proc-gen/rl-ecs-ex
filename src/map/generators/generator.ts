@@ -141,12 +141,12 @@ export const getEnemyWeights = (map: Map): WeightMap => {
       weights['Troll Archer'] = 2
       weights['Troll'] = 10
       break
-    case 5:
+    case 6:
       weights['Orc'] = 10
       weights['Troll Archer'] = 5
       weights['Troll'] = 30
       break
-    case 6:
+    case 7:
       weights['Troll Archer'] = 20
       weights['Troll'] = 30
       break
