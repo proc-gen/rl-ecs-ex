@@ -41,6 +41,7 @@ import {
   CellularGenerator,
   DefaultGenerator,
   DefaultGeneratorV2,
+  DungeonGenerator,
   MazeGenerator,
   type Generator,
 } from '../map/generators'
@@ -227,7 +228,7 @@ export class GameScreen extends Screen {
     const maxMonsters = 5 + Math.floor(this.level / 2)
     const maxItems = 2 + Math.floor(this.level / 4)
 
-    const pick = getRandomNumber(0, 3)
+    const pick = getRandomNumber(0, 4)
 
     if (pick === 0) {
       return new DefaultGenerator(
@@ -254,11 +255,24 @@ export class GameScreen extends Screen {
         x: maxRooms * 2,
         y: maxRooms * 2,
       })
-    } else {
+    } else if (pick === 3) {
       return new CellularGenerator(this.world, map, maxMonsters, maxItems, {
         x: maxRooms * 2,
         y: maxRooms * 2,
       })
+    } else {
+      return new DungeonGenerator(
+        this.world,
+        map,
+        maxMonsters,
+        maxItems,
+        {
+          x: maxRooms * 2,
+          y: maxRooms * 2,
+        },
+        5,
+        12,
+      )
     }
   }
 
