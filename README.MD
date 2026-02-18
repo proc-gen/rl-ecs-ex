@@ -38,7 +38,8 @@ This readme was created as part of the `refactor-1` branch to fix some inconsist
 - ~~Ranged Weapons with ammunition~~
 - ~~"Animations"~~
 - ~~Ranged enemies + revamped ai~~
-- More map generation styles
+- ~~More map generation styles~~
+- Game Over Stats + Other Minor Things
 
 ## Errata
 
@@ -154,3 +155,19 @@ Firstly, enemies now have their own FOV and aren't dependent on being in the pla
 Several new enemies have been introduced to make the early game a little more palatable, but also to showcase the ranged AI abilities. Goblin Slingers start with a sling to lob stones at the player, and Troll Archers similarly get a bow. Both are a little squishier than their Goblin or Troll counterparts, but provide more XP because you have to close the distance in order to kill them.
 
 All of this could be extended to only allow the enemies to chase the player a certain distance away from their location, perhaps as a personality trait or something else. That, like many other things, is a topic for another day. Next up will be some major upgrades to the map generation.
+
+### Part New 20 - More Map Generation
+
+Up to this point, we've really only used one type of generator for our maps, which is kind of boring. ROT.js has several built-in map generation methods with plenty of customizability, and I chose three to implement here. Without diving into the details behind each one, they are:
+
+- Maze Generator
+  - Like the title says, it makes mazes
+  - Dimensions were scaled up so that corridors are always 2 tiles wide instead of 1
+- Cellular Generator
+  - This one uses cellular automata to create a cave-like appearance
+- Dungeon Generator
+  - This one will look similar to the existing algorithm with rooms and hallways
+
+For the maze and cellular generators, a different approach to placing entities, the start, and stairway positions was required. To keep it simple, there's a list of all traversible spaces kept from the ROT.js generator as floor tiles are applied to the map. Random positions are selected out of that array for everything, and there's also a requirement that the stairs be at least 25 spaces away from the start so that it's not immediately accessible.
+
+While I would've preferred to include some other generator choices in addition to the ROT.js ones, binary space partitioning especially, it's getting very close to 7DRL 2026 and I still need to work on a game design document. The next section will likely be the last until 7DRL is over.

@@ -37,7 +37,14 @@ import {
   UpdateRemoveAnimationSystem,
 } from '../ecs/systems/update-systems'
 import { Map } from '../map'
-import { DefaultGeneratorV2 } from '../map/generators'
+import {
+  CellularGenerator,
+  DefaultGenerator,
+  DefaultGeneratorV2,
+  DungeonGenerator,
+  MazeGenerator,
+  type Generator,
+} from '../map/generators'
 import type { HandleInputInfo, Vector2 } from '../types'
 import { createPlayer } from '../ecs/templates'
 import { MessageLog } from '../utils/message-log'
@@ -53,6 +60,7 @@ import type { ScreenManager } from '../screen-manager'
 import { MainMenuScreen } from './main-menu-screen'
 import { deserializeWorld, serializeWorld } from '../serialization'
 import { ItemActionTypes, type ItemActionType } from '../constants'
+import { getRandomNumber } from '../utils/random'
 
 export class GameScreen extends Screen {
   public static readonly MAP_WIDTH = 80
@@ -182,19 +190,8 @@ export class GameScreen extends Screen {
       GameScreen.MAP_HEIGHT,
       this.level,
     )
-    const maxRooms = 8 + Math.floor(this.level / 2)
-    const maxMonsters = 5 + Math.floor(this.level / 2)
-    const maxItems = 2 + Math.floor(this.level / 4)
 
-    const generator = new DefaultGeneratorV2(
-      this.world,
-      map,
-      maxRooms,
-      5,
-      12,
-      maxMonsters,
-      maxItems,
-    )
+    const generator = this.pickGenerator(map)
 
     let success = false
     do {
@@ -205,7 +202,7 @@ export class GameScreen extends Screen {
           generator.stairsLocation(),
           true,
         ).length > 0 &&
-        generator.rooms.length > maxRooms / 2
+        generator.isValid()
       ) {
         success = true
       }
@@ -224,6 +221,59 @@ export class GameScreen extends Screen {
     }
 
     return map
+  }
+
+  pickGenerator(map: Map): Generator {
+    const maxRooms = 8 + Math.floor(this.level / 2)
+    const maxMonsters = 5 + Math.floor(this.level / 2)
+    const maxItems = 2 + Math.floor(this.level / 4)
+
+    const pick = getRandomNumber(0, 4)
+
+    if (pick === 0) {
+      return new DefaultGenerator(
+        this.world,
+        map,
+        maxRooms,
+        5,
+        12,
+        maxMonsters,
+        maxItems,
+      )
+    } else if (pick === 1) {
+      return new DefaultGeneratorV2(
+        this.world,
+        map,
+        maxRooms,
+        5,
+        12,
+        maxMonsters,
+        maxItems,
+      )
+    } else if (pick === 2) {
+      return new MazeGenerator(this.world, map, maxMonsters, maxItems, {
+        x: maxRooms * 2,
+        y: maxRooms * 2,
+      })
+    } else if (pick === 3) {
+      return new CellularGenerator(this.world, map, maxMonsters, maxItems, {
+        x: maxRooms * 2,
+        y: maxRooms * 2,
+      })
+    } else {
+      return new DungeonGenerator(
+        this.world,
+        map,
+        maxMonsters,
+        maxItems,
+        {
+          x: maxRooms * 2,
+          y: maxRooms * 2,
+        },
+        5,
+        12,
+      )
+    }
   }
 
   postProcessMap() {

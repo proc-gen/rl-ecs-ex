@@ -5,6 +5,8 @@ import type { Map } from '../map'
 import { Room, type Sector } from '../containers'
 import {
   clearMap,
+  getEnemyWeights,
+  getItemWeights,
   placeDoors,
   prettify,
   tunnel,
@@ -57,9 +59,15 @@ export class DefaultGeneratorV2 implements Generator {
   }
 
   generate(): void {
-    clearMap(this.map)
-
+    this.rooms.length = 0
     this.createRooms()
+
+    this.copyGeneratedToMap()
+  }
+
+  copyGeneratedToMap(){
+    clearMap(this.map)
+    this.tunnels.length = 0
     this.connectRooms()
 
     this.copyRoomsToMap()
@@ -145,11 +153,13 @@ export class DefaultGeneratorV2 implements Generator {
   }
 
   placeEntities() {
+    this.copyGeneratedToMap()
+
     let monstersLeft = this.maxMonsters
     let itemsLeft = this.maxItems
     const playerStart = this.playerStartPosition()
-    const enemyWeights = this.getEnemyWeights()
-    const itemWeights = this.getItemWeights()
+    const enemyWeights = getEnemyWeights(this.map)
+    const itemWeights = getItemWeights(this.map)
 
     this.rooms.forEach((a) => {
       this.placeLightForRoom(a)
@@ -184,80 +194,6 @@ export class DefaultGeneratorV2 implements Generator {
       DoorComponent.values[door] = { open: false }
       this.map.addEntityAtLocation(door, PositionComponent.values[door])
     })
-  }
-
-  getEnemyWeights(): WeightMap {
-    const weights: WeightMap = { }
-
-    switch(this.map.level){
-      case 1:
-        weights['Goblin'] = 1
-        break
-      case 2:
-        weights['Goblin'] = 30
-        weights['Goblin Slinger'] = 5
-        break
-      case 3:
-        weights['Goblin'] = 10
-        weights['Goblin Slinger'] = 10
-        weights['Orc'] = 10
-        break
-      case 4:
-        weights['Orc'] = 30
-        weights['Goblin'] = 5
-        weights['Goblin Slinger'] = 10
-        weights['Troll'] = 5
-        break
-      case 5:
-        weights['Orc'] = 30
-        weights['Troll Archer'] = 2
-        weights['Troll'] = 10
-        break
-      case 5:
-        weights['Orc'] = 10
-        weights['Troll Archer'] = 5
-        weights['Troll'] = 30
-        break
-      case 6:
-        weights['Troll Archer'] = 20
-        weights['Troll'] = 30
-        break
-      default:
-        weights['Goblin'] = 10
-        weights['Goblin Slinger'] = 10
-        weights['Orc'] = 10
-        weights['Troll Archer'] = 10
-        weights['Troll'] = 10
-        break
-    }
-
-    return weights
-  }
-
-  getItemWeights(): WeightMap {
-    const weights: WeightMap = {
-      'Health Potion': 35,
-      Dagger: 10,
-      'Leather Armor': 10,
-      Sling: 10,
-      Stones: 15,
-    }
-
-    if (this.map.level >= 2) {
-      weights['Confusion Scroll'] = 10
-    }
-    if (this.map.level >= 4) {
-      weights['Lightning Scroll'] = 25
-      weights['Sword'] = 5
-      weights['Bow'] = 5
-      weights['Arrows'] = 15
-    }
-    if (this.map.level >= 6) {
-      weights['Fireball Scroll'] = 25
-      weights['Chain Mail'] = 15
-    }
-
-    return weights
   }
 
   placeLightForRoom(a: Room) {
@@ -407,5 +343,25 @@ export class DefaultGeneratorV2 implements Generator {
   stairsLocation(): Vector2 {
     const lastRoom = this.rooms[this.rooms.length - 1]
     return lastRoom.center()
+  }
+
+  isValid(): boolean {
+    let valid = false
+
+    const start = this.rooms[0]
+    const goodRooms = [start]
+    for(let i = 1; i < this.rooms.length; i++){
+      const path = this.map.getPath(start.center(), this.rooms[i].center())
+      if(path.length > 0){
+        goodRooms.push(this.rooms[i])
+      }
+    }
+
+    if(goodRooms.length > this.rooms.length / 2){
+      valid = true
+      this.rooms = goodRooms
+    }
+
+    return valid
   }
 }
