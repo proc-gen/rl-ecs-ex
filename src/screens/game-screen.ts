@@ -61,6 +61,7 @@ import { MainMenuScreen } from './main-menu-screen'
 import { deserializeWorld, serializeWorld } from '../serialization'
 import { ItemActionTypes, type ItemActionType } from '../constants'
 import { getRandomNumber } from '../utils/random'
+import { GameOverScreen } from './game-over-screen'
 
 export class GameScreen extends Screen {
   public static readonly MAP_WIDTH = 80
@@ -474,9 +475,11 @@ export class GameScreen extends Screen {
       } catch (ex) {
         console.log(ex)
       }
+
+      this.manager.setNextScreen(new MainMenuScreen(this.display, this.manager))
+    } else {
+      this.manager.setNextScreen(new GameOverScreen(this.display, this.manager))
     }
-    const mainMenu = new MainMenuScreen(this.display, this.manager)
-    this.manager.setNextScreen(mainMenu)
   }
 
   mouseMove(event: MouseEvent | WheelEvent) {
