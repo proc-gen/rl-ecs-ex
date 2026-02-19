@@ -164,7 +164,7 @@ export class GameScreen extends Screen {
     ]
 
     this.historyViewer = new MessageHistoryWindow(this.log)
-    this.inventoryWindow = new InventoryWindow(this.world, this.player)
+    this.inventoryWindow = new InventoryWindow(this.world, this.player, this.gameStats)
     this.targetingWindow = new TargetingWindow(
       this.world,
       this.log,

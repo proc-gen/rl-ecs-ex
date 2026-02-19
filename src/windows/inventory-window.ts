@@ -1,5 +1,5 @@
 import { hasComponent, query, type EntityId, type World } from 'bitecs'
-import type { HandleInputInfo, Vector2 } from '../types'
+import type { GameStats, HandleInputInfo, Vector2 } from '../types'
 import type { Display } from 'rot-js'
 import {
   renderSingleLineTextOver,
@@ -33,7 +33,9 @@ export class InventoryWindow implements InputController, RenderWindow {
   playerItems: EntityId[]
   itemIndex: number
 
-  constructor(world: World, player: EntityId) {
+  gameStats: GameStats
+
+  constructor(world: World, player: EntityId, gameStats: GameStats) {
     this.active = false
     this.windowPosition = { x: 15, y: 10 }
     this.windowDimension = { x: 50, y: 30 }
@@ -44,6 +46,7 @@ export class InventoryWindow implements InputController, RenderWindow {
     this.player = player
     this.playerItems = []
     this.itemIndex = 0
+    this.gameStats = gameStats
   }
 
   getActive(): boolean {
@@ -213,7 +216,7 @@ export class InventoryWindow implements InputController, RenderWindow {
       Colors.White,
       null,
     )
-    renderPos.y++
+    renderPos.y += 2
 
     renderSingleLineTextOver(
       display,
@@ -246,6 +249,33 @@ export class InventoryWindow implements InputController, RenderWindow {
       display,
       renderPos,
       `Weapon: ${equipment.weapon !== -1 ? InfoComponent.values[equipment.weapon].name : ''}`,
+      Colors.White,
+      null,
+    )
+    renderPos.y += 2
+
+    renderSingleLineTextOver(
+      display,
+      renderPos,
+      `Enemies Killed: ${this.gameStats.enemiesKilled}`,
+      Colors.White,
+      null,
+    )
+    renderPos.y++
+
+    renderSingleLineTextOver(
+      display,
+      renderPos,
+      `Potions Chugged: ${this.gameStats.healthPotionsDrank}`,
+      Colors.White,
+      null,
+    )
+    renderPos.y++
+
+    renderSingleLineTextOver(
+      display,
+      renderPos,
+      `Steps Walked: ${this.gameStats.stepsWalked}`,
       Colors.White,
       null,
     )
