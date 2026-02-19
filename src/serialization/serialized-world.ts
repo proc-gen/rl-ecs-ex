@@ -1,11 +1,12 @@
 import type { EntityId } from 'bitecs'
 import type { Tile } from '../map'
-import type { Message } from '../types'
+import type { GameStats, Message } from '../types'
 
 export type SerializedWorld = {
   width: number
   height: number
   level: number
+  gameStats: GameStats
   messages: Message[]
   tiles: Tile[][]
   serializedEntities: SerializedEntity[]

@@ -4,7 +4,7 @@ import {
   renderSingleLineTextOver,
   renderWindowWithTitle,
 } from '../utils/render-funcs'
-import type { Vector2 } from '../types'
+import type { GameStats, Vector2 } from '../types'
 import { add } from '../utils/vector-2-funcs'
 import { Colors } from '../constants/colors'
 import type { ScreenManager } from '../screen-manager'
@@ -16,8 +16,9 @@ export class GameOverScreen extends Screen {
   renderPosition: Vector2
 
   showBackToMainMenu: boolean
+  gameStats: GameStats
 
-  constructor(display: Display, manager: ScreenManager) {
+  constructor(display: Display, manager: ScreenManager, gameStats: GameStats) {
     super(display, manager)
 
     this.windowPosition = { x: 13, y: 16 }
@@ -25,10 +26,11 @@ export class GameOverScreen extends Screen {
     this.renderPosition = { x: 14, y: 18 }
 
     this.showBackToMainMenu = false
+    this.gameStats = gameStats
 
     window.setTimeout(() => {
       this.showBackToMainMenu = true
-    }, 3000)
+    }, 2000)
   }
 
   keyDown(event: KeyboardEvent) {
@@ -52,13 +54,61 @@ export class GameOverScreen extends Screen {
       this.display,
       this.windowPosition,
       this.windowDimension,
-      'You met your doom, adventurer...',
+      'Game Over',
+    )
+
+    renderSingleLineTextOver(
+      this.display,
+      add(this.renderPosition, { x: 7, y: 2 }),
+      "You've met your doom, adventurer...",
+      Colors.White,
+      null,
+    )
+
+    renderSingleLineTextOver(
+      this.display,
+      add(this.renderPosition, { x: 11, y: 6 }),
+      `Enemies Killed: ${this.gameStats.enemiesKilled}`,
+      Colors.White,
+      null,
+    )
+
+    renderSingleLineTextOver(
+      this.display,
+      add(this.renderPosition, { x: 11, y: 7 }),
+      `Health Potions Chugged: ${this.gameStats.healthPotionsDrank}`,
+      Colors.White,
+      null,
+    )
+
+    renderSingleLineTextOver(
+      this.display,
+      add(this.renderPosition, { x: 11, y: 8 }),
+      `Steps Walked: ${this.gameStats.stepsWalked}`,
+      Colors.White,
+      null,
+    )
+
+    renderSingleLineTextOver(
+      this.display,
+      add(this.renderPosition, { x: 11, y: 9 }),
+      `Stairs Descended: ${this.gameStats.stairsDescended}`,
+      Colors.White,
+      null,
+    )
+
+    renderSingleLineTextOver(
+      this.display,
+      add(this.renderPosition, { x: 7, y: 11 }),
+      `Adventure ended by a ${this.gameStats.killedBy}`,
+      Colors.White,
+      null,
     )
 
     if (this.showBackToMainMenu) {
       renderSingleLineTextOver(
         this.display,
-        add(this.renderPosition, { x: 0, y: 7 }),
+        add(this.renderPosition, { x: 12, y: 15 }),
         '-> Back to Main Menu',
         Colors.White,
         null,

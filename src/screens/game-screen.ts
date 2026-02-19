@@ -45,7 +45,7 @@ import {
   MazeGenerator,
   type Generator,
 } from '../map/generators'
-import type { HandleInputInfo, Vector2 } from '../types'
+import type { GameStats, HandleInputInfo, Vector2 } from '../types'
 import { createPlayer } from '../ecs/templates'
 import { MessageLog } from '../utils/message-log'
 import {
@@ -87,6 +87,7 @@ export class GameScreen extends Screen {
   removeSystem: UpdateRemoveSystem
   playerTurn: boolean
   processingMove: boolean
+  gameStats: GameStats
 
   constructor(
     display: Display,
@@ -99,11 +100,12 @@ export class GameScreen extends Screen {
 
     if (saveGame !== undefined) {
       localStorage.removeItem('rogue-save')
-      const { world, map, log, level } = deserializeWorld(saveGame)
+      const { world, map, log, level, gameStats } = deserializeWorld(saveGame)
       this.world = world
       this.map = map
       this.log = log
       this.level = level
+      this.gameStats = gameStats
 
       this.log.addMessage('Welcome back, adventurer...')
     } else {
@@ -111,6 +113,13 @@ export class GameScreen extends Screen {
       this.level = 1
       this.log = new MessageLog()
       this.map = this.generateMap()
+      this.gameStats = {
+        enemiesKilled: 0,
+        healthPotionsDrank: 0,
+        stepsWalked: 0,
+        stairsDescended: 0,
+        killedBy: ''
+      }
     }
 
     this.player = (query(this.world, [PlayerComponent]) as EntityId[])[0]
@@ -121,9 +130,9 @@ export class GameScreen extends Screen {
     this.updateSystems = [
       this.removeSystem,
       new UpdateAiActionSystem(this.map, this.player),
-      new UpdateActionSystem(this.log, this.map, this.playerFOV),
-      new UpdateWantUseItemSystem(this.log, this.map),
-      new UpdateWantAttackSystem(this.log),
+      new UpdateActionSystem(this.log, this.map, this.playerFOV, this.gameStats),
+      new UpdateWantUseItemSystem(this.log, this.map, this.gameStats),
+      new UpdateWantAttackSystem(this.log, this.gameStats),
       new UpdateWantCauseSpellEffectSystem(this.log),
       new UpdateTurnsLeftSystem(this.log),
     ]
@@ -458,6 +467,7 @@ export class GameScreen extends Screen {
     const tile = this.map.tiles[playerPosition.x][playerPosition.y]
     if (tile.name === 'Stairs Down') {
       this.level++
+      this.gameStats.stairsDescended++
       this.map.copyFromOtherMap(this.generateMap())
       this.postProcessMap()
     } else {
@@ -468,7 +478,7 @@ export class GameScreen extends Screen {
 
   backToMainMenu(saveGame: boolean) {
     if (saveGame) {
-      const serializedWorld = serializeWorld(this.world, this.map, this.log)
+      const serializedWorld = serializeWorld(this.world, this.map, this.log, this.gameStats)
 
       try {
         localStorage.setItem('rogue-save', JSON.stringify(serializedWorld))
@@ -478,7 +488,7 @@ export class GameScreen extends Screen {
 
       this.manager.setNextScreen(new MainMenuScreen(this.display, this.manager))
     } else {
-      this.manager.setNextScreen(new GameOverScreen(this.display, this.manager))
+      this.manager.setNextScreen(new GameOverScreen(this.display, this.manager, this.gameStats))
     }
   }
 
