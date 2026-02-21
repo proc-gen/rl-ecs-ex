@@ -1,14 +1,19 @@
 import { type Map } from '../map'
-import { FieldOfViewComponent, PositionComponent, type Position } from '../ecs/components'
+import {
+  FieldOfViewComponent,
+  PositionComponent,
+  type Position,
+} from '../ecs/components'
 import { type Vector2 } from '../types'
 import { Color, FOV } from 'rot-js'
 import type { EntityId } from 'bitecs'
+import { distance } from './vector-2-funcs'
 
 export const processFOV = (map: Map, position: Position, range: number) => {
   const fovPositions: Vector2[] = []
   const fov = new FOV.PreciseShadowcasting(map.lightPassesThrough.bind(map))
   fov.compute(position.x, position.y, range, (x, y, _r, visibility) => {
-    if (visibility === 1) {
+    if (visibility === 1 && distance(position, { x, y }) <= range) {
       fovPositions.push({ x, y })
     }
   })
@@ -16,11 +21,17 @@ export const processFOV = (map: Map, position: Position, range: number) => {
   return fovPositions
 }
 
-export const processLightFOV = (map: Map, position: Position, range: number) => {
+export const processLightFOV = (
+  map: Map,
+  position: Position,
+  range: number,
+) => {
   const fovPositions: Vector2[] = []
-  const fov = new FOV.PreciseShadowcasting(map.lightPassesThroughForShadow.bind(map))
+  const fov = new FOV.PreciseShadowcasting(
+    map.lightPassesThroughForShadow.bind(map),
+  )
   fov.compute(position.x, position.y, range, (x, y, _r, visibility) => {
-    if (visibility === 1) {
+    if (visibility === 1 && distance(position, { x, y }) <= range) {
       fovPositions.push({ x, y })
     }
   })
