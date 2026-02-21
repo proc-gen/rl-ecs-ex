@@ -56,10 +56,14 @@ export class MainMenuScreen extends Screen {
 
     switch (option) {
       case 'New Game':
+        if(this.options.length === 2){
+          localStorage.removeItem('rogue-save')
+        }
         this.manager.setNextScreen(new GameScreen(this.display, this.manager))
         break
       case 'Continue Game':
         const saveGame = localStorage.getItem('rogue-save')
+        localStorage.removeItem('rogue-save')
         this.manager.setNextScreen(
           new GameScreen(this.display, this.manager, saveGame!),
         )
