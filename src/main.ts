@@ -6,13 +6,8 @@ const runGame = () => {
   const container = screenManager.display.getContainer()!
   document.getElementById('game-window')?.appendChild(container)
 
-  renderLoop(screenManager)
-}
-
-const renderLoop = (screenManager: ScreenManager) => {
-  setTimeout(() => {
+  setInterval(() => {
     screenManager.render()
-    renderLoop(screenManager)
   }, 50)
 }
 
