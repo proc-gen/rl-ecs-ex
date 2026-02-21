@@ -28,7 +28,7 @@ import {
   RemoveComponent,
 } from '../../components'
 import { Map } from '../../../map'
-import type { Vector2 } from '../../../types'
+import type { GameStats, Vector2 } from '../../../types'
 import type { MessageLog } from '../../../utils/message-log'
 import { distance, equal } from '../../../utils/vector-2-funcs'
 import { processFOV, processPlayerFOV } from '../../../utils/fov-funcs'
@@ -44,11 +44,13 @@ export class UpdateActionSystem implements UpdateSystem {
   map: Map
   playerFOV: Vector2[]
   log: MessageLog
+  gameStats: GameStats
 
-  constructor(log: MessageLog, map: Map, playerFOV: Vector2[]) {
+  constructor(log: MessageLog, map: Map, playerFOV: Vector2[], gameStats: GameStats) {
     this.log = log
     this.map = map
     this.playerFOV = playerFOV
+    this.gameStats = gameStats
   }
 
   update(world: World, entity: EntityId) {
@@ -298,6 +300,7 @@ export class UpdateActionSystem implements UpdateSystem {
     position.y = newPosition.y
 
     if (hasComponent(world, eid, PlayerComponent)) {
+      this.gameStats.stepsWalked++
       processPlayerFOV(this.map, eid, this.playerFOV)
     }
   }

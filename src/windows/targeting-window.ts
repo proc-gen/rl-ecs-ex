@@ -138,27 +138,21 @@ export class TargetingWindow implements InputController, RenderWindow {
     const inputInfo = { needUpdate: false }
     switch (event.key) {
       case 'ArrowUp':
-      case 'w':
         this.setTargetPosition(0, -1)
         break
       case 'ArrowDown':
-      case 's':
         this.setTargetPosition(0, 1)
         break
       case 'ArrowLeft':
-      case 'a':
         this.setTargetPosition(-1, 0)
         break
       case 'ArrowRight':
-      case 'd':
         this.setTargetPosition(1, 0)
         break
       case 'Enter':
-      case 'e':
         this.useItem(inputInfo)
         break
       case 'Escape':
-      case 'End':
         this.active = false
         break
     }

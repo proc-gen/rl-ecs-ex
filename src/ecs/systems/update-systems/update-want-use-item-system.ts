@@ -18,6 +18,7 @@ import {
   HealthComponent,
   InfoComponent,
   OwnerComponent,
+  PlayerComponent,
   PositionComponent,
   RangedWeaponComponent,
   RemoveComponent,
@@ -43,16 +44,18 @@ import {
   type AttackType,
 } from '../../../constants'
 import { processFOV } from '../../../utils/fov-funcs'
-import type { Vector2 } from '../../../types'
+import type { GameStats, Vector2 } from '../../../types'
 import { createAnimation } from '../../templates'
 
 export class UpdateWantUseItemSystem implements UpdateSystem {
   log: MessageLog
   map: Map
+  gameStats: GameStats
 
-  constructor(log: MessageLog, map: Map) {
+  constructor(log: MessageLog, map: Map, gameStats: GameStats) {
     this.log = log
     this.map = map
+    this.gameStats = gameStats
   }
 
   update(world: World, _entity: EntityId) {
@@ -191,6 +194,10 @@ export class UpdateWantUseItemSystem implements UpdateSystem {
         useItem.item,
         PositionComponent.values[useItem.owner],
       )
+
+      if(hasComponent(world, useItem.owner, PlayerComponent)){
+        this.gameStats.healthPotionsDrank++
+      }
 
       this.actionSuccess(
         world,

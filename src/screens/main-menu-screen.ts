@@ -9,6 +9,7 @@ import { add } from '../utils/vector-2-funcs'
 import { Colors } from '../constants/colors'
 import type { ScreenManager } from '../screen-manager'
 import { GameScreen } from './game-screen'
+import { HelpWindow } from '../windows'
 
 export class MainMenuScreen extends Screen {
   selectedOption: number
@@ -16,6 +17,8 @@ export class MainMenuScreen extends Screen {
   windowDimension: Vector2
   renderPosition: Vector2
   options: string[]
+
+  helpWindow: HelpWindow
 
   constructor(display: Display, manager: ScreenManager) {
     super(display, manager)
@@ -30,24 +33,30 @@ export class MainMenuScreen extends Screen {
     if (localStorage.getItem('rogue-save') !== null) {
       this.options.push('Continue Game')
     }
+
+    this.options.push('Instructions')
+
+    this.helpWindow = new HelpWindow()
   }
 
   keyDown(event: KeyboardEvent) {
-    switch (event.key) {
-      case 'ArrowUp':
-      case 'w':
-        this.selectedOption = Math.max(0, this.selectedOption - 1)
-        break
-      case 'ArrowDown':
-      case 's':
-        this.selectedOption = Math.min(
-          this.options.length - 1,
-          this.selectedOption + 1,
-        )
-        break
-      case 'Enter':
-        this.handleSelectedOption()
-        break
+    if (this.helpWindow.active) {
+      this.helpWindow.handleKeyboardInput(event)
+    } else {
+      switch (event.key) {
+        case 'ArrowUp':
+          this.selectedOption = Math.max(0, this.selectedOption - 1)
+          break
+        case 'ArrowDown':
+          this.selectedOption = Math.min(
+            this.options.length - 1,
+            this.selectedOption + 1,
+          )
+          break
+        case 'Enter':
+          this.handleSelectedOption()
+          break
+      }
     }
   }
 
@@ -56,13 +65,21 @@ export class MainMenuScreen extends Screen {
 
     switch (option) {
       case 'New Game':
+        if (this.options.includes('Continue Game')) {
+          localStorage.removeItem('rogue-save')
+        }
         this.manager.setNextScreen(new GameScreen(this.display, this.manager))
         break
       case 'Continue Game':
         const saveGame = localStorage.getItem('rogue-save')
+        localStorage.removeItem('rogue-save')
         this.manager.setNextScreen(
           new GameScreen(this.display, this.manager, saveGame!),
         )
+        break
+      case 'Instructions':
+        this.helpWindow.setActive(true)
+        break
     }
   }
 
@@ -87,5 +104,9 @@ export class MainMenuScreen extends Screen {
         null,
       )
     })
+
+    if (this.helpWindow.active) {
+      this.helpWindow.render(this.display)
+    }
   }
 }

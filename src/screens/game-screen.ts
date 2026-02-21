@@ -45,7 +45,7 @@ import {
   MazeGenerator,
   type Generator,
 } from '../map/generators'
-import type { HandleInputInfo, Vector2 } from '../types'
+import type { GameStats, HandleInputInfo, Vector2 } from '../types'
 import { createPlayer } from '../ecs/templates'
 import { MessageLog } from '../utils/message-log'
 import {
@@ -53,6 +53,7 @@ import {
   MessageHistoryWindow,
   TargetingWindow,
   LevelUpWindow,
+  HelpWindow,
 } from '../windows'
 import { processPlayerFOV } from '../utils/fov-funcs'
 import { Screen } from './screen'
@@ -61,6 +62,7 @@ import { MainMenuScreen } from './main-menu-screen'
 import { deserializeWorld, serializeWorld } from '../serialization'
 import { ItemActionTypes, type ItemActionType } from '../constants'
 import { getRandomNumber } from '../utils/random'
+import { GameOverScreen } from './game-over-screen'
 
 export class GameScreen extends Screen {
   public static readonly MAP_WIDTH = 80
@@ -78,6 +80,7 @@ export class GameScreen extends Screen {
   inventoryWindow: InventoryWindow
   targetingWindow: TargetingWindow
   levelUpWindow: LevelUpWindow
+  helpWindow: HelpWindow
   renderSystems: RenderSystem[]
   renderHudSystem: RenderHudSystem
   renderMapSystem: RenderMapSystem
@@ -86,6 +89,7 @@ export class GameScreen extends Screen {
   removeSystem: UpdateRemoveSystem
   playerTurn: boolean
   processingMove: boolean
+  gameStats: GameStats
 
   constructor(
     display: Display,
@@ -98,11 +102,12 @@ export class GameScreen extends Screen {
 
     if (saveGame !== undefined) {
       localStorage.removeItem('rogue-save')
-      const { world, map, log, level } = deserializeWorld(saveGame)
+      const { world, map, log, level, gameStats } = deserializeWorld(saveGame)
       this.world = world
       this.map = map
       this.log = log
       this.level = level
+      this.gameStats = gameStats
 
       this.log.addMessage('Welcome back, adventurer...')
     } else {
@@ -110,6 +115,13 @@ export class GameScreen extends Screen {
       this.level = 1
       this.log = new MessageLog()
       this.map = this.generateMap()
+      this.gameStats = {
+        enemiesKilled: 0,
+        healthPotionsDrank: 0,
+        stepsWalked: 0,
+        stairsDescended: 0,
+        killedBy: ''
+      }
     }
 
     this.player = (query(this.world, [PlayerComponent]) as EntityId[])[0]
@@ -120,9 +132,9 @@ export class GameScreen extends Screen {
     this.updateSystems = [
       this.removeSystem,
       new UpdateAiActionSystem(this.map, this.player),
-      new UpdateActionSystem(this.log, this.map, this.playerFOV),
-      new UpdateWantUseItemSystem(this.log, this.map),
-      new UpdateWantAttackSystem(this.log),
+      new UpdateActionSystem(this.log, this.map, this.playerFOV, this.gameStats),
+      new UpdateWantUseItemSystem(this.log, this.map, this.gameStats),
+      new UpdateWantAttackSystem(this.log, this.gameStats),
       new UpdateWantCauseSpellEffectSystem(this.log),
       new UpdateTurnsLeftSystem(this.log),
     ]
@@ -154,7 +166,7 @@ export class GameScreen extends Screen {
     ]
 
     this.historyViewer = new MessageHistoryWindow(this.log)
-    this.inventoryWindow = new InventoryWindow(this.world, this.player)
+    this.inventoryWindow = new InventoryWindow(this.world, this.player, this.gameStats)
     this.targetingWindow = new TargetingWindow(
       this.world,
       this.log,
@@ -163,6 +175,7 @@ export class GameScreen extends Screen {
       this.playerFOV,
     )
     this.levelUpWindow = new LevelUpWindow(this.world, this.log, this.player)
+    this.helpWindow = new HelpWindow()
 
     this.playerTurn = true
     this.processingMove = false
@@ -316,6 +329,8 @@ export class GameScreen extends Screen {
       this.inventoryWindow.render(this.display)
     } else if (this.historyViewer.active) {
       this.historyViewer.render(this.display)
+    } else if (this.helpWindow.active){
+      this.helpWindow.render(this.display)
     }
   }
 
@@ -388,29 +403,25 @@ export class GameScreen extends Screen {
         } else if (this.historyViewer.active) {
           const inputInfo = this.historyViewer.handleKeyboardInput(event)
           this.handleInputInfo(inputInfo)
+        } else if (this.helpWindow.active) {
+          this.helpWindow.handleKeyboardInput(event)
         } else {
           switch (event.key) {
             case 'ArrowUp':
-            case 'w':
               this.setPlayerAction(0, -1)
               break
             case 'ArrowDown':
-            case 's':
               this.setPlayerAction(0, 1)
               break
             case 'ArrowLeft':
-            case 'a':
               this.setPlayerAction(-1, 0)
               break
             case 'ArrowRight':
-            case 'd':
               this.setPlayerAction(1, 0)
               break
             case ' ':
-            case 'Enter':
               this.setPlayerAction(0, 0)
               break
-            case 'e':
             case 'g':
               this.setPlayerAction(0, 0, true)
               break
@@ -428,17 +439,17 @@ export class GameScreen extends Screen {
                 EquipmentComponent.values[this.player].weapon,
               )
               break
-            case '.':
-            case 'q':
+            case 'e':
               this.renderHudSystem.setActive(true)
               break
             case 'l':
-            case '`':
               this.historyViewer.setActive(true)
               break
-            case 'Tab':
             case 'i':
               this.inventoryWindow.setActive(true)
+              break
+            case 'F1':
+              this.helpWindow.setActive(true)
               break
             case 'v':
               this.tryToDescend()
@@ -457,6 +468,7 @@ export class GameScreen extends Screen {
     const tile = this.map.tiles[playerPosition.x][playerPosition.y]
     if (tile.name === 'Stairs Down') {
       this.level++
+      this.gameStats.stairsDescended++
       this.map.copyFromOtherMap(this.generateMap())
       this.postProcessMap()
     } else {
@@ -467,16 +479,18 @@ export class GameScreen extends Screen {
 
   backToMainMenu(saveGame: boolean) {
     if (saveGame) {
-      const serializedWorld = serializeWorld(this.world, this.map, this.log)
+      const serializedWorld = serializeWorld(this.world, this.map, this.log, this.gameStats)
 
       try {
         localStorage.setItem('rogue-save', JSON.stringify(serializedWorld))
       } catch (ex) {
         console.log(ex)
       }
+
+      this.manager.setNextScreen(new MainMenuScreen(this.display, this.manager))
+    } else {
+      this.manager.setNextScreen(new GameOverScreen(this.display, this.manager, this.gameStats))
     }
-    const mainMenu = new MainMenuScreen(this.display, this.manager)
-    this.manager.setNextScreen(mainMenu)
   }
 
   mouseMove(event: MouseEvent | WheelEvent) {
@@ -525,6 +539,7 @@ export class GameScreen extends Screen {
       this.targetingWindow.setActive(false)
       this.historyViewer.setActive(false)
       this.renderHudSystem.setActive(false)
+      this.helpWindow.setActive(false)
       this.update()
     } else if (inputInfo.needTargeting !== undefined) {
       this.targetingWindow.setActive(true)

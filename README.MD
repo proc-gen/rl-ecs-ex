@@ -39,7 +39,7 @@ This readme was created as part of the `refactor-1` branch to fix some inconsist
 - ~~"Animations"~~
 - ~~Ranged enemies + revamped ai~~
 - ~~More map generation styles~~
-- Game Over Stats + Other Minor Things
+- ~~Game Over Stats + Other Minor Things~~
 
 ## Errata
 
@@ -171,3 +171,13 @@ Up to this point, we've really only used one type of generator for our maps, whi
 For the maze and cellular generators, a different approach to placing entities, the start, and stairway positions was required. To keep it simple, there's a list of all traversible spaces kept from the ROT.js generator as floor tiles are applied to the map. Random positions are selected out of that array for everything, and there's also a requirement that the stairs be at least 25 spaces away from the start so that it's not immediately accessible.
 
 While I would've preferred to include some other generator choices in addition to the ROT.js ones, binary space partitioning especially, it's getting very close to 7DRL 2026 and I still need to work on a game design document. The next section will likely be the last until 7DRL is over.
+
+### Part New 21 - Game Over Screen and other nice things
+
+It's a bit anticlimactic to lose and be sent back to the main menu without any other information. The main idea of this piece of code is to add a game over screen and log things that the player does.
+
+A couple minor fixes like having the FOV functions actually respect the range provided as a distance. The base implementation provided by ROT.js is giving a square based on the provided range, so this just adds an additional distance check using the function already written for Vector2.
+
+The other fix is that any save game that exists should get deleted when starting a new run or continuing an existing one. It's not really a roguelike if you can keep starting from an old save, right?
+
+For quality of life, a help window now has instructions on how to play the game. There really are a lot of different actions that can be taken, and you don't want the player to get frustrated figuring out what keys do what. Not everyone has the benefit of reading your code to learn how things work!

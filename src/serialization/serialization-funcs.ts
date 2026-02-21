@@ -18,8 +18,9 @@ import {
   WorldComponents,
 } from '../ecs/components'
 import { MessageLog } from '../utils/message-log'
+import type { GameStats } from '../types'
 
-export const serializeWorld = (world: World, map: Map, log: MessageLog) => {
+export const serializeWorld = (world: World, map: Map, log: MessageLog, gameStats: GameStats) => {
   const entities = getAllEntities(world)
   const serializedEntities = entities.map((e) => {
     const components = WorldComponents.map((componentType) => {
@@ -40,6 +41,7 @@ export const serializeWorld = (world: World, map: Map, log: MessageLog) => {
     width: map.width,
     height: map.height,
     level: map.level,
+    gameStats,
     messages: log.messages,
     tiles: map.tiles,
     serializedEntities: serializedEntities,
@@ -103,6 +105,7 @@ export const deserializeWorld = (saveGame: string) => {
     world,
     map,
     log,
+    gameStats: parsedWorld.gameStats,
     level: parsedWorld.level,
   }
 }

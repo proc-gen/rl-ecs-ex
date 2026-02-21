@@ -25,12 +25,15 @@ import {
 } from '../../components'
 import { MessageLog } from '../../../utils/message-log'
 import { AmmunitionTypes, AttackTypes } from '../../../constants'
+import type { GameStats } from '../../../types'
 
 export class UpdateWantAttackSystem implements UpdateSystem {
   log: MessageLog
+  gameStats: GameStats
 
-  constructor(log: MessageLog) {
+  constructor(log: MessageLog, gameStats: GameStats) {
     this.log = log
+    this.gameStats = gameStats
   }
 
   update(world: World, _entity: EntityId) {
@@ -79,11 +82,13 @@ export class UpdateWantAttackSystem implements UpdateSystem {
           this.log.addMessage(`${infoBlocker.name} has died.`)
           if (hasComponent(world, attack.defender, PlayerComponent)) {
             addComponent(world, attack.defender, DeadComponent)
+            this.gameStats.killedBy = infoActor.name
           } else {
             const gainedXp = StatsComponent.values[attack.defender].xpGiven
             PlayerComponent.values[attack.attacker].currentXp += gainedXp
             this.log.addMessage(`You gain ${gainedXp} experience points`)
-
+            this.gameStats.enemiesKilled++
+            
             addComponents(
               world,
               attack.defender,
