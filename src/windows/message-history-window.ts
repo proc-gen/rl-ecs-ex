@@ -41,18 +41,15 @@ export class MessageHistoryWindow implements InputController, RenderWindow {
     const inputInfo = { needUpdate: false }
     switch (event.key) {
       case 'ArrowUp':
-      case 'w':
         this.logPosition = Math.max(0, this.logPosition - 1)
         break
       case 'ArrowDown':
-      case 's':
         this.logPosition = Math.min(
           this.log.messages.length - 1,
           this.logPosition + 1,
         )
         break
       case 'Escape':
-      case 'End':
         this.active = false
         break
     }

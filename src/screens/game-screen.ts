@@ -53,6 +53,7 @@ import {
   MessageHistoryWindow,
   TargetingWindow,
   LevelUpWindow,
+  HelpWindow,
 } from '../windows'
 import { processPlayerFOV } from '../utils/fov-funcs'
 import { Screen } from './screen'
@@ -79,6 +80,7 @@ export class GameScreen extends Screen {
   inventoryWindow: InventoryWindow
   targetingWindow: TargetingWindow
   levelUpWindow: LevelUpWindow
+  helpWindow: HelpWindow
   renderSystems: RenderSystem[]
   renderHudSystem: RenderHudSystem
   renderMapSystem: RenderMapSystem
@@ -173,6 +175,7 @@ export class GameScreen extends Screen {
       this.playerFOV,
     )
     this.levelUpWindow = new LevelUpWindow(this.world, this.log, this.player)
+    this.helpWindow = new HelpWindow()
 
     this.playerTurn = true
     this.processingMove = false
@@ -326,6 +329,8 @@ export class GameScreen extends Screen {
       this.inventoryWindow.render(this.display)
     } else if (this.historyViewer.active) {
       this.historyViewer.render(this.display)
+    } else if (this.helpWindow.active){
+      this.helpWindow.render(this.display)
     }
   }
 
@@ -398,29 +403,25 @@ export class GameScreen extends Screen {
         } else if (this.historyViewer.active) {
           const inputInfo = this.historyViewer.handleKeyboardInput(event)
           this.handleInputInfo(inputInfo)
+        } else if (this.helpWindow.active) {
+          this.helpWindow.handleKeyboardInput(event)
         } else {
           switch (event.key) {
             case 'ArrowUp':
-            case 'w':
               this.setPlayerAction(0, -1)
               break
             case 'ArrowDown':
-            case 's':
               this.setPlayerAction(0, 1)
               break
             case 'ArrowLeft':
-            case 'a':
               this.setPlayerAction(-1, 0)
               break
             case 'ArrowRight':
-            case 'd':
               this.setPlayerAction(1, 0)
               break
             case ' ':
-            case 'Enter':
               this.setPlayerAction(0, 0)
               break
-            case 'e':
             case 'g':
               this.setPlayerAction(0, 0, true)
               break
@@ -438,17 +439,17 @@ export class GameScreen extends Screen {
                 EquipmentComponent.values[this.player].weapon,
               )
               break
-            case '.':
-            case 'q':
+            case 'e':
               this.renderHudSystem.setActive(true)
               break
             case 'l':
-            case '`':
               this.historyViewer.setActive(true)
               break
-            case 'Tab':
             case 'i':
               this.inventoryWindow.setActive(true)
+              break
+            case 'F1':
+              this.helpWindow.setActive(true)
               break
             case 'v':
               this.tryToDescend()
@@ -538,6 +539,7 @@ export class GameScreen extends Screen {
       this.targetingWindow.setActive(false)
       this.historyViewer.setActive(false)
       this.renderHudSystem.setActive(false)
+      this.helpWindow.setActive(false)
       this.update()
     } else if (inputInfo.needTargeting !== undefined) {
       this.targetingWindow.setActive(true)

@@ -67,15 +67,12 @@ export class LevelUpWindow implements InputController, RenderWindow {
     const inputInfo: HandleInputInfo = { needUpdate: false }
     switch (event.key) {
       case 'ArrowUp':
-      case 'w':
         this.selectedOption = Math.floor(Math.max(0, this.selectedOption - 1))
         break
       case 'ArrowDown':
-      case 's':
         this.selectedOption = Math.floor(Math.min(3, this.selectedOption + 1))
         break
       case 'Enter':
-      case 'e':
         this.processLevelUp()
         inputInfo.finishTurn = true
         inputInfo.needUpdate = true

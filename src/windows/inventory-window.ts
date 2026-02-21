@@ -74,21 +74,17 @@ export class InventoryWindow implements InputController, RenderWindow {
     const inputInfo = { needUpdate: false }
     switch (event.key) {
       case 'ArrowUp':
-      case 'w':
         this.itemIndex = Math.floor(Math.max(0, this.itemIndex - 1))
         break
       case 'ArrowDown':
-      case 's':
         this.itemIndex = Math.floor(
           Math.min(this.playerItems.length - 1, this.itemIndex + 1),
         )
         break
       case 'Enter':
-      case 'e':
         this.useItem(inputInfo)
         break
-      case 'Delete':
-      case 'q':
+      case 'd':
         this.setPlayerAction(
           this.playerItems[this.itemIndex],
           ItemActionTypes.Drop as ItemActionType,
@@ -97,7 +93,6 @@ export class InventoryWindow implements InputController, RenderWindow {
         inputInfo.needUpdate = true
         break
       case 'Escape':
-      case 'End':
         this.active = false
         break
     }
