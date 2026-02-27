@@ -133,7 +133,12 @@ export class Map {
     return []
   }
 
-  getPath(start: Vector2, end: Vector2, ignoreDoors: boolean = false, ignoreEntities: boolean = false) {
+  getPath(
+    start: Vector2,
+    end: Vector2,
+    ignoreDoors: boolean = false,
+    ignoreEntities: boolean = false,
+  ) {
     const astar = new AStar(end.x, end.y, this.passableCallBack.bind(this), {
       topology: 4,
     })
@@ -156,7 +161,7 @@ export class Map {
     }
 
     if (this.isWalkable(x, y)) {
-      if(this.ignoreEntities){
+      if (this.ignoreEntities) {
         return true
       }
 
@@ -176,7 +181,11 @@ export class Map {
       ) {
         return true
       }
-    } else if (this.tiles[x][y].name.includes('Door') && this.ignoreDoors) {
+    } else if (
+      this.tiles[x][y] !== undefined &&
+      this.tiles[x][y].name.includes('Door') &&
+      this.ignoreDoors
+    ) {
       return true
     }
 

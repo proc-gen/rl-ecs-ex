@@ -43,6 +43,7 @@ import {
   DefaultGeneratorV2,
   DungeonGenerator,
   MazeGenerator,
+  RecursiveSubdivisionGenerator,
   type Generator,
 } from '../map/generators'
 import type { GameStats, HandleInputInfo, Vector2 } from '../types'
@@ -120,7 +121,7 @@ export class GameScreen extends Screen {
         healthPotionsDrank: 0,
         stepsWalked: 0,
         stairsDescended: 0,
-        killedBy: ''
+        killedBy: '',
       }
     }
 
@@ -132,7 +133,12 @@ export class GameScreen extends Screen {
     this.updateSystems = [
       this.removeSystem,
       new UpdateAiActionSystem(this.map, this.player),
-      new UpdateActionSystem(this.log, this.map, this.playerFOV, this.gameStats),
+      new UpdateActionSystem(
+        this.log,
+        this.map,
+        this.playerFOV,
+        this.gameStats,
+      ),
       new UpdateWantUseItemSystem(this.log, this.map, this.gameStats),
       new UpdateWantAttackSystem(this.log, this.gameStats),
       new UpdateWantCauseSpellEffectSystem(this.log),
@@ -166,7 +172,11 @@ export class GameScreen extends Screen {
     ]
 
     this.historyViewer = new MessageHistoryWindow(this.log)
-    this.inventoryWindow = new InventoryWindow(this.world, this.player, this.gameStats)
+    this.inventoryWindow = new InventoryWindow(
+      this.world,
+      this.player,
+      this.gameStats,
+    )
     this.targetingWindow = new TargetingWindow(
       this.world,
       this.log,
@@ -241,7 +251,7 @@ export class GameScreen extends Screen {
     const maxMonsters = 5 + Math.floor(this.level / 2)
     const maxItems = 2 + Math.floor(this.level / 4)
 
-    const pick = getRandomNumber(0, 4)
+    const pick = getRandomNumber(7, 7)
 
     if (pick === 0) {
       return new DefaultGenerator(
@@ -273,7 +283,7 @@ export class GameScreen extends Screen {
         x: maxRooms * 2,
         y: maxRooms * 2,
       })
-    } else {
+    } else if (pick === 4) {
       return new DungeonGenerator(
         this.world,
         map,
@@ -285,6 +295,20 @@ export class GameScreen extends Screen {
         },
         5,
         12,
+      )
+    } else {
+      return new RecursiveSubdivisionGenerator(
+        this.world,
+        map,
+        maxMonsters,
+        maxItems,
+        { x: maxRooms * 6, y: maxRooms * 6 },
+        maxRooms * 7,
+        2,
+        6,
+        2,
+        6,
+        50,
       )
     }
   }
@@ -329,7 +353,7 @@ export class GameScreen extends Screen {
       this.inventoryWindow.render(this.display)
     } else if (this.historyViewer.active) {
       this.historyViewer.render(this.display)
-    } else if (this.helpWindow.active){
+    } else if (this.helpWindow.active) {
       this.helpWindow.render(this.display)
     }
   }
@@ -479,17 +503,22 @@ export class GameScreen extends Screen {
 
   backToMainMenu(saveGame: boolean) {
     if (saveGame) {
-      const serializedWorld = serializeWorld(this.world, this.map, this.log, this.gameStats)
+      const serializedWorld = serializeWorld(
+        this.world,
+        this.map,
+        this.log,
+        this.gameStats,
+      )
 
       try {
         localStorage.setItem('rogue-save', JSON.stringify(serializedWorld))
-      } catch (ex) {
-        console.log(ex)
-      }
+      } catch (_ex) {}
 
       this.manager.setNextScreen(new MainMenuScreen(this.display, this.manager))
     } else {
-      this.manager.setNextScreen(new GameOverScreen(this.display, this.manager, this.gameStats))
+      this.manager.setNextScreen(
+        new GameOverScreen(this.display, this.manager, this.gameStats),
+      )
     }
   }
 

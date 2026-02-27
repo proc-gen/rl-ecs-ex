@@ -77,6 +77,7 @@ export class RenderMapSystem implements RenderSystem, UpdateSystem {
             p,
             light.intensity,
           )
+
           this.map.tiles[p.x][p.y].lighting = AddColors(
             this.map.tiles[p.x][p.y].lighting,
             ConstMultiplyColor(light.color, attenuation),
