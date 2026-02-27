@@ -6,7 +6,6 @@ import {
 import type { Vector2, WeightMap } from '../../types'
 import { Sector } from '../containers'
 import { Map } from '../map'
-import type { Tile } from '../tile'
 
 export interface Generator {
   generate(): void
@@ -16,12 +15,12 @@ export interface Generator {
   isValid(): boolean
 }
 
-export const clearMap = (map: Map, defaultTile: Tile = WALL_TILE) => {
+export const clearMap = (map: Map) => {
   map.tiles = new Array(map.width)
   for (let x = 0; x < map.width; x++) {
     const col = new Array(map.height)
     for (let y = 0; y < map.height; y++) {
-      col[y] = { ...defaultTile }
+      col[y] = { ...WALL_TILE }
     }
     map.tiles[x] = col
   }

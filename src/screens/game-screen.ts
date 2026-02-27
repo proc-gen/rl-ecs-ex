@@ -43,7 +43,7 @@ import {
   DefaultGeneratorV2,
   DungeonGenerator,
   MazeGenerator,
-  RecursiveSubdivisionGenerator,
+  RecursiveSubdivisionGeneratorV2,
   type Generator,
 } from '../map/generators'
 import type { GameStats, HandleInputInfo, Vector2 } from '../types'
@@ -219,12 +219,13 @@ export class GameScreen extends Screen {
     let success = false
     do {
       generator.generate()
-      if (
-        map.getPath(
+      const path = map.getPath(
           generator.playerStartPosition(),
           generator.stairsLocation(),
           true,
-        ).length > 0 &&
+        )
+        console.log(path)
+      if (path.length > 0 &&
         generator.isValid()
       ) {
         success = true
@@ -297,18 +298,21 @@ export class GameScreen extends Screen {
         12,
       )
     } else {
-      return new RecursiveSubdivisionGenerator(
+      return new RecursiveSubdivisionGeneratorV2(
         this.world,
         map,
         maxMonsters,
         maxItems,
-        { x: maxRooms * 6, y: maxRooms * 6 },
-        maxRooms * 7,
-        2,
-        6,
-        2,
-        6,
-        50,
+        {
+          x: maxRooms * 3,
+          y: maxRooms * 3,
+        },
+        -1,
+        3,
+        8,
+        3,
+        8,
+        25,
       )
     }
   }

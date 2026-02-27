@@ -36,6 +36,9 @@ export class RenderMapSystem implements RenderSystem, UpdateSystem {
       const col = this.map.tiles[x]
       for (let y = 0; y < col.length; y++) {
         const tile = col[y]
+        if(tile === undefined){
+          console.log(`${x}, ${y}`)
+        }
         tile.lighting = Colors.Ambient
       }
     }
