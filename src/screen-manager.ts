@@ -1,10 +1,12 @@
 import { Display } from 'rot-js'
 import { MainMenuScreen, Screen } from './screens'
 import { DisplayValues } from './constants/display-values'
+import electro from '../src/Electro_1.mp3'
 
 export class ScreenManager {
   display: Display
   private currentScreen: Screen
+  music: HTMLAudioElement
 
   constructor() {
     this.display = new Display({
@@ -15,6 +17,9 @@ export class ScreenManager {
 
     this.currentScreen = new MainMenuScreen(this.display, this)
 
+    this.music = new Audio(electro)
+    this.music.volume = 0.25
+
     window.addEventListener('keydown', (e) => this.keyDown(e))
     window.addEventListener('mousemove', (e) => this.mouseMove(e))
     window.addEventListener('wheel', (e) => this.mouseMove(e))
@@ -22,6 +27,9 @@ export class ScreenManager {
 
   keyDown(event: KeyboardEvent) {
     event.preventDefault()
+    if(this.music.paused){
+      this.music.play()
+    }
     this.currentScreen.keyDown(event)
   }
 
